@@ -1,0 +1,158 @@
+.roomBackground {
+  height: 100svh;
+  width: 100vw;
+  background: url('/assets/backgrounds/room2-bg.png') center center / cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  overflow: hidden;
+  color: var(--color-text);
+  position: relative; /* required for HUD positioning */
+}
+
+.contentWrapper {
+  display: flex;
+  flex-direction: row; /* side by side */
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1000px;
+  padding: 1rem;
+  gap: 2rem;
+}
+
+/* Left side: champions */
+.leftSide {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 0 0 40%; /* 40% width */
+  gap: 1.3rem;
+  margin-left: 80px;
+  margin-top: 30px;
+}
+
+/*Used for dead state positioning hero altering*/
+.heroesContainer {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+}
+.heroesContainer.dead {
+  gap: 2rem;
+  margin-left: 2.5rem !important; /* Shift both to the right */
+  position: fixed;
+}
+
+
+/* Right side: heads */
+.rightSide {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex: 0 0 40%;
+  margin-top: -3rem;
+}
+
+/* Heads container now relative, fixed size for positioning */
+.headsGrid {
+  position: relative;
+  width: 280px;  /* enough space for 2 heads side by side with gap */
+  height: 280px; /* enough space for 2 rows */
+  margin-bottom: 1.5rem;
+}
+
+/* Absolutely positioned head buttons with offsets and rotation */
+button.headButton {
+  position: absolute;
+  background: none !important;
+  border: none !important;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+/* Positioning + rotation for each head */
+.headButton:nth-child(1) {
+  top: -10px;
+  left: -50px;
+  transform: rotate(16deg);
+}
+
+.headButton:nth-child(2) {
+  top: -10px;
+  left: 200px;
+  transform: rotate(-8deg);
+}
+
+.headButton:nth-child(3) {
+  top: 55px;
+  left: 85px;
+  transform: rotate(-18deg);
+}
+
+.headButton:nth-child(4) {
+  top: 145px;
+  left: 190px;
+}
+
+.headButton:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.headButton:disabled {
+  cursor: not-allowed;
+}
+
+.headButton img {
+  width: 140px;   /* smaller size, adjust as needed */
+  height: auto;  /* keep aspect ratio */
+  display: block; /* remove inline spacing issues */
+}
+.headButton {
+  padding: 0.25rem; /* reduce padding */
+  width: 140px;       /* make button size match image */
+  height: auto;
+}
+
+
+/* Glow heads when playing sound */
+.glow img {
+  filter: drop-shadow(0 0 6px var(--color-ember))
+          drop-shadow(0 0 12px var(--color-ember));
+  animation: glowPulse 0.8s ease forwards;
+}
+
+@keyframes glowPulse {
+  0% {
+    filter: drop-shadow(0 0 0px var(--color-ember));
+  }
+  50% {
+    filter: drop-shadow(0 0 12px var(--color-ember))
+            drop-shadow(0 0 18px var(--color-ember));
+  }
+  100% {
+    filter: drop-shadow(0 0 0px var(--color-ember));
+  }
+}
+
+.redFlash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 0, 0, 0.3);
+  z-index: 5000;
+  pointer-events: none;
+  animation: flashFade 0.3s ease;
+}
+
+@keyframes flashFade {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+

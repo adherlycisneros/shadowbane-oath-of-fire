@@ -1,0 +1,43 @@
+.enemyHUDContainer {
+  position: fixed;
+  top: 1rem;
+  right: 2.5rem;
+  width: 240px; /* match visual width to single hudEntry width */
+  max-width: 90vw;
+  background: rgba(20, 10, 10, 0.6); /* same background as hudEntry */
+  border: 1px solid #ff7a00;
+  box-shadow: 0 0 6px 1px #ff8c0059;
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  color: var(--color-text);
+  font-family: 'Quintessential', serif;
+  z-index: 4000;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* center name and health bar */
+  gap: 0.3rem;
+  justify-content: center;
+}
+
+.enemyName {
+  font-size: 0.9rem; /* match hudName */
+  font-weight: bold;
+  text-align: center;
+  text-shadow: 0 0 3px var(--color-ember);
+  color: var(--color-text);
+}
+
+.healthBarContainer {
+  width: 100%;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.healthBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff3c00, #ff7a00);
+  transition: width 0.3s ease-in-out;
+}

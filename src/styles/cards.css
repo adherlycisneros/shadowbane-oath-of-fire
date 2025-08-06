@@ -1,0 +1,49 @@
+/* JUST RELEVANT TO IMAGES OF CHAMPIONS AND ENEMIES ENEMYCARD AND CHAMPIONCARD*/
+.cardContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin: 0.4rem;
+  animation: ember-flicker 3s infinite alternate;
+
+  /* Removed background, border, border-radius, padding, box-shadow */
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  max-width: 200px; /* keep size constraints */
+}
+
+.cardContainer.small .spriteImage {
+  width: 180px;
+}
+
+.cardContainer.large .spriteImage {
+  width: 210px; /* large size */
+}
+
+.cardContainer.xlarge .spriteImage {
+  width: 280px; /* xlarge size */
+}
+
+/* DEAD HEROES POSITIONING */
+.spriteImage.dead-chxospixie {
+  transform: translateY(100px) rotate(25deg);
+  width: 170px !important;
+}
+
+.spriteImage.dead-darklord {
+  transform: translateY(30px);
+  width: 170px !important;
+}
+/*Dead hero positioning end*/
+
+.spriteImage {
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+
+

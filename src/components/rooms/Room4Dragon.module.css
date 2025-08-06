@@ -1,0 +1,56 @@
+.roomBackground1 {
+  min-height: 100dvh;
+  width: 100vw;
+  background: url('/assets/backgrounds/room4-bg1.png') center right / cover no-repeat;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 2rem;
+}
+
+.roomBackground2 {
+  min-height: 100dvh;
+  width: 100vw;
+  background: url('/assets/backgrounds/room4-bg2.png') center right / cover no-repeat;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 2rem;
+}
+
+.actionsContainer {
+  background-color: #140a0af7 !important;
+  justify-content: space-between !important;
+}
+
+.actionButton {
+  box-shadow: 0 0 6px 1px rgba(255, 140, 0, 0.35) !important;
+  border: 1px solid #ff7a00 !important;
+}
+
+.battlefield {
+  margin-bottom: 2.5rem !important;
+}
+
+.leftSide {
+  margin-bottom: 6rem !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

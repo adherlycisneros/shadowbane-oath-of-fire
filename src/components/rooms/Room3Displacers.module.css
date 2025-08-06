@@ -1,0 +1,160 @@
+.roomBackground {
+  min-height: 100dvh;
+  width: 100vw;
+  background: url('/assets/backgrounds/room3-bg.png') center center / cover no-repeat;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  box-sizing: border-box;
+  color: var(--color-text);
+}
+
+.battlefield {
+  display: flex;
+  width: 100%;
+  max-width: 960px;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.leftSide {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.floatingDamage {
+  position: absolute;
+  color: #ff3b3b;
+  font-weight: bold;
+  font-size: 1.5rem;
+  pointer-events: none;
+  animation: floatUpFade 2s ease forwards;
+  user-select: none;
+}
+
+@keyframes floatUpFade {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+}
+
+
+.rightSide {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.actionsContainer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  padding: 0.4rem 1.5rem 0.8rem;
+  display: flex;
+  justify-content: center;
+  background-color: #140a0a99;
+  z-index: 5000;
+  max-height: 25vh; /* compact height */
+  box-sizing: border-box;
+}
+
+.actionsInnerRow {
+  display: flex;
+  width: 100%;
+  max-width: 960px;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 10px;
+}
+
+.actionGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 0; /* allow flex shrink */
+}
+
+.actionGroup > h4 {
+  margin-top: 0; /* remove top margin */
+  margin-bottom: 0.3rem; /* slight spacing below title */
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: var(--color-text);
+  text-shadow: 0 0 3px var(--color-ember);
+  text-align: center;
+}
+
+.actionButtonsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.actionButton {
+  background: linear-gradient(to bottom, #502000, #2a0d0d);
+  color: #ffdf9e;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ff7a00;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  text-align: center;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+
+  width: 200px !important;
+  height: 2.8rem !important;
+
+  /* Subtle torch glow and flicker */
+  text-shadow: 0 0 4px rgba(255, 140, 0, 0.4);
+  box-shadow: 0 0 6px 1px rgba(255, 140, 0, 0.35);
+}
+
+/*Action button disabnled when not players turn*/
+.actionButton:disabled,
+.disabled {
+  filter: grayscale(100%);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+/* Red flash animation when champion is hit */
+.redFlash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 0, 0, 0.3);
+  z-index: 5000;
+  pointer-events: none;
+  animation: flashFade 0.3s ease;
+}
+
+@keyframes flashFade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
