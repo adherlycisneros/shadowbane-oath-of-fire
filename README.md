@@ -1,12 +1,61 @@
-# React + Vite
+# 🧙‍♂️ "Shadowbane: Oath and Fire" -- A Fantasy PWA Quest
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A mobile-first, turn-based fantasy adventure built in React — featuring unique room-based challenges, character transformations, stamina-based combat, and a final boss encounter. Designed as a progressive web app (PWA), it's installable and offline-ready.
 
-Currently, two official plugins are available:
+## 📜 Game Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Join **Chxospixie**, a fierce tiefling warrior princess, and **Darklord**, a half-orc paladin, on a magical journey through a mysterious dungeon. Each room offers a different mechanic:
 
-## Expanding the ESLint configuration
+- Room 1: Cinematic intro with whispered prophecy
+- Room 2: Memory-based puzzle with cursed floating heads
+- Room 3: Turn-based combat with stamina management
+- Room 4: Sleeping dragon encounter with branching outcomes
+- Room 5: Whisper phrase logic with polymorph risk
+- Room 6: Final boss fight against a D&D-style **Beholder**
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Polymorph consequences, attack animations, and responsive design make this game immersive and dynamic.
+
+---
+
+## 🚀 Features
+
+- 🧠 Unique room logic per stage
+- 🧝 Custom characters with idle/attack poses & polymorph states
+- ⚔️ Turn-based stamina combat system
+- 🐸 Polymorph mechanic affecting gameplay across rooms
+- 🐉 Dynamic enemy AI (e.g., dragon state, Beholder rays)
+- 🧩 Puzzles and interaction without alerts
+- 📱 Fully responsive + PWA support (installable on phone)
+- 🌙 Fantasy-themed art & animations
+
+---
+
+## 🛠️ Tech Stack
+
+- **React** (Vite or CRA)
+- **JavaScript / JSX**
+- **CSS Modules** for scoped styles
+- **Service Workers** for offline support
+- **Mobile-first design**
+- **Modular architecture** (rooms, cards, characters split logically)
+
+---
+
+## 🧑‍💻 Running Locally
+
+1. **Clone the repo**
+
+```bash
+git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+cd YOUR_REPO_NAME
+
+2. **Install Dependencies**
+npm install
+
+3. **Run the development sever**
+npm run dev 
+# or if using CRA
+npm start
+
+4. **Build for production**
+npm run build
