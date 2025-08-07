@@ -52,7 +52,11 @@ export default function Room4Dragon({
     setActionLog([text]);
     setTimeout(() => {
       setActionLog([]);
+
+      //Only continue if enemy defated 
+      if (enemyDefeated) {
       setCanContinue(true);
+      }
     }, delay);
   };
 
@@ -183,7 +187,7 @@ export default function Room4Dragon({
       : "/assets/sprites/enemies/room4/dragon-idle.png";
 
 //RETURN FOR COMBAT VERSION
-  if (dragonAwakened && enemyHealth > 0) {
+  if (dragonAwakened && !enemyDefeated) {
     return (
       <div className={`${styles.roomBackground2} fullscreen-fit`}>
         {showRedFlash && <div className={shared.redFlash} />}
@@ -275,7 +279,7 @@ export default function Room4Dragon({
                         disabled={isDisabled}
                         onClick={() => {
                           if (staminaBlocked) {
-                            logAction("Chxospixie is too exhausted!");
+                            showAction("Chxospixie is too exhausted!");
                           } else {
                             dealDamage(move.damage, "Chxospixie", move.name);
                             if (move.staminaCost) {
@@ -295,6 +299,14 @@ export default function Room4Dragon({
         )}
       </div>
     );
+  }
+
+  if (enemyDefeated) {
+    return (
+      <div className={`${styles.roomBackground2} fullscreen-fit`}>
+        
+      </div>
+    )
   }
 
   return (

@@ -30,7 +30,7 @@
 
 /* DEAD HEROES POSITIONING */
 .spriteImage.dead-chxospixie {
-  transform: translateY(100px) rotate(25deg);
+  transform: translateY(60px) rotate(25deg);
   width: 170px !important;
 }
 

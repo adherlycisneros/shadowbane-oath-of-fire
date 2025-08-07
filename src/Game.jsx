@@ -374,6 +374,7 @@ export default function Game() {
                   darklordHealth={darklordHealth}
                   chxospixieHealth={chxospixieHealth}
                   chxospixieStamina={chxospixieStamina}
+                  setChxospixieStamina={setChxospixieStamina}
                   setDarklordHealth={setDarklordHealth}
                   setChxospixieHealth={setChxospixieHealth}
                   dragonAwakened={dragonAwakened}
