@@ -32,7 +32,6 @@ export default function Room4Dragon({
   const [darklordPose, setDarklordPose] = useState("idle");
   const [chxospixiePose, setChxospixiePose] = useState("idle");
 
-  const [actionsDisabled, setActionsDisabled] = useState(false);
   const [floatingDamage, setFloatingDamage] = useState(null);
 
   const stateKey = isPolymorphed ? "polymorphed" : "normal";
@@ -55,7 +54,7 @@ export default function Room4Dragon({
 
       //Only continue if enemy defated 
       if (enemyDefeated) {
-      setCanContinue(true);
+        setCanContinue(true);
       }
     }, delay);
   };
@@ -155,7 +154,7 @@ export default function Room4Dragon({
     if (targets.includes(attacker)) {
       target = attacker;
     } else {
-    // attacker dead or invalid, pick the other alive target
+      // attacker dead or invalid, pick the other alive target
       target = targets.find(t => t !== attacker);
     }
 
@@ -164,11 +163,11 @@ export default function Room4Dragon({
     const damage = Math.floor(Math.random() * 11) + 20;
     //const moves = [
     //  (dmg) => `The Amethyst Dragon breathes Crystal Breath for ${dmg} damage!`,
-   //   (dmg) => `The Amethyst Dragon slashes with Tail Swipe for ${dmg} damage!`,
-   //   (dmg) => `The Amethyst Dragon emits a Psychic Roar causing ${dmg} damage!`,
+    //   (dmg) => `The Amethyst Dragon slashes with Tail Swipe for ${dmg} damage!`,
+    //   (dmg) => `The Amethyst Dragon emits a Psychic Roar causing ${dmg} damage!`,
     //];
-  //  const moveDescription = moves[Math.floor(Math.random() * moves.length)](damage);
-   // const logEntry = `${moveDescription} (${target} takes the hit!)`;
+    //  const moveDescription = moves[Math.floor(Math.random() * moves.length)](damage);
+    // const logEntry = `${moveDescription} (${target} takes the hit!)`;
 
     if (target === "Darklord") {
       setDarklordHealth((prev) => Math.max(prev - damage, 0));
@@ -181,12 +180,12 @@ export default function Room4Dragon({
     }
   };
 
-  const enemySpritePath = 
+  const enemySpritePath =
     enemyPose === "attack"
       ? "/assets/sprites/enemies/room4/dragon-attack.png"
       : "/assets/sprites/enemies/room4/dragon-idle.png";
 
-//RETURN FOR COMBAT VERSION
+  //RETURN FOR COMBAT VERSION
   if (dragonAwakened && !enemyDefeated) {
     return (
       <div className={`${styles.roomBackground2} fullscreen-fit`}>
@@ -263,15 +262,15 @@ export default function Room4Dragon({
                     </button>
                   ))}
                 </div>
-              </div>  
-          
+              </div>
+
               <div className={shared.actionGroup}>
                 <h4>{chxospixie.displayName}'s Actions:</h4>
                 <div className={shared.actionButtonsRow}>
                   {chxospixie.moves.map((move) => {
                     const staminaBlocked = move.staminaCost && chxospixieStamina < move.staminaCost;
                     const isDisabled = chxospixieDead || actionDisabled || staminaBlocked;
-          
+
                     return (
                       <button
                         key={move.name}
@@ -304,7 +303,7 @@ export default function Room4Dragon({
   if (enemyDefeated) {
     return (
       <div className={`${styles.roomBackground2} fullscreen-fit`}>
-        
+
       </div>
     )
   }
@@ -312,21 +311,21 @@ export default function Room4Dragon({
   return (
     <div className={`${styles.roomBackground1}`}>
 
-    <div className={shared.battlefield}>
-          <div className={`${shared.leftSide} ${styles.leftSide}`}>
-            <ChampionCard
-              championKey="Darklord"
-              pose= "idle"
-              size="large"
-            />
+      <div className={shared.battlefield}>
+        <div className={`${shared.leftSide} ${styles.leftSide}`}>
+          <ChampionCard
+            championKey="Darklord"
+            pose="idle"
+            size="large"
+          />
 
-            <ChampionCard
-              championKey="Chxospixie"
-              pose="idle"
-              size="large"
-            />
-          </div>
+          <ChampionCard
+            championKey="Chxospixie"
+            pose="idle"
+            size="large"
+          />
         </div>
+      </div>
 
 
       <div className={`${shared.actionsContainer} ${styles.actionsContainer}`}>
@@ -336,30 +335,30 @@ export default function Room4Dragon({
         </h4>
         <button
           className={styles.actionButton}
-          disabled={actionsDisabled || darklordDead}
+          disabled={actionDisabled || darklordDead}
           onClick={() => {
             healOne("Darklord");
-            setActionsDisabled(true);
+            setActionDisabled(true);
           }}
         >
           Heal Darklord (+50)
         </button>
         <button
           className={styles.actionButton}
-          disabled={actionsDisabled || chxospixieDead}
+          disabled={actionDisabled || chxospixieDead}
           onClick={() => {
             healOne("Chxospixie");
-            setActionsDisabled(true);
+            setActionDisabled(true);
           }}
         >
           Heal Chxospixie (+50)
         </button>
         <button
           className={styles.actionButton}
-          disabled={actionsDisabled}
+          disabled={actionDisabled}
           onClick={() => {
             attemptDualHeal();
-            setActionsDisabled(true);
+            setActionDisabled(true);
           }}
         >
           Heal both.

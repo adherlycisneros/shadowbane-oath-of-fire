@@ -5,6 +5,7 @@ import EnemyCard from "../EnemyCard";
 import ChampionHUD from "../ChampionHUD";
 import ChampionCard from "../ChampionCard";
 import styles from "./Room6Final.module.css"
+import shared from "./Room3Displacers.module.css";
 
 
 const beholderImages = {
@@ -15,33 +16,54 @@ const beholderImages = {
 export default function Room6Final({
     darklordHealth,
     chxospixieHealth,
+    chxospixieStamina,
     setDarklordHealth,
     setChxospixieHealth,
-    chxospixieStamina,
     setChxospixieStamina,
-    isPolymorphed,
     setActionLog,
+    dragonAwakened,
+    setDragonAwakened,
+    setCanContinue,
+    isPolymorphed,
     darklordDead,
     chxospixieDead,
-    setCanContinue,
     onFinish
 }) {
-    const [beholderHealth, setBeholderHealth] = useState(200);
+    const [enemyHealth, setEnemyHealth] = useState(300);
+    const [enemyDefeated, setEnemyDefeated] = useState(false);
+    const [showRedFlash, setShowRedFlash] = useState(false);
+    const [enemyPose, setEnemyPose] = useState("idle");
+    const [actionDisabled, setActionDisabled] = useState(false);
+    const [darklordPose, setDarklordPose] = useState("idle");
+    const [chxospixiePose, setChxospixiePose] = useState("idle");
+    const [floatingDamage, setFloatingDamage] = useState(null);
     const [playerTurn, setPlayerTurn] = useState(true);
     const [sleepTargets, setSleepTargets] = useState({ Darklord: false, Chxospixie: false });
     const [fearTargets, setFearTargets] = useState({ Darklord: 1, Chxospixie: 1 });
     const [victoryMessage, setVictoryMessage] = useState("");
     const [showTreasure, setShowTreasure] = useState(false);
 
-    // Action Log helper
-    const logAction = (entry) => {
-        setActionLog((prev) => [entry, ...prev.slice(0, 1)]);
+    const stateKey = isPolymorphed ? "polymorphed" : "normal";
+    const darklord = characterStates.Darklord[stateKey];
+    const chxospixie = characterStates.Chxospixie[stateKey];
+
+    const isGameOver = darklordDead && chxospixieDead;
+    const enemyMaxHealth = 300;
+
+    const triggerRedFlash = () => {
+        setShowRedFlash(true);
+        setTimeout(() => setShowRedFlash(false), 300);
     };
 
-    // Reset log on room entry
+    const logAction = (entry) => {
+        setActionLog([entry]);
+    };
+
     useEffect(() => {
         setActionLog([]);
     }, [setActionLog]);
+
+    ////WAS UPDATING TO MATCH OTHER COMBAT ROOMS, STOPPED UPDATING HERE, ALL CODE BELOW THIS IS OLD//
 
     // Dodge helper
     const playerDodgeChance = 0.2;

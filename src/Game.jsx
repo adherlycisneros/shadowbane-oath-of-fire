@@ -280,12 +280,12 @@ export default function Game() {
 
   return (
     <>
-      {currentRoom.id !== 1 && ( 
+      {currentRoom.id !== 1 && (
         <ChampionHUD
           darklordHealth={darklordHealth}
           chxospixieHealth={chxospixieHealth}
           chxospixieStamina={chxospixieStamina}
-          chxospixieMaxStamina={60} 
+          chxospixieMaxStamina={60}
           darklordDead={darklordDead}
           chxospixieDead={chxospixieDead}
           isPolymorphed={isPolymorphed}
@@ -295,7 +295,7 @@ export default function Game() {
         <TitleScreen onStart={startGame} />
       ) : (
         <div className="game-container">
-          
+
           {/* Room Intro Overlay */}
           {gameStarted && showRoomIntro && currentRoom.id >= 1 && currentRoom.id <= 6 && (
             <div className="room-intro-overlay">
@@ -341,8 +341,8 @@ export default function Game() {
                   setDarklordHealth={setDarklordHealth}
                   chxospixieStamina={chxospixieStamina}
                   setChxospixieHealth={setChxospixieHealth}
-                  darklordHealth={darklordHealth}      
-                  chxospixieHealth={chxospixieHealth}    
+                  darklordHealth={darklordHealth}
+                  chxospixieHealth={chxospixieHealth}
                   darklordDead={darklordDead}
                   chxospixieDead={chxospixieDead}
                   setActionLog={setActionLog}
@@ -392,7 +392,17 @@ export default function Game() {
                   whisperedPhrase={whisperedPhrase}
                   setCanContinue={setCanContinue}
                   setIsPolymorphed={setIsPolymorphed}
+                  isPolymorphed={isPolymorphed}
                   setActionLog={setActionLog}
+                  darklordDead={darklordDead}
+                  chxospixieDead={chxospixieDead}
+                  darklordHealth={darklordHealth}
+                  chxospixieHealth={chxospixieHealth}
+                  chxospixieStamina={chxospixieStamina}
+                  setChxospixieStamina={setChxospixieStamina}
+                  setDarklordHealth={setDarklordHealth}
+                  setChxospixieHealth={setChxospixieHealth}
+
                 />
               )}
               {currentRoom.id === 6 && (

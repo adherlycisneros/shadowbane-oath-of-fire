@@ -2,7 +2,7 @@
 .roomBackground {
   min-height: 100dvh;
   width: 100vw;
-  background: url('/assets/backgrounds/room6-final.png') center/cover no-repeat;
+  background: url('/assets/backgrounds/room5-bg.png') center / cover no-repeat;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -10,15 +10,3 @@
   justify-content: flex-end;
   padding-bottom: 2rem;
 }
-
-/* Polymorph or Room-Specific Sprite Adjustments */
-.championSpritePolymorph {
-  /* Add special filters, size adjustments, or animations for polymorph forms */
-}
-
-/* Room-Specific Enemy Adjustments */
-.enemySpriteVariant {
-  /* Example: special effects for enemies in this room */
-}
-
-/* Unique Puzzle or UI Layouts */
