@@ -119,7 +119,7 @@ You must now continue your quest in this unfortunate form...`
           value={input}
           onChange={(e) => {
             setInput(e.target.value);
-            setFeedback(null);
+            setActionLog(null);
           }}
           disabled={isLocked}
         />

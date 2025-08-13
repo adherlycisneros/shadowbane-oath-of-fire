@@ -1,8 +1,7 @@
-/* Room Background (unique per room) */
-.roomBackground {
+.roomBackground1 {
   min-height: 100dvh;
   width: 100vw;
-  background: url('/assets/backgrounds/room6-final.png') center/cover no-repeat;
+  background: url('/assets/backgrounds/room6-bg1.png') center/cover no-repeat;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -11,14 +10,22 @@
   padding-bottom: 2rem;
 }
 
-/* Polymorph or Room-Specific Sprite Adjustments */
-.championSpritePolymorph {
-  /* Add special filters, size adjustments, or animations for polymorph forms */
+.roomBackground2 {
+  min-height: 100dvh;
+  width: 100vw;
+  background: url('/assets/backgrounds/room6-bg1.png') center/cover no-repeat;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 2rem;
 }
 
-/* Room-Specific Enemy Adjustments */
-.enemySpriteVariant {
-  /* Example: special effects for enemies in this room */
+.battlefield {
+  margin-bottom: 2.5rem !important;
 }
 
-/* Unique Puzzle or UI Layouts */
+.leftSide {
+  margin-bottom: 6rem !important;
+}
