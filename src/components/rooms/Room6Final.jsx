@@ -1,14 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { characterStates } from "../../data/characterData";
 import EnemyHUD from "../EnemyHUD";
 import EnemyCard from "../EnemyCard";
 import ChampionHUD from "../ChampionHUD";
 import ChampionCard from "../ChampionCard";
-import styles from "./Room6Final.module.css"
+import styles from "./Room6Final.module.css";
 import shared from "./Room3Displacers.module.css";
-
-
-
 
 export default function Room6Final({
     darklordHealth,
@@ -33,8 +30,6 @@ export default function Room6Final({
     const [darklordPose, setDarklordPose] = useState("idle");
     const [chxospixiePose, setChxospixiePose] = useState("idle");
     const [floatingDamage, setFloatingDamage] = useState(null);
-    const [sleepTargets, setSleepTargets] = useState({ Darklord: false, Chxospixie: false });
-    const [fearTargets, setFearTargets] = useState({ Darklord: 1, Chxospixie: 1 });
     const [victoryMessage, setVictoryMessage] = useState("");
     const [showTreasure, setShowTreasure] = useState(false);
 
@@ -85,9 +80,14 @@ export default function Room6Final({
         setTimeout(() => setFloatingDamage(null), 1500);
     };
 
-    // Dodge helper
-    const playerDodgeChance = 0.2;
-    const beholderDodgeChance = 0.1;
+    // Helper to safely spend stamina
+    const spendStamina = (cost) => {
+        if (!cost) return;
+        setChxospixieStamina(s => Math.max(s - cost, 0));
+    };
+
+    // Dodge chance (enemy only)
+    const ENEMY_DODGE_CHANCE = 0.3;
 
     const enemySpritePath =
         enemyPose === "attack"
@@ -96,44 +96,58 @@ export default function Room6Final({
 
     // BEHOLDER ATTACKS
     const beholderAttacks = [
-        {
-            name: "Disintegration Ray",
-            baseDamage: 30,
-            effect: null,
-        },
-        {
-            name: "Sleep Ray",
-            baseDamage: 0,
-            effect: "sleep",
-            description: () => `Sleep for 1 turn`,
-        },
-        {
-            name: "Fear Ray",
-            baseDamage: 0,
-            effect: "fear",
-            description: () => `Target feared`,
-            duration: 1
-        }
+        { name: "Disintegration Ray", baseDamage: 8 },
+        { name: "Necrotic Beam", baseDamage: 14 },
+        { name: "Force Blast", baseDamage: 20 }
     ];
+
+    // FIX: useRef (was useState before)
+    const lastAttackerRef = useRef(null);
+
+    // Helper to show floating damage (extend existing showDamage if you have one)
+    // Assume existing setFloatingDamage({ value, target }) pattern
+    const showEnemyDodge = () => {
+        setFloatingDamage({ value: 0, target: "enemy", dodge: true });
+        setTimeout(() => setFloatingDamage(null), 1500);
+    };
 
     // PLAYER ATTACK
     const dealDamage = (damage, attacker) => {
         if (enemyDefeated || isGameOver || actionDisabled) return;
 
+        lastAttackerRef.current = attacker;
         setActionDisabled(true);
         const poseSetter = attacker === "Darklord" ? setDarklordPose : setChxospixiePose;
-        const isDead = attacker === "Darklord" ? darklordDead : chxospixieDead;
-
+        const dead = attacker === "Darklord" ? darklordDead : chxospixieDead;
         poseSetter("attack");
 
         setTimeout(() => {
-            poseSetter(isDead ? "dead" : "idle");
+            poseSetter(dead ? "dead" : "idle");
 
-            setEnemyHealth((prev) => {
-                const newHealth = Math.max(prev - damage, 0);
+            // Enemy dodge roll
+            if (Math.random() < ENEMY_DODGE_CHANCE) {
+                showEnemyDodge();
+                // Still lets enemy counter
+                setTimeout(() => {
+                    setEnemyPose("attack");
+                    setTimeout(() => {
+                        enemyAttack(attacker);
+                        setEnemyPose("idle");
+                        setActionDisabled(false);
+                    }, 1000);
+                }, 2000);
+                return;
+            }
+
+            setEnemyHealth(prev => {
+                const newHP = Math.max(prev - damage, 0);
                 showDamage(damage, "enemy");
-
-                if (newHealth > 0) {
+                if (newHP <= 0) {
+                    // defeat flow
+                    setEnemyDefeated(true);
+                    setCanContinue(true);
+                    setActionDisabled(false);
+                } else {
                     setTimeout(() => {
                         setEnemyPose("attack");
                         setTimeout(() => {
@@ -142,71 +156,41 @@ export default function Room6Final({
                             setActionDisabled(false);
                         }, 1000);
                     }, 2000);
-                } else {
-                    setActionDisabled(false);
                 }
-                return newHealth;
+                return newHP;
             });
         }, 1000);
     };
 
-    // ENEMY ATTACK
+    // ENEMY ATTACK (no sleep)
     const enemyAttack = (attacker) => {
         if (enemyDefeated || isGameOver) return;
 
-        // Determine valid targets
-        let targets = [];
-        if (!darklordDead && !sleepTargets.Darklord) targets.push("Darklord");
-        if (!chxospixieDead && !sleepTargets.Chxospixie) targets.push("Chxospixie");
-        if (targets.length === 0) return; // no one to attack
-
-        // Attack the attacker if alive, otherwise the other target
-        let target;
-        if (targets.includes(attacker)) {
-            target = attacker;
-        } else {
-            // attacker dead or invalid, pick the other alive target
-            target = targets.find(t => t !== attacker);
+        // Target last attacker if alive, else the other
+        let target = attacker;
+        const isDead = t => (t === "Darklord" ? darklordDead : chxospixieDead);
+        if (isDead(target)) {
+            target = target === "Darklord" ? "Chxospixie" : "Darklord";
+            if (isDead(target)) return;
         }
 
-        if (!target) return; // safety check
-
-        // Pick attack randomly
         const attack = beholderAttacks[Math.floor(Math.random() * beholderAttacks.length)];
+        const dmg = attack.baseDamage;
 
-        if (attack.effect === "sleep") {
-            setSleepTargets((prev) => ({ ...prev, [target]: true }));
-            logAction(`${attack.description()}`);
-        } else if (attack.effect === "fear") {
-            setFearTargets((prev) => ({ ...prev, [target]: 0.5 }));
-            logAction(`${attack.description()}`);
-            // Remove after 2 turns
-            setTimeout(() => {
-                setFearTargets((prev) => ({ ...prev, [target]: 1 }));
-                logAction(`${target} overcomes Fear`);
-            }, 6000);
+        if (target === "Darklord") {
+            setDarklordHealth(prev => Math.max(prev - dmg, 0));
+            triggerRedFlash();
+            showDamage(dmg, "Darklord");
         } else {
-            const damage = attack.baseDamage;
-            if (target === "Darklord") {
-                setDarklordHealth((prev) => Math.max(prev - damage, 0));
-                triggerRedFlash();
-                showDamage(damage, "Darklord");
-            } else {
-                setChxospixieHealth((prev) => Math.max(prev - damage, 0));
-                triggerRedFlash();
-                showDamage(damage, "Chxospixie");
-            }
-
-            // Clear sleep effect for whoever just lost turn
-            if (sleepTargets[target]) {
-                setSleepTargets((prev) => ({ ...prev, [target]: false }));
-            }
-        };
+            setChxospixieHealth(prev => Math.max(prev - dmg, 0));
+            triggerRedFlash();
+            showDamage(dmg, "Chxospixie");
+        }
     };
 
     //--------------- UI RETURN --------------------------------------------//
     return (
-        <div className={`${styles.roomBackground2} fullscreen-fit`}>
+        <div className={`${styles.roomBackground} fullscreen-fit`}>
             {victoryMessage && (
                 <div>
                     <p>{victoryMessage}</p>
@@ -279,44 +263,56 @@ export default function Room6Final({
                 </div>
 
             ) : (
-                <div className={`${styles.roomBackground1} fullscreen-fit`}>
+                <div className={`${styles.roomBackground} fullscreen-fit`}>
                     {showRedFlash && <div className={shared.redFlash} />}
 
                     <div className={`${shared.battlefield} ${styles.battlefield}`}>
                         <div className={`${shared.leftSide} ${styles.leftSide}`}>
-                            <ChampionCard
-                                championKey="Darklord"
-                                pose={darklordDead ? "dead" : darklordPose}
-                                isDead={darklordDead}
-                                isPolymorphed={isPolymorphed}
-                                size="large"
-                            />
-                            {floatingDamage?.target === "Darklord" && (
-                                <div className={shared.floatingDamage}>-{floatingDamage.value}</div>
-                            )}
+                            <div className={shared.championWrapper}>
+                                <ChampionCard
+                                    championKey="Darklord"
+                                    pose={darklordDead ? "dead" : darklordPose}
+                                    isDead={darklordDead}
+                                    isPolymorphed={isPolymorphed}
+                                    size="large"
+                                />
+                                {floatingDamage?.target === "Darklord" && (
+                                    <div className={`${shared.floatingDamage} ${floatingDamage.status ? shared.status : ""}`}>
+                                        {floatingDamage.status ? floatingDamage.value : `-${floatingDamage.value}`}
+                                    </div>
+                                )}
+                            </div>
 
-                            <ChampionCard
-                                championKey="Chxospixie"
-                                pose={chxospixieDead ? "dead" : chxospixiePose}
-                                isDead={chxospixieDead}
-                                isPolymorphed={isPolymorphed}
-                                size="large"
-                            />
-                            {floatingDamage?.target === "Chxospixie" && (
-                                <div className={shared.floatingDamage}>-{floatingDamage.value}</div>
-                            )}
+                            <div className={shared.championWrapper}>
+                                <ChampionCard
+                                    championKey="Chxospixie"
+                                    pose={chxospixieDead ? "dead" : chxospixiePose}
+                                    isDead={chxospixieDead}
+                                    isPolymorphed={isPolymorphed}
+                                    size="large"
+                                />
+                                {floatingDamage?.target === "Chxospixie" && (
+                                    <div className={`${shared.floatingDamage} ${floatingDamage.status ? shared.status : ""}`}>
+                                        {floatingDamage.status ? floatingDamage.value : `-${floatingDamage.value}`}
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div className={shared.rightSide}>
-                            <EnemyCard
-                                enemyName="Twin Displacer Beasts"
-                                spritePath={enemySpritePath}
-                                size="xlarge"
-                                isDead={enemyDefeated}
-                            />
-                            {floatingDamage?.target === "enemy" && (
-                                <div className={shared.floatingDamage}>-{floatingDamage.value}</div>
-                            )}
+                            <div className={shared.enemyWrapper}>
+                                <EnemyCard
+                                    enemyName="Twin Displacer Beasts"
+                                    spritePath={enemySpritePath}
+                                    size="xlarge"
+                                    isDead={enemyDefeated}
+                                />
+                                {floatingDamage?.target === "enemy" && (
+                                    <div className={`${shared.floatingDamage} ${floatingDamage.dodge ? shared.dodge : ""}`}>
+                                        {floatingDamage.dodge ? "Dodge" : `-${floatingDamage.value}`}
+                                    </div>
+                                )}
+                            </div>
                             <EnemyHUD
                                 enemyName="Twin Displacer Beasts"
                                 health={enemyHealth}
@@ -342,39 +338,51 @@ export default function Room6Final({
                                 <div className={shared.actionGroup}>
                                     <h4>{darklord.displayName}'s Actions:</h4>
                                     <div className={shared.actionButtonsRow}>
-                                        {darklord.moves.map((move) => (
-                                            <button
-                                                key={move.name}
-                                                className={`${shared.actionButton} ${actionDisabled || darklordDead ? styles.disabled : ""}`}
-                                                disabled={actionDisabled || darklordDead}
-                                                onClick={() => dealDamage(move.damage, "Darklord", move.name)}
-                                            >
-                                                {move.name}
-                                            </button>
-                                        ))}
+                                        {darklord.moves.map(move => {
+                                            const isDisabled = actionDisabled || darklordDead;
+                                            return (
+                                                <button
+                                                    key={move.name}
+                                                    className={`${shared.actionButton} ${isDisabled ? styles.disabled : ""}`}
+                                                    disabled={isDisabled}
+                                                    onClick={() => dealDamage(move.damage, "Darklord", move.name)}
+                                                >
+                                                    {move.name}
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
 
                                 <div className={shared.actionGroup}>
                                     <h4>{chxospixie.displayName}'s Actions:</h4>
                                     <div className={shared.actionButtonsRow}>
-                                        {chxospixie.moves.map((move) => {
+                                        {chxospixie.moves.map(move => {
                                             const staminaBlocked = move.staminaCost && chxospixieStamina < move.staminaCost;
                                             const isDisabled = chxospixieDead || actionDisabled || staminaBlocked;
-
                                             return (
                                                 <button
                                                     key={move.name}
                                                     className={`${shared.actionButton} ${isDisabled ? shared.disabled : ""}`}
                                                     disabled={isDisabled}
+                                                    title={
+                                                        staminaBlocked
+                                                            ? "Not enough stamina"
+                                                            : ""
+                                                    }
                                                     onClick={() => {
-                                                        if (staminaBlocked) {
-                                                            logAction("Chxospixie is too exhausted!");
-                                                        } else {
-                                                            dealDamage(move.damage, "Chxospixie", move.name);
-                                                            if (move.staminaCost) {
-                                                                setChxospixieStamina((s) => s - move.staminaCost);
-                                                            }
+                                                        dealDamage(move.damage, "Chxospixie", move.name);
+                                                        if (move.staminaCost) {
+                                                            spendStamina(move.staminaCost);
+                                                        }
+                                                        if (move.name === "Piercing Shot" && enemyHealth > 0) {
+                                                            setTimeout(() => {
+                                                                setEnemyPose("attack");
+                                                                setTimeout(() => {
+                                                                    enemyAttack("Chxospixie");
+                                                                    setEnemyPose("idle");
+                                                                }, 1000);
+                                                            }, 1000);
                                                         }
                                                     }}
                                                 >

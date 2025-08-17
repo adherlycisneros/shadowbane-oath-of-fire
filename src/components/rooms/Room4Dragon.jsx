@@ -161,13 +161,6 @@ export default function Room4Dragon({
     if (!target) return; // safety check
 
     const damage = Math.floor(Math.random() * 11) + 20;
-    //const moves = [
-    //  (dmg) => `The Amethyst Dragon breathes Crystal Breath for ${dmg} damage!`,
-    //   (dmg) => `The Amethyst Dragon slashes with Tail Swipe for ${dmg} damage!`,
-    //   (dmg) => `The Amethyst Dragon emits a Psychic Roar causing ${dmg} damage!`,
-    //];
-    //  const moveDescription = moves[Math.floor(Math.random() * moves.length)](damage);
-    // const logEntry = `${moveDescription} (${target} takes the hit!)`;
 
     if (target === "Darklord") {
       setDarklordHealth((prev) => Math.max(prev - damage, 0));
@@ -193,45 +186,50 @@ export default function Room4Dragon({
 
         <div className={`${shared.battlefield} ${styles.battlefield}`}>
           <div className={shared.leftSide}>
-            <ChampionCard
-              championKey="Darklord"
-              pose={darklordDead ? "dead" : darklordPose}
-              isDead={darklordDead}
-              isPolymorphed={isPolymorphed}
-              size="large"
-            />
-            {floatingDamage?.target === "Darklord" && (
-              <div className={shared.floatingDamage}>-{floatingDamage.value}</div>
-            )}
+            <div className={shared.championWrapper}>
+              <ChampionCard
+                championKey="Darklord"
+                pose={darklordDead ? "dead" : darklordPose}
+                isDead={darklordDead}
+                isPolymorphed={isPolymorphed}
+                size="large"
+              />
+              {floatingDamage?.target === "Darklord" && (
+                <div className={`${shared.floatingDamage} ${floatingDamage.status ? shared.status : ""}`}>
+                  {floatingDamage.status ? floatingDamage.value : `-${floatingDamage.value}`}
+                </div>
+              )}
+            </div>
 
-            <ChampionCard
-              championKey="Chxospixie"
-              pose={chxospixieDead ? "dead" : chxospixiePose}
-              isDead={chxospixieDead}
-              isPolymorphed={isPolymorphed}
-              size="large"
-            />
-            {floatingDamage?.target === "Chxospixie" && (
-              <div className={shared.floatingDamage}>-{floatingDamage.value}</div>
-            )}
+            <div className={shared.championWrapper}>
+              <ChampionCard
+                championKey="Chxospixie"
+                pose={chxospixieDead ? "dead" : chxospixiePose}
+                isDead={chxospixieDead}
+                isPolymorphed={isPolymorphed}
+                size="large"
+              />
+              {floatingDamage?.target === "Chxospixie" && (
+                <div className={`${shared.floatingDamage} ${floatingDamage.status ? shared.status : ""}`}>
+                  {floatingDamage.status ? floatingDamage.value : `-${floatingDamage.value}`}
+                </div>
+              )}
+            </div>
           </div>
-
           <div className={shared.rightSide}>
-            <EnemyCard
-              enemyName="Amethyst Dragon"
-              spritePath={enemySpritePath}
-              size="xlarge"
-              isDead={enemyDefeated}
-            />
-            {floatingDamage?.target === "enemy" && (
-              <div className={shared.floatingDamage}>-{floatingDamage.value}</div>
-            )}
-            <EnemyHUD
-              enemyName="Amethyst Dragon"
-              health={enemyHealth}
-              maxHealth={enemyMaxHealth}
-              isDead={enemyDefeated}
-            />
+            <div className={shared.enemyWrapper}>
+              <EnemyCard
+                enemyName="Amethyst Dragon"
+                spritePath={enemySpritePath}
+                size="xlarge"
+                isDead={enemyDefeated}
+              />
+              {floatingDamage?.target === "enemy" && (
+                <div className={`${shared.floatingDamage} ${floatingDamage.dodge ? shared.dodge : ""}`}>
+                  {floatingDamage.dodge ? "Dodge" : `-${floatingDamage.value}`}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -277,13 +275,9 @@ export default function Room4Dragon({
                         className={`${shared.actionButton} ${isDisabled ? shared.disabled : ""}`}
                         disabled={isDisabled}
                         onClick={() => {
-                          if (staminaBlocked) {
-                            showAction("Chxospixie is too exhausted!");
-                          } else {
-                            dealDamage(move.damage, "Chxospixie", move.name);
-                            if (move.staminaCost) {
-                              setChxospixieStamina((s) => s - move.staminaCost);
-                            }
+                          dealDamage(move.damage, "Chxospixie", move.name);
+                          if (move.staminaCost) {
+                            setChxospixieStamina((s) => Math.max(s - move.staminaCost, 0));
                           }
                         }}
                       >

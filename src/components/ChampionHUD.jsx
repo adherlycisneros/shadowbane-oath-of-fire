@@ -12,7 +12,7 @@ export default function ChampionHUD({
   isPolymorphed = false,
 }) {
   const stateKey = isPolymorphed ? "polymorphed" : "normal";
-  
+
   const champions = [
     { key: "Darklord", health: darklordHealth, isDead: darklordDead },
     { key: "Chxospixie", health: chxospixieHealth, isDead: chxospixieDead },
@@ -22,8 +22,8 @@ export default function ChampionHUD({
     <div className={styles.hudContainer}>
       {champions.map(({ key, health, isDead }) => {
         const data = characterStates[key][stateKey];
-        const maxHealth = data.maxHealth || 100;
-        const healthPercentage = Math.min(100, Math.max(0, (health / maxHealth) * 100));
+        const maxHealth = data.maxHealth || 200;
+        const healthPercentage = Math.min(200, Math.max(0, (health / maxHealth) * 100));
 
         const isChxospixie = key === "Chxospixie";
         const showStamina = isChxospixie && !isDead && chxospixieStamina !== undefined;

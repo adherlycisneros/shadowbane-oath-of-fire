@@ -1,19 +1,7 @@
-.roomBackground1 {
+.roomBackground {
   min-height: 100dvh;
   width: 100vw;
-  background: url('/assets/backgrounds/room6-bg1.png') center/cover no-repeat;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  padding-bottom: 2rem;
-}
-
-.roomBackground2 {
-  min-height: 100dvh;
-  width: 100vw;
-  background: url('/assets/backgrounds/room6-bg1.png') center/cover no-repeat;
+  background: url('/assets/backgrounds/room6-bg.png') center/cover no-repeat;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -23,9 +11,10 @@
 }
 
 .battlefield {
-  margin-bottom: 2.5rem !important;
+  margin-bottom: 1rem !important;
 }
 
 .leftSide {
-  margin-bottom: 6rem !important;
+  margin-top: 3rem !important;
+  margin-left: 2rem !important;
 }

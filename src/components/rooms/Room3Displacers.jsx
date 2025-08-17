@@ -114,7 +114,7 @@ export default function Room3Displacers({
     if (targets.includes(attacker)) {
       target = attacker;
     } else {
-    // attacker dead or invalid, pick the other alive target
+      // attacker dead or invalid, pick the other alive target
       target = targets.find(t => t !== attacker);
     }
 
@@ -146,45 +146,51 @@ export default function Room3Displacers({
 
       <div className={styles.battlefield}>
         <div className={styles.leftSide}>
-          <ChampionCard
-            championKey="Darklord"
-            pose={darklordDead ? "dead" : darklordPose}
-            isDead={darklordDead}
-            isPolymorphed={isPolymorphed}
-            size="large"
-          />
-          {floatingDamage?.target === "Darklord" && (
-            <div className={styles.floatingDamage}>-{floatingDamage.value}</div>
-          )}
+          <div className={styles.championWrapper}>
+            <ChampionCard
+              championKey="Darklord"
+              pose={darklordDead ? "dead" : darklordPose}
+              isDead={darklordDead}
+              isPolymorphed={isPolymorphed}
+              size="large"
+            />
+            {floatingDamage?.target === "Darklord" && (
+              <div className={`${styles.floatingDamage} ${floatingDamage.status ? styles.status : ""}`}>
+                {floatingDamage.status ? floatingDamage.value : `-${floatingDamage.value}`}
+              </div>
+            )}
+          </div>
 
-          <ChampionCard
-            championKey="Chxospixie"
-            pose={chxospixieDead ? "dead" : chxospixiePose}
-            isDead={chxospixieDead}
-            isPolymorphed={isPolymorphed}
-            size="large"
-          />
-          {floatingDamage?.target === "Chxospixie" && (
-            <div className={styles.floatingDamage}>-{floatingDamage.value}</div>
-          )}
+          <div className={styles.championWrapper}>
+            <ChampionCard
+              championKey="Chxospixie"
+              pose={chxospixieDead ? "dead" : chxospixiePose}
+              isDead={chxospixieDead}
+              isPolymorphed={isPolymorphed}
+              size="large"
+            />
+            {floatingDamage?.target === "Chxospixie" && (
+              <div className={`${styles.floatingDamage} ${floatingDamage.status ? styles.status : ""}`}>
+                {floatingDamage.status ? floatingDamage.value : `-${floatingDamage.value}`}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className={styles.rightSide}>
-          <EnemyCard
-            enemyName="Twin Displacer Beasts"
-            spritePath={enemySpritePath}
-            size="xlarge"
-            isDead={enemyDefeated}
-          />
-          {floatingDamage?.target === "enemy" && (
-            <div className={styles.floatingDamage}>-{floatingDamage.value}</div>
-          )}
-          <EnemyHUD
-            enemyName="Twin Displacer Beasts"
-            health={enemyHealth}
-            maxHealth={enemyMaxHealth}
-            isDead={enemyDefeated}
-          />
+          <div className={styles.enemyWrapper}>
+            <EnemyCard
+              enemyName="Twin Displacer Beasts"
+              spritePath={enemySpritePath}
+              size="xlarge"
+              isDead={enemyDefeated}
+            />
+            {floatingDamage?.target === "enemy" && (
+              <div className={`${styles.floatingDamage} ${floatingDamage.dodge ? styles.dodge : ""}`}>
+                {floatingDamage.dodge ? "Dodge" : `-${floatingDamage.value}`}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -230,13 +236,9 @@ export default function Room3Displacers({
                       className={`${styles.actionButton} ${isDisabled ? styles.disabled : ""}`}
                       disabled={isDisabled}
                       onClick={() => {
-                        if (staminaBlocked) {
-                          logAction("Chxospixie is too exhausted!");
-                        } else {
-                          dealDamage(move.damage, "Chxospixie", move.name);
-                          if (move.staminaCost) {
-                            setChxospixieStamina((s) => s - move.staminaCost);
-                          }
+                        dealDamage(move.damage, "Chxospixie", move.name);
+                        if (move.staminaCost) {
+                          setChxospixieStamina((s) => Math.max(s - move.staminaCost, 0));
                         }
                       }}
                     >

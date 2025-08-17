@@ -186,8 +186,8 @@ export default function Game() {
 
   //RESTART ROOM IF HEROES DEAD
   const restartRoom = () => {
-    setDarklordHealth(120);
-    setChxospixieHealth(120);
+    setDarklordHealth(200);
+    setChxospixieHealth(200);
     setChxospixieStamina(60);
     setDarklordDead(false);
     setChxospixieDead(false);
@@ -208,16 +208,12 @@ export default function Game() {
         if (action === "Divine Strike") {
           setDarklordPose("attack");
           setTimeout(() => setDarklordPose(darklordDead ? "dead" : "idle"), 500);
-          logEntry = "Darklord uses Divine Strike! The enemy is stunned!";
         } else if (action === "Shield Block") {
           setDarklordPose("idle");
-          logEntry = "Darklord raises his shield to block incoming damage!";
         }
       } else {
         if (action === "Toad Slap") {
-          logEntry = "Toadlord delivers a slimy Toad Slap! It's surprisingly effective!";
         } else if (action === "Croak of Confusion") {
-          logEntry = "Toadlord lets out a Croak of Confusion! The enemy looks dazed.";
         }
       }
     }
@@ -227,28 +223,19 @@ export default function Game() {
         if (action === "Savage Slash") {
           setChxospixiePose("attack");
           setTimeout(() => setChxospixiePose(chxospixieDead ? "dead" : "idle"), 500);
-          logEntry = "Chxospixie unleashes a Savage Slash! The enemy bleeds!";
         } else if (action === "Fury Charge" && chxospixieStamina >= 12) {
           setChxospixiePose("attack");
           setTimeout(() => setChxospixiePose(chxospixieDead ? "dead" : "idle"), 500);
-          logEntry = "Chxospixie charges with fury! Enemy is knocked down!";
           setChxospixieStamina((prev) => prev - 12);
         } else if (action === "Fury Charge" && chxospixieStamina < 12) {
           setChxospixiePose("idle");
-          logEntry = "Chxospixie is too exhausted to Fury Charge!";
         }
       } else {
         if (action === "Woolly Bash") {
-          logEntry =
-            "Sheepspixie charges forward with a Woolly Bash! It's flufftastically brutal!";
         } else if (action === "Baa of Distraction") {
-          logEntry =
-            "Sheepspixie lets out a Baa of Distraction. The enemy forgets what it was doing.";
         }
       }
     }
-
-    logAction(logEntry);
   };
 
   const nextRoom = () => {

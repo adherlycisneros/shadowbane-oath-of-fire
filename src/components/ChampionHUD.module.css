@@ -1,6 +1,6 @@
 .hudContainer {
   position: fixed;
-  top: 1rem;
+  top: 0.5rem;
   left: 2.5rem;
   display: flex;
   flex-direction: row;
@@ -15,7 +15,8 @@
   background: rgba(20, 10, 10, 0.6);
   padding: 0.3rem 0.5rem;
   border-radius: 6px;
-  min-width: 150px; /* widen to fit bars */
+  min-width: 150px;
+  /* widen to fit bars */
   border: 1px solid #ff7a00;
   box-shadow: 0 0 6px 1px #ff8c0059;
 }
@@ -50,11 +51,13 @@
 
 
 /* Remove width: 100% here */
-.healthBarFill, .staminaBarFill {
+.healthBarFill,
+.staminaBarFill {
   height: 10px;
   border-radius: 8px;
   transition: width 0.3s ease;
-  width: 0%; /* default, overridden inline */
+  width: 0%;
+  /* default, overridden inline */
 }
 
 .healthBarFill {
