@@ -1,7 +1,7 @@
 .roomBackground {
   min-height: 100dvh;
   width: 100vw;
-  background: url('/assets/backgrounds/room6-bg.png') center/cover no-repeat;
+  background: url('/assets/backgrounds/room6-bg.png') center bottom /cover no-repeat;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -11,10 +11,146 @@
 }
 
 .battlefield {
-  margin-bottom: 1rem !important;
+  margin-bottom: 2.7rem !important;
 }
+
 
 .leftSide {
   margin-top: 3rem !important;
-  margin-left: 2rem !important;
+}
+
+.rightSide {
+  margin-right: 2rem !important;
+}
+
+.actionsInnerRowChest {
+  margin-bottom: 1rem;
+  /* increase spacing to match action buttons area */
+  transition: margin 0.3s ease;
+  /* optional smooth transition */
+}
+
+
+
+.treasureMessage {
+  color: #f1c40f;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  text-shadow: 0 0 8px #ffd700;
+}
+
+.treasureChestImage {
+  transform: translateY(30px) translateX(-30px);
+}
+
+
+/*SPARKLE FX*/
+.treasureSparkle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: radial-gradient(circle, #fff, transparent 60%);
+  opacity: 0;
+  animation: sparkle 1s ease-out forwards;
+}
+
+@keyframes sparkle {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* Treasure Reveal Overlay / Layout */
+.treasureScreen {
+  min-height: 100dvh;
+  width: 100vw;
+  background: url('/assets/backgrounds/treasure-bg.png') center top -1.5rem / cover no-repeat;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.treasureOverlay {
+  background: #1c1c1c url('/assets/textures/aged-paper.png') repeat;
+  background-blend-mode: overlay;
+  padding: 2rem;
+  max-width: 25rem;
+  text-shadow: 0 0 8px rgba(255, 140, 0, 0.6), 0 0 16px rgba(255, 50, 0, 0.4);
+  color: var(--color-text);
+  font-size: 1rem;
+  line-height: 1.6;
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(255, 122, 0, 0.7);
+  animation: fadeIn 1s ease forwards;
+  animation-delay: 0.1s;
+}
+
+.heroSides {
+  position: absolute;
+  bottom: 2rem;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  pointer-events: none;
+  /* so taps go through to buttons */
+}
+
+.heroContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 900px;
+  position: absolute;
+  bottom: 2rem;
+  padding: 0 2rem;
+  box-sizing: border-box;
+}
+
+.championCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.championSprite {
+  width: 320px;
+  height: auto;
+  border-radius: 8px;
+}
+
+.flip img {
+  transform: scaleX(-1);
+}
+
+.finishadventurebtn {
+  font-family: 'Metal Mania', serif;
+  padding: 0.8rem 1.8rem;
+  font-size: clamp(1rem, 5vw, 1.6rem);
+  border-radius: 12px;
+  border: 2px solid var(--color-ember);
+  background-color: var(--color-button-bg);
+  color: #ffe4b3;
+  cursor: pointer;
+  user-select: none;
+  width: 80%;
+  max-width: 300px;
+  box-shadow: 0 0 12px var(--color-ember);
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 5px rgba(255, 200, 150, 0.8);
 }

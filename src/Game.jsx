@@ -267,7 +267,7 @@ export default function Game() {
 
   return (
     <>
-      {currentRoom.id !== 1 && (
+      {/*{currentRoom.id !== 1 && (
         <ChampionHUD
           darklordHealth={darklordHealth}
           chxospixieHealth={chxospixieHealth}
@@ -277,7 +277,7 @@ export default function Game() {
           chxospixieDead={chxospixieDead}
           isPolymorphed={isPolymorphed}
         />
-      )}
+      )} */}
       {!gameStarted ? (
         <TitleScreen onStart={startGame} />
       ) : (
@@ -452,10 +452,10 @@ export default function Game() {
             </div>
           )}
 
-          {/* Finish Adventure Button on last room */}
+          {/* Finish Adventure Button on last room 
           {roomIndex === rooms.length - 1 && canContinue && !showRoomIntro && (
             <button className="continueBtn" onClick={finishAdventure}>Finish Adventure</button>
-          )}
+          )}*/}
 
         </div>
       )}

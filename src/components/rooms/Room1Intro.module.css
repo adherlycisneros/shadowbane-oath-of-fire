@@ -1,5 +1,6 @@
 .roomBackground {
-  height: 100svh; /* full safe viewport height */
+  height: 100svh;
+  /* full safe viewport height */
   width: 100vw;
   background: url('/assets/backgrounds/room1-bg.png') center bottom 10%/cover no-repeat;
   position: relative;
@@ -7,11 +8,11 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  overflow: hidden; /* prevent scrolling */
+  overflow: hidden;
+  /* prevent scrolling */
   color: var(--color-text);
 }
 
-/* === CHANGED: Meet Your Heroes title centered and stacked === */
 .heroTitle {
   font-family: 'Metal Mania', 'Quintessential', serif;
   font-size: clamp(3rem, 5vw, 4rem);
@@ -29,7 +30,6 @@
   line-height: 1.1;
 }
 
-/* === CHANGED: Character positions === */
 .heroContainer {
   display: flex;
   justify-content: space-between;
@@ -49,13 +49,15 @@
 }
 
 .championSprite {
-  width: 320px; /* CHANGED: Sprite size */
+  width: 320px;
+  /* CHANGED: Sprite size */
   height: auto;
   border-radius: 8px;
 }
 
 .flip img {
-  transform: scaleX(-1); /* CHANGED: Flip Chxospixie */
+  transform: scaleX(-1);
+  /* CHANGED: Flip Chxospixie */
 }
 
 /* === CHANGED: Nameplates under sprites === */
@@ -85,7 +87,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: 
+  background:
     url('/assets/textures/aged-paper.png') repeat,
     radial-gradient(circle at center, var(--color-bg-gradient-end) 0%, var(--color-bg-dark) 100%);
   background-blend-mode: overlay;
@@ -112,7 +114,7 @@
   font-size: clamp(1.5rem, 4vw, 2.5rem);
   line-height: 1.4;
   margin: 1.5rem 3.5rem;
-  color: #ffdf9e; 
+  color: #ffdf9e;
   text-shadow: 0 0 8px rgba(255, 140, 0, 0.6), 0 0 16px rgba(255, 50, 0, 0.4);
   animation-fill-mode: forwards;
   animation-timing-function: ease-in-out;
@@ -124,27 +126,41 @@
 /* Skip cinematic button */
 .skipButton {
   position: fixed;
-  bottom: 20px;          
-  left: 50%;             
+  bottom: 20px;
+  left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
 }
 
 /* Fade in and fade out keyframe */
 @keyframes fadeInOut {
-  0%   { opacity: 0; }
-  10%  { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
+
 /* Pulsing glow effect */
 @keyframes pulseGlow {
   0% {
     text-shadow: 0 0 8px rgba(255, 140, 0, 0.6), 0 0 16px rgba(255, 50, 0, 0.4);
   }
+
   50% {
     text-shadow: 0 0 16px rgba(255, 180, 0, 0.9), 0 0 32px rgba(255, 90, 0, 0.6);
   }
+
   100% {
     text-shadow: 0 0 8px rgba(255, 140, 0, 0.6), 0 0 16px rgba(255, 50, 0, 0.4);
   }
@@ -170,7 +186,7 @@
 }
 
 .overlayContent {
-  background: 
+  background:
     #1c1c1c url('/assets/textures/aged-paper.png') repeat;
   background-blend-mode: overlay;
   color: #ffdf9e;
@@ -210,22 +226,47 @@
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 rgba(255, 122, 0, 0.7); }
-  50% { box-shadow: 0 0 15px rgba(255, 122, 0, 0.9); }
-  100% { box-shadow: 0 0 0 rgba(255, 122, 0, 0.7); }
+  0% {
+    box-shadow: 0 0 0 rgba(255, 122, 0, 0.7);
+  }
+
+  50% {
+    box-shadow: 0 0 15px rgba(255, 122, 0, 0.9);
+  }
+
+  100% {
+    box-shadow: 0 0 0 rgba(255, 122, 0, 0.7);
+  }
 }
 
 @keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

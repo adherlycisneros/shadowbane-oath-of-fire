@@ -177,7 +177,7 @@ export default function Room3Displacers({
           </div>
         </div>
 
-        <div className={styles.rightSide}>
+        <div className={`${styles.rightSide} ${styles.specificrightSide}`}>
           <div className={styles.enemyWrapper}>
             <EnemyCard
               enemyName="Twin Displacer Beasts"

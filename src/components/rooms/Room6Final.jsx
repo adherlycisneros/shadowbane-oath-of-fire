@@ -22,7 +22,7 @@ export default function Room6Final({
     chxospixieDead,
     onFinish
 }) {
-    const [enemyHealth, setEnemyHealth] = useState(300);
+    const [enemyHealth, setEnemyHealth] = useState(10);
     const [enemyDefeated, setEnemyDefeated] = useState(false);
     const [showRedFlash, setShowRedFlash] = useState(false);
     const [enemyPose, setEnemyPose] = useState("idle");
@@ -39,6 +39,7 @@ export default function Room6Final({
 
     const isGameOver = darklordDead && chxospixieDead;
     const enemyMaxHealth = 300;
+
 
     const triggerRedFlash = () => {
         setShowRedFlash(true);
@@ -89,11 +90,6 @@ export default function Room6Final({
     // Dodge chance (enemy only)
     const ENEMY_DODGE_CHANCE = 0.3;
 
-    const enemySpritePath =
-        enemyPose === "attack"
-            ? "/assets/sprites/enemies/room6/beholder-attack.png"
-            : "/assets/sprites/enemies/room6/beholder-idle.png";
-
     // BEHOLDER ATTACKS
     const beholderAttacks = [
         { name: "Disintegration Ray", baseDamage: 8 },
@@ -101,7 +97,7 @@ export default function Room6Final({
         { name: "Force Blast", baseDamage: 20 }
     ];
 
-    // FIX: useRef (was useState before)
+
     const lastAttackerRef = useRef(null);
 
     // Helper to show floating damage (extend existing showDamage if you have one)
@@ -190,78 +186,75 @@ export default function Room6Final({
 
     //--------------- UI RETURN --------------------------------------------//
     return (
-        <div className={`${styles.roomBackground} fullscreen-fit`}>
-            {victoryMessage && (
-                <div>
-                    <p>{victoryMessage}</p>
-                </div>
-            )}
-
-            {(enemyHealth <= 0) && !showTreasure && (
-                <button onClick={() => setShowTreasure(true)}>
-                    Continue →
-                </button>
-            )}
+        <div>
 
             {showTreasure ? (
-                <div style={{ padding: "1rem", textAlign: "left", maxWidth: "600px", margin: "auto" }}>
-                    <h2 style={{ color: "#a020f0", fontSize: "1.5rem" }}>
-                        🎉 The Legend You Were Born To Claim 🎉
-                    </h2>
-                    <p style={{ fontSize: "1rem", lineHeight: 1.5, marginTop: "0.5rem" }}>
-                        The quest ends, but the legend continues...
-                    </p>
-                    <p style={{ fontSize: "1rem", lineHeight: 1.5, margin: "1rem 0", color: "#4a235a" }}>
-                        From the blood-forged arenas of Graal'kath to the infernal legacy of Emberreach,
-                        two unlikely souls crossed paths and chose to walk the same road. Even the fates whispered:
-                        <em>together, they are unstoppable.</em>
+                <div className={`${styles.treasureScreen} fullscreen-fit`}>
+                    <div className={styles.treasureOverlay}>
+                        <h2>🎉 The Legend You Were Born To Claim 🎉</h2>
+                        <p>The quest ends, but the legend continues...</p>
+                        <p>
+                            From the blood-forged arenas of Graal'kath to the infernal legacy of Emberreach,
+                            two unlikely souls crossed paths and chose to walk the same road. Even the fates whispered:
+                            <em>together, they are unstoppable.</em>
 
-                        <br /><br />
-                        Chxospixie and Darklord braved the twisting halls of the Shadowbane Dungeon,
-                        unraveled the maddening whispers of cursed halls,
-                        and faced Beholders whose gaze could unmake the strongest soul—
-                        triumphing not through steel alone, but through unshaken bond.
+                            <br /><br />
+                            Chxospixie and Darklord braved the twisting halls of the Shadowbane Dungeon,
+                            unraveled the maddening whispers of cursed halls,
+                            and faced Beholders whose gaze could unmake the strongest soul—
+                            triumphing not through steel alone, but through unshaken bond.
 
-                        <br /><br />
-                        They... <em>we</em>, have laughed in the face of every trial and prevailed.
+                            <br /><br />
+                            They... <em>we</em>, have laughed in the face of every trial and prevailed.
 
-                        <br /><br />
-                        Though <strong>Chxospixie</strong> has conquered dungeons and shattered curses,
-                        her greatest quest has ever been to stand beside you.
-                        For <strong>Darklord</strong> has found in her not only the light he vowed to protect,
-                        but a blazing force that forged his purpose anew— and so her heart has chosen you.
+                            <br /><br />
+                            Though <strong>Chxospixie</strong> has conquered dungeons and shattered curses,
+                            her greatest quest has ever been to stand beside you.
+                            For <strong>Darklord</strong> has found in her not only the light he vowed to protect,
+                            but a blazing force that forged his purpose anew— and so her heart has chosen you.
 
-                        <br /><br />
-                        Through every quest, every sleepless battle, every storm,
-                        even should the stars fall and the world burn,
-                        the heart of Chxospixie shall remain yours—
-                        steadfast as the oath that binds you, fierce as the fire in her blood.
-                    </p>
-                    <p style={{ fontSize: "1rem", lineHeight: 1.5, color: "#4a235a" }}>
-                        On this day of your birth, my champion,
-                        may your quests be ever-epic, your loot forever legendary,
-                        and your aggro management (with me) remain top-tier.
-                    </p>
-                    <p style={{ fontStyle: "italic", fontSize: "0.9rem", color: "#777" }}>
-                        P.S. No respecs allowed. You are stuck with me for the rest of the campaign. 💖
-                    </p>
-                    <button
-                        onClick={onFinish}
-                        style={{
-                            marginTop: "1rem",
-                            padding: "0.6rem 1rem",
-                            fontSize: "1rem",
-                            backgroundColor: "#6a1b9a",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "8px",
-                            cursor: "pointer",
-                        }}
-                    >
-                        End Adventure
-                    </button>
+                            <br /><br />
+                            Through every quest, every sleepless battle, every storm,
+                            even should the stars fall and the world burn,
+                            the heart of Chxospixie shall remain yours—
+                            steadfast as the oath that binds you, fierce as the fire in her blood.
+                        </p>
+                        <p>
+                            On this day of your birth, my champion,
+                            may your quests be ever-epic, your loot forever legendary,
+                            and your aggro management (with me) remain top-tier.
+                        </p>
+                        <p>
+                            P.S. No respecs allowed. You are stuck with me for the rest of the campaign. 💖
+                        </p>
+                        <button className={styles.finishadventurebtn} onClick={onFinish}>
+                            End Adventure
+                        </button>
+                    </div>
+
+                    {/* HEROES AT BOTTOM */}
+                    <div className={styles.heroContainer}>
+                        {/* Darklord (left) */}
+                        <div className={styles.championCard}>
+                            <ChampionCard
+                                championKey="Darklord"
+                                pose="idle"
+                                size="large"
+                                className={styles.championSprite}
+                            />
+                        </div>
+
+                        {/* Chxospixie (right, flipped) */}
+                        <div className={`${styles.championCard} ${styles.flip}`}>
+                            <ChampionCard
+                                championKey="Chxospixie"
+                                pose="idle"
+                                size="large"
+                                className={styles.championSprite}
+                            />
+                        </div>
+                    </div>
                 </div>
-
             ) : (
                 <div className={`${styles.roomBackground} fullscreen-fit`}>
                     {showRedFlash && <div className={shared.redFlash} />}
@@ -299,38 +292,72 @@ export default function Room6Final({
                             </div>
                         </div>
 
-                        <div className={shared.rightSide}>
-                            <div className={shared.enemyWrapper}>
-                                <EnemyCard
-                                    enemyName="Twin Displacer Beasts"
-                                    spritePath={enemySpritePath}
-                                    size="xlarge"
-                                    isDead={enemyDefeated}
-                                />
-                                {floatingDamage?.target === "enemy" && (
+                        <div className={`${shared.rightSide} ${styles.rightSide}`}>
+                            <div className={shared.enemyWrapper} style={{ position: "relative" }}>
+                                {/* Beholder sprite (only if not defeated) */}
+                                {!enemyDefeated && (
+                                    <EnemyCard
+                                        enemyName="Ancient Beholder"
+                                        spritePath={
+                                            enemyPose === "attack"
+                                                ? "/assets/sprites/enemies/room6/beholder-attack.png"
+                                                : "/assets/sprites/enemies/room6/beholder-idle.png"
+                                        }
+                                        size="xlarge"
+                                    />
+                                )}
+
+                                {/* Treasure chest with sparkle */}
+                                {enemyDefeated && (
+                                    <div style={{ position: "relative" }}>
+                                        <div
+                                            onClick={() => setShowTreasure(true)}
+                                            style={{ cursor: "pointer" }}
+                                        >
+                                            <EnemyCard
+                                                enemyName="Treasure Chest"
+                                                spritePath="/assets/treasure/treasure-chest.png"
+                                                size="xlarge"
+                                                className={styles.treasureChestImage}
+                                            />
+                                        </div>
+                                        <div className={styles.treasureSparkle}></div>
+                                    </div>
+                                )}
+
+
+                                {/* Floating damage */}
+                                {floatingDamage?.target === "enemy" && !enemyDefeated && (
                                     <div className={`${shared.floatingDamage} ${floatingDamage.dodge ? shared.dodge : ""}`}>
                                         {floatingDamage.dodge ? "Dodge" : `-${floatingDamage.value}`}
                                     </div>
                                 )}
                             </div>
-                            <EnemyHUD
-                                enemyName="Twin Displacer Beasts"
-                                health={enemyHealth}
-                                maxHealth={enemyMaxHealth}
-                                isDead={enemyDefeated}
-                            />
+
+                            {/* Enemy HUD */}
+                            {!enemyDefeated && (
+                                <EnemyHUD
+                                    enemyName="Ancient Beholder"
+                                    health={enemyHealth}
+                                    maxHealth={enemyMaxHealth}
+                                    isDead={enemyDefeated}
+                                />
+                            )}
                         </div>
+
                     </div>
 
-                    <ChampionHUD
-                        darklordHealth={darklordHealth}
-                        chxospixieHealth={chxospixieHealth}
-                        darklordDead={darklordDead}
-                        chxospixieDead={chxospixieDead}
-                        chxospixieStamina={chxospixieStamina}
-                        chxospixieMaxStamina={60}
-                        isPolymorphed={isPolymorphed}
-                    />
+                    {!showTreasure && (
+                        <ChampionHUD
+                            darklordHealth={darklordHealth}
+                            chxospixieHealth={chxospixieHealth}
+                            darklordDead={darklordDead}
+                            chxospixieDead={chxospixieDead}
+                            chxospixieStamina={chxospixieStamina}
+                            chxospixieMaxStamina={60}
+                            isPolymorphed={isPolymorphed}
+                        />
+                    )}
 
                     {!enemyDefeated && (
                         <div className={shared.actionsContainer}>
@@ -392,6 +419,15 @@ export default function Room6Final({
                                         })}
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+                    {enemyDefeated && !showTreasure && (
+                        <div className={shared.actionsContainer}>
+                            <div className={`${shared.actionsInnerRow} ${styles.actionsInnerRowChest}`} style={{ justifyContent: "center" }}>
+                                <p className={styles.treasureMessage}>
+                                    🌟 Open the treasure chest and fulfill your destiny! 🌟
+                                </p>
                             </div>
                         </div>
                     )}

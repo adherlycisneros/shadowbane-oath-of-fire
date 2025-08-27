@@ -5,10 +5,11 @@ export default function EnemyCard({
   enemyName,
   spritePath,
   size = "xlarge",
+  className = "",
 }) {
   return (
     <div className={`cardContainer ${size}`}>
-      <img src={spritePath} alt={enemyName} className="spriteImage" />
+      <img src={spritePath} alt={enemyName} className={`spriteImage ${className}`} />
     </div>
   );
 }
