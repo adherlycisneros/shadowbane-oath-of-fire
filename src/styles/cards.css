@@ -16,6 +16,10 @@
   max-width: 200px; /* keep size constraints */
 }
 
+.cardContainer.cinematic {
+  max-width: 320px;
+}
+
 .cardContainer.small .spriteImage {
   width: 180px;
 }
@@ -26,6 +30,10 @@
 
 .cardContainer.xlarge .spriteImage {
   width: 280px; /* xlarge size */
+}
+
+.cardContainer.cinematic .spriteImage {
+  width: 320px; /* cinematic size */
 }
 
 /* DEAD HEROES POSITIONING */
