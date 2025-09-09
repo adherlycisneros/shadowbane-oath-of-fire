@@ -191,6 +191,15 @@ export default function Room3Displacers({
               </div>
             )}
           </div>
+
+          {!enemyDefeated && (
+            <EnemyHUD
+              enemyName="Twin Displacer Beasts"
+              health={enemyHealth}
+              maxHealth={enemyMaxHealth}
+              isDead={enemyDefeated}
+            />
+          )}
         </div>
       </div>
 

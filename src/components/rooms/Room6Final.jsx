@@ -24,20 +24,22 @@ export default function Room6Final({
 }) {
 
     const [currentPage, setCurrentPage] = useState(0);
+    const [showOverlay, setShowOverlay] = useState(true);
 
-const pages = [
-  `The quest ends, but the legend continues...`,
 
-  `From the blood-forged arenas of Graal'kath to the infernal legacy of Emberreach,
+    const pages = [
+        `The quest ends, but the legend continues...`,
+
+        `From the blood-forged arenas of Graal'kath to the infernal legacy of Emberreach,
    two unlikely souls crossed paths and chose to walk the same road.  
    Even the fates whispered: together, they are unstoppable.`,
 
-  `Chxospixie and Darklord braved the twisting halls of the Shadowbane Dungeon,  
+        `Chxospixie and Darklord braved the twisting halls of the Shadowbane Dungeon,  
    unraveled the maddening whispers of cursed halls,  
    and faced Beholders whose gaze could unmake the strongest soul—  
    triumphing not through steel alone, but through unshaken bond.`,
 
-  `They... we, have laughed in the face of every trial and prevailed.  
+        `They... we, have laughed in the face of every trial and prevailed.  
 
    Though Chxospixie has conquered dungeons and shattered curses,  
    her greatest quest has ever been to stand beside you.  
@@ -46,17 +48,17 @@ const pages = [
    but a blazing force that forged his purpose anew—  
    and so her heart has chosen you.`,
 
-  `Through every quest, every sleepless battle, every storm,  
+        `Through every quest, every sleepless battle, every storm,  
    even should the stars fall and the world burn,  
    the heart of Chxospixie shall remain yours—  
    steadfast as the oath that binds you, fierce as the fire in her blood.`,
 
-  `On this day of your birth, my champion,  
+        `On this day of your birth, my champion,  
    may your quests be ever-epic, your loot forever legendary,  
    and your aggro management (with me) remain top-tier.`,
 
-  `P.S. No respecs allowed. You are stuck with me for the rest of the campaign. 💖`
-];
+        `P.S. No respecs allowed. You are stuck with me for the rest of the campaign. 💖`
+    ];
 
     const [enemyHealth, setEnemyHealth] = useState(10);
     const [enemyDefeated, setEnemyDefeated] = useState(false);
@@ -222,50 +224,50 @@ const pages = [
 
     //--------------- UI RETURN --------------------------------------------//
     return ( //START PART THAT CHANGED
-            <div>
-                {showTreasure ? (
+        <div>
+            {showTreasure ? (
                 <div className={`${styles.treasureScreen} fullscreen-fit`}>
-                    <div className={styles.treasureOverlay}>
-                        {currentPage === 0 && ( 
-                            <h2>The Legend You Were Born To Claim</h2>
-                        )}
+                    {showOverlay ? (
+                        <div className={styles.treasureOverlay}>
+                            {currentPage === 0 && (
+                                <h2>The Legend You Were Born To Claim</h2>
+                            )}
 
-                    <div
-                        className={styles.pageContainer}
-                        onClick={() => {
-                        if (currentPage < pages.length - 1) {
-                            setCurrentPage((p) => p + 1);
-                        }
-                        }}
-                    >
-                        <p>{pages[currentPage]}</p>
-
-                        {currentPage < pages.length - 1 && (
-                        <div className={styles.tapHint}>▶</div>
-                        )}
-
-                        {currentPage === pages.length - 1 && (
+                            <div
+                                className={styles.pageContainer}
+                                onClick={() => {
+                                    if (currentPage < pages.length - 1) {
+                                        setCurrentPage((p) => p + 1);
+                                    } else {
+                                        setShowOverlay(false); // hides story overlay
+                                    }
+                                }}
+                            >
+                                <p>{pages[currentPage]}</p>
+                                <div className={styles.tapHint}>▶</div>
+                            </div>
+                        </div>
+                    ) : (
                         <button
                             className={styles.finishadventurebtn}
                             onClick={onFinish}
                         >
                             End Adventure
                         </button>
-                        )}
-                    </div>
-                    </div>
+                    )}
+
 
                     {/* HEROES AT BOTTOM */}
                     <div className={styles.heroContainer}>
-                    {/* Darklord (left) */}
-                    <div className={styles.championCard}>
-                        <ChampionCard championKey="Darklord" pose="idle" size="cinematic" />
-                    </div>
+                        {/* Darklord (left) */}
+                        <div className={styles.championCard}>
+                            <ChampionCard championKey="Darklord" pose="idle" size="cinematic" />
+                        </div>
 
-                    {/* Chxospixie (right, flipped) */}
-                    <div className={`${styles.championCard} ${styles.flip}`}>
-                        <ChampionCard championKey="Chxospixie" pose="idle" size="cinematic" />
-                    </div>
+                        {/* Chxospixie (right, flipped) */}
+                        <div className={`${styles.championCard} ${styles.flip}`}>
+                            <ChampionCard championKey="Chxospixie" pose="idle" size="cinematic" />
+                        </div>
                     </div>
                 </div> //END PART THAT CHANGED 
             ) : (

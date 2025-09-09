@@ -84,6 +84,7 @@
 
 .treasureOverlay {
   align-items: center;
+  align-content: center;
   background: #1c1c1c url('/assets/textures/aged-paper.png') repeat;
   background-blend-mode: overlay;
   padding: 2rem;
@@ -101,6 +102,17 @@
   box-shadow: 0 0 20px rgba(255, 122, 0, 0.7);
   animation: fadeIn 1s ease forwards;
   animation-delay: 0.1s;
+}
+
+.pageContainer {
+  margin: 0 4rem;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
 }
 
 .heroSides {
