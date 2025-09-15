@@ -7,8 +7,8 @@ const cinematicLines = [
   "a hidden sanctum holding secrets and power beyond mortal reckoning.",
   "Today, two heroes descend into the unknown...",
   "not just for riches, but for legacy.",
-  "But legend says... the sanctum only reveals its truths on the day of one's birth...",
-  `Chxospixie: "Wait... that's today, isn't it?" Chxospixie smirks.`,
+  "But legend says... it only stirs for those who share a bond deeper than memory or reason.",
+  `Chxospixie: "Seriously? Us? That seems… unlikely." Chxospixie smirks.`,
 ];
 
 export default function Room1Intro({ setCanContinue }) {

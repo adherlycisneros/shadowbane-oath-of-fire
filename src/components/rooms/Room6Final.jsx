@@ -41,21 +41,21 @@ export default function Room6Final({
 
         `They... we, have laughed in the face of every trial and prevailed.  
 
-   Though Chxospixie has conquered dungeons and shattered curses,  
+   Now, though Chxospixie has conquered dungeons and shattered curses in the past,  
    her greatest quest has ever been to stand beside you.  
 
-   For Darklord has found in her not only the light he vowed to protect,  
+   And as for Darklord, he's found in her not only the light he vowed to protect,  
    but a blazing force that forged his purpose anew—  
-   and so her heart has chosen you.`,
+   and so their hearts have chosen true.`,
 
         `Through every quest, every sleepless battle, every storm,  
    even should the stars fall and the world burn,  
-   the heart of Chxospixie shall remain yours—  
+   Chxospixie's heart shall remain yours—  
    steadfast as the oath that binds you, fierce as the fire in her blood.`,
 
-        `On this day of your birth, my champion,  
+        `On this day and hereafter, my champion,  
    may your quests be ever-epic, your loot forever legendary,  
-   and your aggro management (with me) remain top-tier.`,
+   and your aggro management (with me) top-tier.`,
 
         `P.S. No respecs allowed. You are stuck with me for the rest of the campaign. 💖`
     ];
