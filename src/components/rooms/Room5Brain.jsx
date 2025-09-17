@@ -60,59 +60,76 @@ export default function Room5Brain({
       setAttempts(newAttempts);
 
       if (newAttempts >= 2) {
-        setActionLog({
-          success: false,
-          message: `🧠 The brain pulses angrily! It sees no hope in your cognitive abilities and polymorphs Darklord into a frumpy toad and Chxospixie into a bewildered sheep!
+        setEnemyPose("attack");
+        setTimeout(() => {
+          setActionLog({
+            success: false,
+            message: `🧠 The brain pulses angrily! It sees no hope in your cognitive abilities and polymorphs Darklord into a frumpy toad and Chxospixie into a bewildered sheep!
           
 You must now continue your quest in this unfortunate form...`
         });
 
         setIsPolymorphed(true);
         setCanContinue(true);
-      } else {
+        setEnemyPose("idle");
+      }, 1000);
+    } else {
         //First incorrect attempt
-        setFeedback({
-          success: false,
-          message: "⚠️ Last chance..."
-        });
-      }
+      setActionLog({
+        success: false,
+        message: "⚠️ Last chance..."
+      });
     }
-  };
+  }
+};
 
   //Disable the input text and submit buttons when not allowed to be used
   const isLocked = logAction && (setActionLog.success || attempts >= 2);
 
   return (
     <div className={`${styles.roomBackground} fullscreen-fit`}>
-      <div className={shared.battlefield}>
+      {/* Use shared.battlefield but add room-specific class for overrides */}
+      <div className={`${shared.battlefield} ${styles.room5Battlefield}`}>
 
-        <ChampionCard
-          championKey="Darklord"
-          pose="idle"
-          isDead={darklordDead}
-          isPolymorphed={isPolymorphed}
-          size="large"
-        />
+        {/* Left champion (Darklord) */}
+        <div className={styles.leftChampionWrapper}>
+          <div className={shared.championWrapper}>
+            <ChampionCard
+              championKey="Darklord"
+              pose="idle"
+              isDead={darklordDead}
+              isPolymorphed={isPolymorphed}
+              size="large"
+            />
+          </div>
+        </div>
 
-        <EnemyCard
-          enemyName="Brain"
-          spritePath={enemySpritePath}
-          size="xlarge"
-        />
+        {/* Brain (top center), wrapped so we can absolutely position it */}
+        <div className={`${styles.brainWrapper} ${shared.enemyWrapper}`}>
+          <EnemyCard
+            enemyName="Brain"
+            spritePath={enemySpritePath}
+            size="cinematic"
+          />
+        </div>
 
-        <ChampionCard
-          championKey="Chxospixie"
-          pose="idle"
-          isDead={chxospixieDead}
-          isPolymorphed={isPolymorphed}
-          size="large"
-        />
+        {/* Right champion (Chxospixie) */}
+        <div className={styles.rightChampionWrapper}>
+          <div className={shared.championWrapper}>
+            <ChampionCard
+              championKey="Chxospixie"
+              pose="idle"
+              isDead={chxospixieDead}
+              isPolymorphed={isPolymorphed}
+              size="large"
+            />
+          </div>
+        </div>
+
       </div>
 
-
       <div className={shared.actionsContainer}>
-        <h3>💭 What was whispered in rooms past?</h3>
-        <p>Impress the Cerebral Vault by entering the exact phrase:</p>
+        <h3>💭 Remember what came in a whispering fog in rooms past?</h3>
 
         <input
           type="text"

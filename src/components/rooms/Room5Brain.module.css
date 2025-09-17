@@ -1,4 +1,6 @@
-/* Room Background (unique per room) */
+/* Room5Brain.module.css - room5-specific overrides/layout */
+
+/* Keep the existing roomBackground you already have */
 .roomBackground {
   min-height: 100dvh;
   width: 100vw;
@@ -9,4 +11,47 @@
   align-items: center;
   justify-content: flex-end;
   padding-bottom: 2rem;
+}
+
+/* room-specific battlefield wrapper (use together with shared.battlefield) */
+.room5Battlefield {
+  position: relative; /* containing block for absolute children */
+  width: 100%;
+  max-width: 100%;
+  height: 70vh; /* vertical space for brain + heroes */
+  display: block; /* we will absolutely position children */
+}
+
+/* Brain wrapper - top center, hanging toward the top edge */
+.brainWrapper {
+  position: absolute;
+  top: -24vh; /* nudge so it visually hangs from the top; tweak if needed */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 360px; /* desired brain width */
+  height: auto;
+  z-index: 30;
+  pointer-events: auto;
+}
+
+/* Left champion wrapper (Darklord) - place left side higher up */
+.leftChampionWrapper {
+  position: absolute;
+  left: 8%; /* give plenty of room for the left sprite zone; tweak as needed */
+  top: 50%; /* push up so heroes sit around the brain */
+  transform: translateY(-50%);
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+}
+
+/* Right champion wrapper (Chxospixie) - place right side higher up */
+.rightChampionWrapper {
+  position: absolute;
+  right: 8%; /* symmetric to left */
+  top: 50%;
+  transform: scaleX(-1) translateY(-50%);
+  z-index: 20;
+  display: flex;
+  justify-content: center;
 }
