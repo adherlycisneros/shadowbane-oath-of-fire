@@ -128,19 +128,23 @@ You must now continue your quest in this unfortunate form...`
 
       </div>
 
-      <div className={shared.actionsContainer}>
-        <h3>💭 Remember what came in a whispering fog in rooms past?</h3>
-
+      <div className={`${styles.actionsContainer} ${shared.actionsContainer}`}>
         <input
           type="text"
           value={input}
+          placeholder="💭 Impress the brain. Recall the fog’s whisper from rooms past and type it here…"
           onChange={(e) => {
             setInput(e.target.value);
             setActionLog(null);
           }}
           disabled={isLocked}
+          className={styles.inputField}
         />
-        <button onClick={checkPhrase} disabled={isLocked}>
+        <button 
+          onClick={checkPhrase} 
+          disabled={isLocked}
+          className={styles.submitButton}
+        >
           Submit
         </button>
 

@@ -13,6 +13,69 @@
   padding-bottom: 2rem;
 }
 
+.actionsContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 1.2rem 1rem;
+}
+
+/* Input field - ember glow theme */
+.inputField {
+  flex: 1;
+  min-width: 30%;
+  padding: 0.5rem 0.75rem;
+  font-size: 1.25rem;
+  border: 2px solid #a13c1e; /* ember/dark border */
+  border-radius: 0.5rem;
+  background: rgba(20, 10, 10, 0.85);
+  color: var(--color-text);
+  outline: none;
+  text-align: start;
+  font-family: 'Quintessential', serif;
+  text-shadow: 0 0 4px rgba(255, 122, 0, 0.7); /* ember glow */
+  transition: box-shadow 0.25s, border-color 0.25s;
+}
+
+.inputField::placeholder {
+  color: rgba(255, 190, 120, 0.7);
+  font-style: italic bold;
+  text-shadow: 0 0 4px rgba(255, 140, 0, 0.6);
+}
+
+.inputField:focus {
+  border-color: var(--color-ember);
+  box-shadow: 0 0 6px var(--color-ember), inset 0 0 4px var(--color-ember-light);
+}
+
+/* Submit button - ember gold theme */
+.submitButton {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--color-text);
+  background: linear-gradient(180deg, #2b1717, #1c0f0f);
+  border: 2px solid var(--color-ember);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s;
+  white-space: nowrap;
+  text-shadow: 0 0 6px rgba(255, 122, 0, 0.7);
+}
+
+.submitButton:hover:not(:disabled),
+.submitButton:active:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 0 8px var(--color-ember), 0 0 16px var(--color-ember-light);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* room-specific battlefield wrapper (use together with shared.battlefield) */
 .room5Battlefield {
   position: relative; /* containing block for absolute children */
@@ -37,8 +100,8 @@
 /* Left champion wrapper (Darklord) - place left side higher up */
 .leftChampionWrapper {
   position: absolute;
-  left: 8%; /* give plenty of room for the left sprite zone; tweak as needed */
-  top: 50%; /* push up so heroes sit around the brain */
+  left: 10%; /* give plenty of room for the left sprite zone; tweak as needed */
+  top: 43%; /* push up so heroes sit around the brain */
   transform: translateY(-50%);
   z-index: 20;
   display: flex;
@@ -48,8 +111,8 @@
 /* Right champion wrapper (Chxospixie) - place right side higher up */
 .rightChampionWrapper {
   position: absolute;
-  right: 8%; /* symmetric to left */
-  top: 50%;
+  right: 10%; /* symmetric to left */
+  top: 44%;
   transform: scaleX(-1) translateY(-50%);
   z-index: 20;
   display: flex;
