@@ -25,6 +25,13 @@
 .actionsContainer {
   background-color: #140a0af7 !important;
   justify-content: space-between !important;
+  padding-bottom: .4rem;
+  max-height: 21vh;
+  font-size: 18px;
+}
+
+.actionsContainer h4 {
+  align-self: center;
 }
 
 .actionButton {
@@ -38,21 +45,19 @@
 
 .leftSide {
   margin-bottom: 6rem !important;
+  gap: 0;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+.heal {
+  color: #ffd700;
+  font-weight: bold;
+  text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000,
+    0 0 4px #fff700,
+    0 0 8px #ffd700,
+    0 0 12px #ffae00,
+    0 0 18px #ff8c00;
+}

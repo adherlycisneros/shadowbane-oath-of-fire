@@ -32,7 +32,7 @@ export default function Room4Dragon({
   const [darklordPose, setDarklordPose] = useState("idle");
   const [chxospixiePose, setChxospixiePose] = useState("idle");
 
-  const [floatingDamage, setFloatingDamage] = useState(null);
+  const [floatingDamage, setFloatingDamage] = useState([]);
 
   const stateKey = isPolymorphed ? "polymorphed" : "normal";
   const darklord = characterStates.Darklord[stateKey];
@@ -40,6 +40,12 @@ export default function Room4Dragon({
 
   const isGameOver = darklordDead && chxospixieDead;
   const enemyMaxHealth = 300;
+
+  const awakenDragon = () => {
+    setDragonAwakened(true);
+    setEnemyPose("attack");
+    setTimeout(() => setEnemyPose("idle"), 1000);
+  }
 
   const triggerRedFlash = () => {
     setShowRedFlash(true);
@@ -65,13 +71,17 @@ export default function Room4Dragon({
 
   const healOne = (character) => {
     if (character === "Darklord" && !darklordDead) {
-      setDarklordHealth((h) => Math.min(120, h + 50));
-      showAction("Darklord is healed by crystal energy!");
+      setDarklordHealth((h) => {
+        const newHealth = Math.min(120, h + 50);
+        showDamage(50, "Darklord", "heal");
+        return newHealth;
+      });
     } else if (character === "Chxospixie" && !chxospixieDead) {
-      setChxospixieHealth((h) => Math.min(120, h + 50));
-      showAction("Chxospixie is healed by crystal energy!");
-    } else {
-      setCanContinue(true);
+      setChxospixieHealth((h) => {
+        const newHealth = Math.min(120, h + 50);
+        showDamage(50, "Chxospixie", "heal");
+        return newHealth;
+      });
     }
     setFightStarted(true);
   };
@@ -79,13 +89,23 @@ export default function Room4Dragon({
   const attemptDualHeal = () => {
     const wokeDragon = Math.random() < 0.5;
     if (wokeDragon) {
-      setDragonAwakened(true);
-      showAction("Amethyst Dragon awake! Prepare for battle!");
+      awakenDragon(); //attack pose, idle pose transition
       setFightStarted(true);
     } else {
-      if (!darklordDead) setDarklordHealth((h) => Math.min(120, h + 50));
-      if (!chxospixieDead) setChxospixieHealth((h) => Math.min(120, h + 50));
-      showAction("Both heroes are healed! The Amethyst Dragon continues to sleep.");
+      if (!darklordDead) {
+        setDarklordHealth((h) => {
+          const newHealth = Math.min(120, h + 50);
+          showDamage(50, "Darklord", "heal");
+          return newHealth;
+        });
+      }
+      if (!chxospixieDead) {
+        setChxospixieHealth((h) => {
+          const newHealth = Math.min(120, h + 50);
+          showDamage(50, "Chxospixie", "heal");
+          return newHealth;
+        });
+      }
       setFightStarted(true);
     }
   };
@@ -101,9 +121,12 @@ export default function Room4Dragon({
     }
   }, [enemyHealth, setCanContinue, setActionLog]);
 
-  const showDamage = (damage, target) => {
-    setFloatingDamage({ value: damage, target });
-    setTimeout(() => setFloatingDamage(null), 1500);
+  const showDamage = (value, target, type = "damage") => {
+    const id = Date.now() + Math.random(); //unique key 
+    setFloatingDamage((prev) => [...prev, { id, value, target, type }]);
+    setTimeout(() => {
+      setFloatingDamage((prev) => prev.filter(d => d.id !== id));
+    }, 1500);
   };
 
   const dealDamage = (damage, attacker) => {
@@ -194,11 +217,14 @@ export default function Room4Dragon({
                 isPolymorphed={isPolymorphed}
                 size="large"
               />
-              {floatingDamage?.target === "Darklord" && (
-                <div className={`${shared.floatingDamage} ${floatingDamage.status ? shared.status : ""}`}>
-                  {floatingDamage.status ? floatingDamage.value : `-${floatingDamage.value}`}
+              {floatingDamage.filter(d => d.target === "Darklord").map(d => (
+                <div
+                  key={d.id}
+                  className={`${styles.heal} ${shared.floatingDamage} ${d.type === "heal" ? shared.heal : ""}`}
+                >
+                  {d.type === "heal" ? `+${d.value}` : `-${d.value}`}
                 </div>
-              )}
+              ))}
             </div>
 
             <div className={shared.championWrapper}>
@@ -209,26 +235,41 @@ export default function Room4Dragon({
                 isPolymorphed={isPolymorphed}
                 size="large"
               />
-              {floatingDamage?.target === "Chxospixie" && (
-                <div className={`${shared.floatingDamage} ${floatingDamage.status ? shared.status : ""}`}>
-                  {floatingDamage.status ? floatingDamage.value : `-${floatingDamage.value}`}
+              {floatingDamage.filter(d => d.target === "Chxospixie").map(d => (
+                <div
+                  key={d.id}
+                  className={`${styles.heal} ${shared.floatingDamage} ${d.type === "heal" ? shared.heal : ""}`}
+                >
+                  {d.type === "heal" ? `+${d.value}` : `-${d.value}`}
                 </div>
-              )}
+              ))}
             </div>
           </div>
           <div className={shared.rightSide}>
             <div className={shared.enemyWrapper}>
+              {/* Enemy HUD */}
+              {!enemyDefeated && (
+                <EnemyHUD
+                  enemyName="Amethyst Dragon"
+                  health={enemyHealth}
+                  maxHealth={enemyMaxHealth}
+                  isDead={enemyDefeated}
+                />
+              )}
               <EnemyCard
                 enemyName="Amethyst Dragon"
                 spritePath={enemySpritePath}
                 size="xlarge"
                 isDead={enemyDefeated}
               />
-              {floatingDamage?.target === "enemy" && (
-                <div className={`${shared.floatingDamage} ${floatingDamage.dodge ? shared.dodge : ""}`}>
-                  {floatingDamage.dodge ? "Dodge" : `-${floatingDamage.value}`}
+              {floatingDamage.filter(d => d.target === "enemy").map(d => (
+                <div
+                  key={d.id}
+                  className={`${styles.heal} ${shared.floatingDamage} ${d.dodge ? shared.dodge : ""}`}
+                >
+                  {d.dodge ? "Dodge" : `-${d.value}`}
                 </div>
-              )}
+              ))}
             </div>
           </div>
         </div>
@@ -304,23 +345,50 @@ export default function Room4Dragon({
 
   return (
     <div className={`${styles.roomBackground1}`}>
-
       <div className={shared.battlefield}>
         <div className={`${shared.leftSide} ${styles.leftSide}`}>
-          <ChampionCard
-            championKey="Darklord"
-            pose="idle"
-            size="large"
-          />
+          <div className={shared.championWrapper}>
+            <ChampionCard
+              championKey="Darklord"
+              pose="idle"
+              size="large"
+            />
+            {floatingDamage.filter(d => d.target === "Darklord").map(d => (
+              <div
+                key={d.id}
+                className={`${styles.heal} ${shared.floatingDamage} ${d.type === "heal" ? shared.heal : ""}`}>
+                {d.type === "heal" ? `+${d.value}` : `-${d.value}`}
+              </div>
+            ))}
 
-          <ChampionCard
-            championKey="Chxospixie"
-            pose="idle"
-            size="large"
-          />
+          </div>
+
+          <div className={shared.championWrapper}>
+            <ChampionCard
+              championKey="Chxospixie"
+              pose="idle"
+              size="large"
+            />
+            {floatingDamage.filter(d => d.target === "Chxospixie").map(d => (
+              <div
+                key={d.id}
+                className={`${styles.heal} ${shared.floatingDamage} ${d.type === "heal" ? shared.heal : ""}`}>
+                {d.type === "heal" ? `+${d.value}` : `-${d.value}`}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
+      <ChampionHUD
+        darklordHealth={darklordHealth}
+        chxospixieHealth={chxospixieHealth}
+        darklordDead={darklordDead}
+        chxospixieDead={chxospixieDead}
+        chxospixieStamina={chxospixieStamina}
+        chxospixieMaxStamina={60}
+        isPolymorphed={isPolymorphed}
+      />
 
       <div className={`${shared.actionsContainer} ${styles.actionsContainer}`}>
         <h4>The crystal glows softly.
