@@ -259,8 +259,9 @@ export default function Room4Dragon({
               <EnemyCard
                 enemyName="Amethyst Dragon"
                 spritePath={enemySpritePath}
-                size="xlarge"
+                size="cinematic"
                 isDead={enemyDefeated}
+                className={styles.dragonEnemy}
               />
               {floatingDamage.filter(d => d.target === "enemy").map(d => (
                 <div

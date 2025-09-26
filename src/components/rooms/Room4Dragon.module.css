@@ -39,13 +39,16 @@
   border: 1px solid #ff7a00 !important;
 }
 
-.battlefield {
-  margin-bottom: 2.5rem !important;
-}
-
 .leftSide {
   margin-bottom: 6rem !important;
   gap: 0;
+}
+
+.dragonEnemy {
+  width: 360px !important;
+  /* dragon needs to be larger than cinematic size */
+  margin-right: 5rem !important;
+  margin-bottom: 2.5rem !important;
 }
 
 .heal {
