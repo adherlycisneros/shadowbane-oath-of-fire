@@ -1,16 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { characterStates } from "../../data/characterData";
 import EnemyCard from "../EnemyCard";
 import ChampionCard from "../ChampionCard";
-import ChampionHUD from "../ChampionHUD";
 import styles from "./Room5Brain.module.css"
 import shared from "./Room3Displacers.module.css";
 
 export default function Room5Brain({
   whisperedPhrase,
-  darklordHealth,
-  chxospixieHealth,
-  chxospixieStamina,
   setCanContinue,
   setIsPolymorphed,
   isPolymorphed,
@@ -20,12 +16,10 @@ export default function Room5Brain({
 }) {
   const [input, setInput] = useState("");
   const [attempts, setAttempts] = useState(0);
-
   const [enemyPose, setEnemyPose] = useState("idle");
-
-  const [darklordPose, setDarklordPose] = useState("idle");
-  const [chxospixiePose, setChxospixiePose] = useState("idle");
-
+  const [feedback, setFeedback] = useState(null);
+  const [showRedFlash, setShowRedFlash] = useState(false);
+  const [shakeInput, setShakeInput] = useState(false);
 
   const stateKey = isPolymorphed ? "polymorphed" : "normal";
   const darklord = characterStates.Darklord[stateKey];
@@ -36,62 +30,57 @@ export default function Room5Brain({
       ? "/assets/sprites/enemies/room5/brain-attack.png"
       : "/assets/sprites/enemies/room5/brain-idle.png";
 
-
-  const logAction = (entry) => {
-    setActionLog([entry]);
-  };
+  const timeouts = useRef([]);
 
   useEffect(() => {
     setActionLog([]);
+    return () => timeouts.current.forEach(clearTimeout);
   }, [setActionLog]);
+
+  const triggerRedFlash = () => {
+    setShowRedFlash(true);
+    const t = setTimeout(() => setShowRedFlash(false), 300);
+    timeouts.current.push(t);
+  };
 
   const checkPhrase = () => {
     const cleanedInput = input.trim().toLowerCase();
     const correct = whisperedPhrase.toLowerCase();
+    const newAttempts = attempts + 1;
+    setAttempts(newAttempts);
 
     if (cleanedInput === correct) {
-      setActionLog({
-        success: true,
-        message: "🧠 The brain hums in approval. You may pass."
-      })
+      setFeedback({ success: true, message: "🧠 The brain hums in approval. You may pass." });
       setCanContinue(true);
+    } else if (newAttempts === 1) {
+      // First wrong attempt: shake input and red flash, no message yet
+      setShakeInput(true);
+      triggerRedFlash();
+      const t = setTimeout(() => setShakeInput(false), 500);
+      timeouts.current.push(t);
     } else {
-      const newAttempts = attempts + 1;
-      setAttempts(newAttempts);
-
-      if (newAttempts >= 2) {
-        setEnemyPose("attack");
-        setTimeout(() => {
-          setActionLog({
-            success: false,
-            message: `🧠 The brain pulses angrily! It sees no hope in your cognitive abilities and polymorphs Darklord into a frumpy toad and Chxospixie into a bewildered sheep!
-          
-You must now continue your quest in this unfortunate form...`
+      // Second wrong attempt: polymorph and show message
+      setEnemyPose("attack");
+      triggerRedFlash();
+      const t = setTimeout(() => {
+        setFeedback({
+          success: false,
+          message: "🧠 The brain lashes out, polymorphing you both into pitiful forms."
         });
-
         setIsPolymorphed(true);
         setCanContinue(true);
         setEnemyPose("idle");
-      }, 1000);
-    } else {
-        //First incorrect attempt
-      setActionLog({
-        success: false,
-        message: "⚠️ Last chance..."
-      });
+      }, 800);
+      timeouts.current.push(t);
     }
-  }
-};
+  };
 
-  //Disable the input text and submit buttons when not allowed to be used
-  const isLocked = logAction && (setActionLog.success || attempts >= 2);
+  const isLocked = feedback?.success || attempts >= 2;
 
   return (
     <div className={`${styles.roomBackground} fullscreen-fit`}>
-      {/* Use shared.battlefield but add room-specific class for overrides */}
+      {showRedFlash && <div className={shared.redFlash} />}
       <div className={`${shared.battlefield} ${styles.room5Battlefield}`}>
-
-        {/* Left champion (Darklord) */}
         <div className={styles.leftChampionWrapper}>
           <div className={shared.championWrapper}>
             <ChampionCard
@@ -104,7 +93,6 @@ You must now continue your quest in this unfortunate form...`
           </div>
         </div>
 
-        {/* Brain (top center), wrapped so we can absolutely position it */}
         <div className={`${styles.brainWrapper} ${shared.enemyWrapper}`}>
           <EnemyCard
             enemyName="Brain"
@@ -113,7 +101,6 @@ You must now continue your quest in this unfortunate form...`
           />
         </div>
 
-        {/* Right champion (Chxospixie) */}
         <div className={styles.rightChampionWrapper}>
           <div className={shared.championWrapper}>
             <ChampionCard
@@ -125,29 +112,30 @@ You must now continue your quest in this unfortunate form...`
             />
           </div>
         </div>
-
       </div>
 
       <div className={`${styles.actionsContainer} ${shared.actionsContainer}`}>
-        <input
-          type="text"
-          value={input}
-          placeholder="💭 Impress the brain. Recall the fog’s whisper from rooms past and type it here…"
-          onChange={(e) => {
-            setInput(e.target.value);
-            setActionLog(null);
-          }}
-          disabled={isLocked}
-          className={styles.inputField}
-        />
-        <button 
-          onClick={checkPhrase} 
-          disabled={isLocked}
-          className={styles.submitButton}
-        >
-          Submit
-        </button>
-
+        <div className={styles.actionsInner}>
+          {!isLocked ? (
+            <>
+              <input
+                type="text"
+                value={input}
+                placeholder="💭 Impress the brain. Recall the fog’s whisper from rooms past and type it here…"
+                onChange={(e) => setInput(e.target.value)}
+                className={`${styles.inputField} ${shakeInput ? styles.shake : ""}`}
+              />
+              <button
+                onClick={checkPhrase}
+                className={styles.submitButton}
+              >
+                Submit
+              </button>
+            </>
+          ) : (
+            <span className={styles.feedbackText}>{feedback?.message}</span>
+          )}
+        </div>
       </div>
     </div>
   );
