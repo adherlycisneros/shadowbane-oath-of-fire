@@ -17,11 +17,18 @@ export default function ChampionCard({
     ? championData.sprites.dead
     : championData.sprites[pose] || championData.sprites.idle;
 
+  // Adjust size dynamically for polymorphed attack poses
+  const effectiveSize = isPolymorphed
+    ? pose === "attack"
+      ? "medium"
+      : "small"
+    : size;
+
   // Add a dead pose class specific to championKey for room-specific styling
   const deadClass = isDead ? `dead-${championKey.toLowerCase()}` : "";
 
   return (
-    <div className={`cardContainer ${size} ${isDead ? "dead" : ""}`}>
+    <div className={`cardContainer ${effectiveSize} ${isDead ? "dead" : ""}`}>
       <img
         src={spriteSrc}
         alt={championData.displayName}

@@ -276,36 +276,41 @@ export default function Room6Final({
 
                     <div className={`${shared.battlefield} ${styles.battlefield}`}>
                         <div className={`${shared.leftSide} ${styles.leftSide}`}>
-                            <div className={shared.championWrapper}>
-                                <ChampionCard
-                                    championKey="Darklord"
-                                    pose={darklordDead ? "dead" : darklordPose}
-                                    isDead={darklordDead}
-                                    isPolymorphed={isPolymorphed}
-                                    size="large"
-                                />
-                                {floatingDamage?.target === "Darklord" && (
-                                    <div className={`${shared.floatingDamage} ${floatingDamage.status ? shared.status : ""}`}>
-                                        {floatingDamage.status ? floatingDamage.value : `-${floatingDamage.value}`}
-                                    </div>
-                                )}
+                            <div className={`${styles.leftChampionWrapper} ${isPolymorphed ? styles.polymorphed : ""}`}>
+                                <div className={shared.championWrapper}>
+                                    <ChampionCard
+                                        championKey="Darklord"
+                                        pose={darklordDead ? "dead" : darklordPose}
+                                        isDead={darklordDead}
+                                        isPolymorphed={isPolymorphed}
+                                        size="large"
+                                    />
+                                    {floatingDamage?.target === "Darklord" && (
+                                        <div className={`${shared.floatingDamage} ${floatingDamage.status ? shared.status : ""}`}>
+                                            {floatingDamage.status ? floatingDamage.value : `-${floatingDamage.value}`}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className={shared.championWrapper}>
-                                <ChampionCard
-                                    championKey="Chxospixie"
-                                    pose={chxospixieDead ? "dead" : chxospixiePose}
-                                    isDead={chxospixieDead}
-                                    isPolymorphed={isPolymorphed}
-                                    size="large"
-                                />
-                                {floatingDamage?.target === "Chxospixie" && (
-                                    <div className={`${shared.floatingDamage} ${floatingDamage.status ? shared.status : ""}`}>
-                                        {floatingDamage.status ? floatingDamage.value : `-${floatingDamage.value}`}
-                                    </div>
-                                )}
+                            <div className={`${styles.rightChampionWrapper} ${isPolymorphed ? styles.polymorphed : ""}`}>
+                                <div className={shared.championWrapper}>
+                                    <ChampionCard
+                                        championKey="Chxospixie"
+                                        pose={chxospixieDead ? "dead" : chxospixiePose}
+                                        isDead={chxospixieDead}
+                                        isPolymorphed={isPolymorphed}
+                                        size="large"
+                                    />
+                                    {floatingDamage?.target === "Chxospixie" && (
+                                        <div className={`${shared.floatingDamage} ${floatingDamage.status ? shared.status : ""}`}>
+                                            {floatingDamage.status ? floatingDamage.value : `-${floatingDamage.value}`}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
+
 
                         <div className={`${shared.rightSide} ${styles.rightSide}`}>
                             <div className={shared.enemyWrapper} style={{ position: "relative" }}>

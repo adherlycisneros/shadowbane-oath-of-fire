@@ -162,7 +162,7 @@ export default function Game() {
 
   // DELAYED CONTINUE BUTTON LOGIC
   useEffect(() => {
-    if (canContinue && currentRoom.id !== 1) {
+    if (canContinue && currentRoom.id !== 1, 4) {
       const timer = setTimeout(() => {
         setDelayedContinue(true);
       }, 1500);

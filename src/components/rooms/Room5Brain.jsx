@@ -59,19 +59,29 @@ export default function Room5Brain({
       const t = setTimeout(() => setShakeInput(false), 500);
       timeouts.current.push(t);
     } else {
-      // Second wrong attempt: polymorph and show message
+      // Second wrong attempt: brain attack
       setEnemyPose("attack");
       triggerRedFlash();
-      const t = setTimeout(() => {
-        setFeedback({
-          success: false,
-          message: "🧠 The brain lashes out, polymorphing you both into pitiful forms."
-        });
+
+      // Show feedback text immediately
+      setFeedback({
+        success: false,
+        message: "🧠 The brain lashes out, polymorphing you both into pitiful forms."
+      });
+
+      // Delay polymorph sprites slightly to emphasize the attack
+      const tPolymorph = setTimeout(() => {
         setIsPolymorphed(true);
-        setCanContinue(true);
+      }, 600); // adjust delay for best visual effect
+      timeouts.current.push(tPolymorph);
+
+      // When brain attack finishes, return to idle and show continue
+      const tEnd = setTimeout(() => {
         setEnemyPose("idle");
-      }, 800);
-      timeouts.current.push(t);
+        setFeedback(null);
+        setCanContinue(true);
+      }, 5000); // attack duration
+      timeouts.current.push(tEnd);
     }
   };
 
@@ -81,7 +91,7 @@ export default function Room5Brain({
     <div className={`${styles.roomBackground} fullscreen-fit`}>
       {showRedFlash && <div className={shared.redFlash} />}
       <div className={`${shared.battlefield} ${styles.room5Battlefield}`}>
-        <div className={styles.leftChampionWrapper}>
+        <div className={`${styles.leftChampionWrapper} ${isPolymorphed ? styles.polymorphed : ""}`}>
           <div className={shared.championWrapper}>
             <ChampionCard
               championKey="Darklord"
@@ -101,7 +111,7 @@ export default function Room5Brain({
           />
         </div>
 
-        <div className={styles.rightChampionWrapper}>
+        <div className={`${styles.rightChampionWrapper} ${isPolymorphed ? styles.polymorphed : ""}`}>
           <div className={shared.championWrapper}>
             <ChampionCard
               championKey="Chxospixie"

@@ -24,7 +24,8 @@
   display: flex;
   width: 100%;
   gap: 1rem;
-  min-height: 3.5rem; /* match your input + button height */
+  min-height: 3.5rem;
+  /* match your input + button height */
   align-items: center;
   justify-content: center;
 }
@@ -102,7 +103,7 @@
 
 .leftChampionWrapper {
   position: absolute;
-  left: 10%;
+  left: 14%;
   top: 43%;
   transform: translateY(-50%);
   z-index: 20;
@@ -110,14 +111,24 @@
   justify-content: center;
 }
 
+.leftChampionWrapper.polymorphed {
+  left: 19%;
+  transform: translateY(-25%);
+}
+
 .rightChampionWrapper {
   position: absolute;
-  right: 10%;
+  right: 13%;
   top: 44%;
   transform: scaleX(-1) translateY(-50%);
   z-index: 20;
   display: flex;
   justify-content: center;
+}
+
+.rightChampionWrapper.polymorphed {
+  right: 18%;
+  transform: translateY(-30%) scaleX(-1);
 }
 
 .feedbackText {
@@ -130,12 +141,29 @@
 
 /* Shake animation for first wrong attempt */
 @keyframes shake {
-  0% { transform: translateX(0); }
-  20% { transform: translateX(-8px); }
-  40% { transform: translateX(8px); }
-  60% { transform: translateX(-6px); }
-  80% { transform: translateX(6px); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-8px);
+  }
+
+  40% {
+    transform: translateX(8px);
+  }
+
+  60% {
+    transform: translateX(-6px);
+  }
+
+  80% {
+    transform: translateX(6px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
 }
 
 .shake {

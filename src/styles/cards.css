@@ -13,7 +13,8 @@
   border-radius: 0;
   padding: 0;
   box-shadow: none;
-  max-width: 200px; /* keep size constraints */
+  max-width: 200px;
+  /* keep size constraints */
 }
 
 .cardContainer.cinematic {
@@ -21,19 +22,23 @@
 }
 
 .cardContainer.small .spriteImage {
-  width: 180px;
+  width: 165px;
+}
+
+.cardContainer.medium .spriteImage {
+  width: 195px;
 }
 
 .cardContainer.large .spriteImage {
-  width: 210px; /* large size */
+  width: 210px;
 }
 
 .cardContainer.xlarge .spriteImage {
-  width: 280px; /* xlarge size */
+  width: 280px;
 }
 
 .cardContainer.cinematic .spriteImage {
-  width: 320px; /* cinematic size */
+  width: 320px;
 }
 
 /* DEAD HEROES POSITIONING */
@@ -46,12 +51,10 @@
   transform: translateY(30px);
   width: 170px !important;
 }
+
 /*Dead hero positioning end*/
 
 .spriteImage {
   height: auto;
   transition: transform 0.3s ease;
 }
-
-
-

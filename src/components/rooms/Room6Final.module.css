@@ -23,6 +23,12 @@
   margin-right: 2rem !important;
 }
 
+/* Polymorphed hero position adjustment */
+.leftChampionWrapper.polymorphed,
+.rightChampionWrapper.polymorphed {
+  transform: translateY(20%) translateX(30%);
+}
+
 .actionsInnerRowChest {
   margin-bottom: 1rem;
   /* increase spacing to match action buttons area */
