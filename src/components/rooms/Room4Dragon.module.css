@@ -40,15 +40,15 @@
 }
 
 .leftSide {
-  margin-bottom: 6rem !important;
-  gap: 0;
+  margin-bottom: 5.5rem !important;
+  gap: 1.5rem;
 }
 
 .dragonEnemy {
-  width: 360px !important;
+  width: 400px !important;
   /* dragon needs to be larger than cinematic size */
   margin-right: 5rem !important;
-  margin-bottom: 2.5rem !important;
+  margin-bottom: 2.8rem !important;
 }
 
 .heal {

@@ -60,7 +60,7 @@ export default function Room6Final({
         `P.S. No respecs allowed. You are stuck with me for the rest of the campaign. 💖`
     ];
 
-    const [enemyHealth, setEnemyHealth] = useState(10);
+    const [enemyHealth, setEnemyHealth] = useState(300);
     const [enemyDefeated, setEnemyDefeated] = useState(false);
     const [showRedFlash, setShowRedFlash] = useState(false);
     const [enemyPose, setEnemyPose] = useState("idle");
@@ -277,7 +277,7 @@ export default function Room6Final({
                     <div className={`${shared.battlefield} ${styles.battlefield}`}>
                         <div className={`${shared.leftSide} ${styles.leftSide}`}>
                             <div className={`${styles.leftChampionWrapper} ${isPolymorphed ? styles.polymorphed : ""}`}>
-                                <div className={shared.championWrapper}>
+                                <div className={`${shared.championWrapper} ${isPolymorphed ? styles.polySlot : ""}`}>
                                     <ChampionCard
                                         championKey="Darklord"
                                         pose={darklordDead ? "dead" : darklordPose}
@@ -294,7 +294,7 @@ export default function Room6Final({
                             </div>
 
                             <div className={`${styles.rightChampionWrapper} ${isPolymorphed ? styles.polymorphed : ""}`}>
-                                <div className={shared.championWrapper}>
+                                <div className={`${shared.championWrapper} ${isPolymorphed ? styles.polySlot : ""}`}>
                                     <ChampionCard
                                         championKey="Chxospixie"
                                         pose={chxospixieDead ? "dead" : chxospixiePose}

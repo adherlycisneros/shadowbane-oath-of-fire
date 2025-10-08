@@ -26,7 +26,33 @@
 /* Polymorphed hero position adjustment */
 .leftChampionWrapper.polymorphed,
 .rightChampionWrapper.polymorphed {
-  transform: translateY(20%) translateX(30%);
+  transform: translateY(5%) translateX(20%);
+}
+
+/* Fixed-size slot so polymorphed idle/attack sprites don't push layout */
+.polySlot {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: flex-end;
+
+  /* lock footprint so sprite width changes won't reflow */
+  width: 210px;
+  min-width: 210px;
+  flex: 0 0 210px;
+
+  /* give enough height for both poses; tweak if needed */
+  min-height: 220px;
+}
+
+/* optional: on very small screens, allow a slightly smaller slot */
+@media (max-width: 420px) {
+  .polySlot {
+    width: 190px;
+    min-width: 190px;
+    flex-basis: 190px;
+    min-height: 200px;
+  }
 }
 
 .actionsInnerRowChest {
@@ -35,8 +61,6 @@
   transition: margin 0.3s ease;
   /* optional smooth transition */
 }
-
-
 
 .treasureMessage {
   color: #f1c40f;

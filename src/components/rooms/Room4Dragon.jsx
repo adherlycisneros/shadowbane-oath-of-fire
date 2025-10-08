@@ -72,14 +72,14 @@ export default function Room4Dragon({
   const healOne = (character) => {
     if (character === "Darklord" && !darklordDead) {
       setDarklordHealth((h) => {
-        const newHealth = Math.min(120, h + 50);
-        showDamage(50, "Darklord", "heal");
+        const newHealth = Math.min(120, h + 120);
+        showDamage("HP↑", "Darklord", "heal");
         return newHealth;
       });
     } else if (character === "Chxospixie" && !chxospixieDead) {
       setChxospixieHealth((h) => {
-        const newHealth = Math.min(120, h + 50);
-        showDamage(50, "Chxospixie", "heal");
+        const newHealth = Math.min(120, h + 120);
+        showDamage("HP↑", "Chxospixie", "heal");
         return newHealth;
       });
     }
@@ -91,18 +91,23 @@ export default function Room4Dragon({
     if (wokeDragon) {
       awakenDragon(); //attack pose, idle pose transition
       setFightStarted(true);
+
+      //simulate enemy attack delay
+      setTimeout(() => {
+        setActionDisabled(false);
+      }, 1500);
     } else {
       if (!darklordDead) {
         setDarklordHealth((h) => {
-          const newHealth = Math.min(120, h + 50);
-          showDamage(50, "Darklord", "heal");
+          const newHealth = Math.min(120, h + 120);
+          showDamage("HP↑", "Darklord", "heal");
           return newHealth;
         });
       }
       if (!chxospixieDead) {
         setChxospixieHealth((h) => {
-          const newHealth = Math.min(120, h + 50);
-          showDamage(50, "Chxospixie", "heal");
+          const newHealth = Math.min(120, h + 120);
+          showDamage("HP↑", "Chxospixie", "heal");
           return newHealth;
         });
       }
@@ -204,7 +209,7 @@ export default function Room4Dragon({
   //RETURN FOR COMBAT VERSION
   if (dragonAwakened && !enemyDefeated) {
     return (
-      <div className={`${styles.roomBackground2} fullscreen-fit`}>
+      <div className={`${styles.roomBackground2}`}>
         {showRedFlash && <div className={shared.redFlash} />}
 
         <div className={`${shared.battlefield} ${styles.battlefield}`}>
@@ -338,7 +343,7 @@ export default function Room4Dragon({
 
   if (enemyDefeated) {
     return (
-      <div className={`${styles.roomBackground2} fullscreen-fit`}>
+      <div className={`${styles.roomBackground2}`}>
 
       </div>
     )
@@ -358,7 +363,7 @@ export default function Room4Dragon({
               <div
                 key={d.id}
                 className={`${styles.heal} ${shared.floatingDamage} ${d.type === "heal" ? shared.heal : ""}`}>
-                {d.type === "heal" ? `+${d.value}` : `-${d.value}`}
+                {d.type === "heal" ? `${d.value}` : `-${d.value}`}
               </div>
             ))}
 
@@ -374,7 +379,7 @@ export default function Room4Dragon({
               <div
                 key={d.id}
                 className={`${styles.heal} ${shared.floatingDamage} ${d.type === "heal" ? shared.heal : ""}`}>
-                {d.type === "heal" ? `+${d.value}` : `-${d.value}`}
+                {d.type === "heal" ? `${d.value}` : `-${d.value}`}
               </div>
             ))}
           </div>
