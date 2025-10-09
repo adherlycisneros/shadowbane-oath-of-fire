@@ -8,7 +8,7 @@ import Room5Brain from "./components/rooms/Room5Brain";
 import Room6Final from "./components/rooms/Room6Final";
 import TitleScreen from "./components/TitleScreen";
 import ChampionCard from "./components/ChampionCard";
-import ChampionHUD from "./components/ChampionHUD.jsx";
+import shared from "./components/rooms/Room3Displacers.module.css";
 
 const DEV_ROOM_INDEX = import.meta.env.VITE_DEV_ROOM_INDEX
   ? parseInt(import.meta.env.VITE_DEV_ROOM_INDEX, 10)
@@ -67,7 +67,6 @@ export default function Game() {
   const [darklordHealth, setDarklordHealth] = useState(120);
   const [chxospixieHealth, setChxospixieHealth] = useState(120);
   const [chxospixieStamina, setChxospixieStamina] = useState(60);
-  const [actionLog, setActionLog] = useState([]);
   const [dragonAwakened, setDragonAwakened] = useState(false);
   const [whisperedPhrase, setWhisperedPhrase] = useState("");
   const [showWhisper, setShowWhisper] = useState(false);
@@ -84,11 +83,6 @@ export default function Game() {
   const [darklordPose, setDarklordPose] = useState("idle"); // "idle", "attack", "dead"
   const [chxospixiePose, setChxospixiePose] = useState("idle");
 
-  // Helper for consistent log updates
-  const logAction = (entry) => {
-    setActionLog([entry]);
-  };
-
   //START GAME
   const startGame = () => {
     setGameStarted(true);
@@ -100,7 +94,6 @@ export default function Game() {
     setDarklordDead(false);
     setChxospixieDead(false);
     setCanContinue(false);
-    setActionLog([]);
     setIsPolymorphed(false);
     setDarklordPose("idle");
     setChxospixiePose("idle");
@@ -172,18 +165,6 @@ export default function Game() {
     }
   }, [canContinue, roomIndex]);
 
-  //CLEAR ACTION BUBBLE AFTER DISPLAYED DONE//
-  useEffect(() => {
-    if (actionLog.length === 0) return;
-
-    const timer = setTimeout(() => {
-      setActionLog([]);
-    }, 3000); // matches CSS fadeOut
-
-    return () => clearTimeout(timer);
-  }, [actionLog]);
-
-
   //RESTART ROOM IF HEROES DEAD
   const restartRoom = () => {
     setDarklordHealth(200);
@@ -191,7 +172,6 @@ export default function Game() {
     setChxospixieStamina(60);
     setDarklordDead(false);
     setChxospixieDead(false);
-    setActionLog([]);
     setCanContinue(false);
     setRestartOverlayMessage("");
     setShowWhisper(false);
@@ -257,7 +237,6 @@ export default function Game() {
     }
     setRoomIndex(roomIndex + 1);
     setShowRoomIntro(true);
-    setActionLog([]);
     setCanContinue(false);
     setDarklordPose("idle");
     setChxospixiePose("idle");
@@ -267,17 +246,6 @@ export default function Game() {
 
   return (
     <>
-      {/*{currentRoom.id !== 1 && (
-        <ChampionHUD
-          darklordHealth={darklordHealth}
-          chxospixieHealth={chxospixieHealth}
-          chxospixieStamina={chxospixieStamina}
-          chxospixieMaxStamina={60}
-          darklordDead={darklordDead}
-          chxospixieDead={chxospixieDead}
-          isPolymorphed={isPolymorphed}
-        />
-      )} */}
       {!gameStarted ? (
         <TitleScreen onStart={startGame} />
       ) : (
@@ -332,7 +300,6 @@ export default function Game() {
                   chxospixieHealth={chxospixieHealth}
                   darklordDead={darklordDead}
                   chxospixieDead={chxospixieDead}
-                  setActionLog={setActionLog}
                   handleAction={handleAction}
                   restartOverlayMessage={restartOverlayMessage}
                 />
@@ -351,7 +318,6 @@ export default function Game() {
                   isPolymorphed={isPolymorphed}
                   darklordDead={darklordDead}
                   chxospixieDead={chxospixieDead}
-                  setActionLog={setActionLog}
                   handleAction={handleAction}
                 />
               )}
@@ -370,7 +336,6 @@ export default function Game() {
                   darklordDead={darklordDead}
                   chxospixieDead={chxospixieDead}
                   onAction={handleAction}
-                  setActionLog={setActionLog}
                 />
               )}
               {currentRoom.id === 5 && (
@@ -380,7 +345,6 @@ export default function Game() {
                   setCanContinue={setCanContinue}
                   setIsPolymorphed={setIsPolymorphed}
                   isPolymorphed={isPolymorphed}
-                  setActionLog={setActionLog}
                   darklordDead={darklordDead}
                   chxospixieDead={chxospixieDead}
                   darklordHealth={darklordHealth}
@@ -407,24 +371,11 @@ export default function Game() {
                   chxospixieDead={chxospixieDead}
                   setCanContinue={setCanContinue}
                   onFinish={finishAdventure}
-                  setActionLog={setActionLog}
                   onAction={handleAction}
                 />
               )}
             </>
           )}
-
-          {/* Floating Action Bubbles */}
-          {actionLog.length > 0 && !canContinue && !showRoomIntro && !restartOverlayMessage && (
-            <div
-              className={`actionLogBubble ${currentRoom.id === 2 ? "room2ActionLog" : ""}`}
-              key="floating-action-bubble"
-            >
-              {actionLog[0]}
-            </div>
-          )}
-
-
 
           {/* Continue Button */}
           {roomIndex < rooms.length - 1 && canContinue && (currentRoom.id === 1 || delayedContinue) && (

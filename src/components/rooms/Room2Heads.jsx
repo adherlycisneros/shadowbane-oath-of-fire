@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import ChampionCard from "../ChampionCard";
 import ChampionHUD from "../ChampionHUD";
 import styles from "./Room2Heads.module.css";
+import shared from "./Room3Displacers.module.css";
 
 const headOptions = [
   { id: 0, label: "Head 1", img: "/assets/sprites/enemies/room2/head1.png" },
@@ -21,18 +22,19 @@ export default function Room2Heads({
   darklordDead,
   chxospixieDead,
   isPolymorphed,
-  setActionLog,
 }) {
   const [glowSequence, setGlowSequence] = useState([]);
   const [playerInput, setPlayerInput] = useState([]);
   const [isPlayingSequence, setIsPlayingSequence] = useState(true);
   const [showRedFlash, setShowRedFlash] = useState(false);
   const [glowingIndex, setGlowingIndex] = useState(null);
+  const [actionLog, setActionLog] = useState([]);
+  const [floatingDamage, setFloatingDamage] = useState([]);
 
   const isDeadRef = useRef(false);
   const timeouts = useRef([]);
 
-  // Clear all timeouts on unmount
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       timeouts.current.forEach(clearTimeout);
@@ -40,23 +42,14 @@ export default function Room2Heads({
     };
   }, []);
 
+  // Initial start
   useEffect(() => {
-    setActionLog([]);
-  }, [setActionLog]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      generateNewSequence();
-    }, 2000);
+    const timer = setTimeout(() => generateNewSequence(), 2000);
     timeouts.current.push(timer);
-
-    return () => {
-      clearTimeout(timer);
-      timeouts.current = timeouts.current.filter((t) => t !== timer);
-    };
+    return () => clearTimeout(timer);
   }, []);
 
-  // Track dead state changes
+  // Handle both heroes dying and reviving
   const prevBothDead = useRef(false);
   useEffect(() => {
     const bothDeadNow = darklordDead && chxospixieDead;
@@ -73,20 +66,13 @@ export default function Room2Heads({
       prevBothDead.current = false;
       setPlayerInput([]);
       setCanContinue(false);
-      const timer = setTimeout(() => {
-        generateNewSequence();
-      }, 2000);
+      const timer = setTimeout(() => generateNewSequence(), 2000);
       timeouts.current.push(timer);
-      return () => {
-        clearTimeout(timer);
-        timeouts.current = timeouts.current.filter((t) => t !== timer);
-      };
     }
   }, [darklordDead, chxospixieDead]);
 
   const generateNewSequence = () => {
     if (isDeadRef.current) return;
-
     setIsPlayingSequence(true);
 
     const newSeq = Array.from({ length: 6 }, () =>
@@ -96,30 +82,25 @@ export default function Room2Heads({
     setPlayerInput([]);
 
     playGlowSequence(newSeq);
-    logAction("Heads shuffle glow...");
+    addActionLog("Heads shuffle their glow...");
   };
 
-  // Play glow sequence asynchronously
   const playGlowSequence = async (sequence) => {
     for (let i = 0; i < sequence.length; i++) {
       if (isDeadRef.current) return;
 
       setGlowingIndex(sequence[i]);
-
-      // Use promise + timeout pattern
       await new Promise((resolve) => {
         const timeout = setTimeout(resolve, 800);
         timeouts.current.push(timeout);
       });
 
       setGlowingIndex(null);
-
       await new Promise((resolve) => {
         const timeout = setTimeout(resolve, 400);
         timeouts.current.push(timeout);
       });
     }
-
     setIsPlayingSequence(false);
   };
 
@@ -129,13 +110,18 @@ export default function Room2Heads({
     timeouts.current.push(timeout);
   };
 
-  const logAction = (entry) => {
-    setActionLog([entry]);
+  const showDamage = (damage, targets) => {
+    const entries = targets.map((target) => ({ value: damage, target }));
+    setFloatingDamage(entries);
+    setTimeout(() => setFloatingDamage([]), 1500);
+  };
+
+  const addActionLog = (text) => {
+    setActionLog([text]); // only one line visible
   };
 
   const handleHeadClick = (index) => {
-    if (isPlayingSequence) return;
-    if (isDeadRef.current) return;
+    if (isPlayingSequence || isDeadRef.current) return;
 
     setGlowingIndex(index);
     const timeout = setTimeout(() => {
@@ -145,45 +131,37 @@ export default function Room2Heads({
 
     const newInput = [...playerInput, index];
     setPlayerInput(newInput);
-
     const currentStep = newInput.length - 1;
 
-    // Check if player input matches glow sequence
+    // Wrong input
     if (index !== glowSequence[currentStep]) {
-      logAction(`⚡ Wrong!`);
+      addActionLog("⚡ Wrong head ⚡");
       triggerRedFlash();
-      logAction(`20 damage to the party`);
 
-      // Damage Darklord health with logging
+      const damage = 20;
+      const targets = [];
       if (!darklordDead) {
-        setDarklordHealth((prev) => {
-          const newHealth = Math.max(prev - 20, 0);
-          console.log("Darklord health reduced:", newHealth);
-          return newHealth;
-        });
+        setDarklordHealth((prev) => Math.max(prev - damage, 0));
+        targets.push("Darklord");
+      }
+      if (!chxospixieDead) {
+        setChxospixieHealth((prev) => Math.max(prev - damage, 0));
+        targets.push("Chxospixie");
       }
 
-      // Damage Chxospixie health with logging
-      if (!chxospixieDead) {
-        setChxospixieHealth((prev) => {
-          const newHealth = Math.max(prev - 20, 0);
-          console.log("Chxospixie health reduced:", newHealth);
-          return newHealth;
-        });
-      }
+      showDamage(damage, targets);
 
       const retryTimer = setTimeout(() => generateNewSequence(), 1500);
       timeouts.current.push(retryTimer);
       return;
     }
 
-    logAction(`✅ Correct`);
+    // Correct input
+    addActionLog("✅ Correct ✅");
 
     if (newInput.length === glowSequence.length) {
-      logAction("✅ Sequence matched! Safe passage unlocked.");
-      setTimeout(() => {
-        setCanContinue(true);
-      }, 3000);
+      addActionLog("✅ Sequence matched! Safe passage unlocked ✅");
+      setTimeout(() => setCanContinue(true), 3000);
     }
   };
 
@@ -201,14 +179,12 @@ export default function Room2Heads({
         isPolymorphed={isPolymorphed}
       />
 
-
       {!canContinue && (
         <div className={styles.contentWrapper}>
           <div className={styles.leftSide}>
             <div
-              className={`${styles.heroesContainer} ${
-                darklordDead || chxospixieDead ? styles.dead : ""
-              }`}
+              className={`${styles.heroesContainer} ${darklordDead || chxospixieDead ? styles.dead : ""
+                }`}
             >
               <ChampionCard
                 championKey="Darklord"
@@ -222,6 +198,19 @@ export default function Room2Heads({
                 isPolymorphed={isPolymorphed}
                 size="large"
               />
+
+              {/* Floating Damage */}
+              {floatingDamage.map((entry, idx) => (
+                <div
+                  key={idx}
+                  className={`${shared.floatingDamage} ${entry.target === "Darklord"
+                    ? shared.leftDamage
+                    : shared.rightDamage
+                    }`}
+                >
+                  -{entry.value}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -232,9 +221,8 @@ export default function Room2Heads({
                   key={head.id}
                   onClick={() => handleHeadClick(head.id)}
                   disabled={isPlayingSequence || darklordDead || chxospixieDead}
-                  className={`${styles.headButton} ${
-                    glowingIndex === head.id ? styles.glow : ""
-                  }`}
+                  className={`${styles.headButton} ${glowingIndex === head.id ? styles.glow : ""
+                    }`}
                 >
                   <img
                     src={head.img}
@@ -247,6 +235,13 @@ export default function Room2Heads({
           </div>
         </div>
       )}
+
+      {/* Bottom feedback bar */}
+      <div className={`${styles.actionsContainer} ${shared.actionsContainer}`}>
+        <div className={`${styles.actionsInner} ${shared.actionsInnerRow}`}>
+          <span className={styles.feedbackText}>{actionLog[0]}</span>
+        </div>
+      </div>
     </div>
   );
 }

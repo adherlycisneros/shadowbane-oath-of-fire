@@ -83,12 +83,13 @@ export default function Room4Dragon({
         return newHealth;
       });
     }
-    setFightStarted(true);
+    setCanContinue(true);
   };
 
   const attemptDualHeal = () => {
     const wokeDragon = Math.random() < 0.5;
     if (wokeDragon) {
+      triggerRedFlash();
       awakenDragon(); //attack pose, idle pose transition
       setFightStarted(true);
 

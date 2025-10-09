@@ -9,12 +9,14 @@
   box-sizing: border-box;
   overflow: hidden;
   color: var(--color-text);
-  position: relative; /* required for HUD positioning */
+  position: relative;
+  /* required for HUD positioning */
 }
 
 .contentWrapper {
   display: flex;
-  flex-direction: row; /* side by side */
+  flex-direction: row;
+  /* side by side */
   align-items: flex-start;
   justify-content: space-between;
   width: 100%;
@@ -28,7 +30,8 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  flex: 0 0 40%; /* 40% width */
+  flex: 0 0 40%;
+  /* 40% width */
   gap: 1.3rem;
   margin-left: 80px;
   margin-top: 30px;
@@ -40,9 +43,11 @@
   justify-content: flex-start;
   width: 100%;
 }
+
 .heroesContainer.dead {
   gap: 2rem;
-  margin-left: 2.5rem !important; /* Shift both to the right */
+  margin-left: 2.5rem !important;
+  /* Shift both to the right */
   position: fixed;
 }
 
@@ -60,8 +65,10 @@
 /* Heads container now relative, fixed size for positioning */
 .headsGrid {
   position: relative;
-  width: 280px;  /* enough space for 2 heads side by side with gap */
-  height: 280px; /* enough space for 2 rows */
+  width: 280px;
+  /* enough space for 2 heads side by side with gap */
+  height: 280px;
+  /* enough space for 2 rows */
   margin-bottom: 1.5rem;
 }
 
@@ -108,21 +115,26 @@ button.headButton {
 }
 
 .headButton img {
-  width: 140px;   /* smaller size, adjust as needed */
-  height: auto;  /* keep aspect ratio */
-  display: block; /* remove inline spacing issues */
+  width: 140px;
+  /* smaller size, adjust as needed */
+  height: auto;
+  /* keep aspect ratio */
+  display: block;
+  /* remove inline spacing issues */
 }
+
 .headButton {
-  padding: 0.25rem; /* reduce padding */
-  width: 140px;       /* make button size match image */
+  padding: 0.25rem;
+  /* reduce padding */
+  width: 140px;
+  /* make button size match image */
   height: auto;
 }
 
 
 /* Glow heads when playing sound */
 .glow img {
-  filter: drop-shadow(0 0 6px var(--color-ember))
-          drop-shadow(0 0 12px var(--color-ember));
+  filter: drop-shadow(0 0 6px var(--color-ember)) drop-shadow(0 0 12px var(--color-ember));
   animation: glowPulse 0.8s ease forwards;
 }
 
@@ -130,10 +142,11 @@ button.headButton {
   0% {
     filter: drop-shadow(0 0 0px var(--color-ember));
   }
+
   50% {
-    filter: drop-shadow(0 0 12px var(--color-ember))
-            drop-shadow(0 0 18px var(--color-ember));
+    filter: drop-shadow(0 0 12px var(--color-ember)) drop-shadow(0 0 18px var(--color-ember));
   }
+
   100% {
     filter: drop-shadow(0 0 0px var(--color-ember));
   }
@@ -152,7 +165,48 @@ button.headButton {
 }
 
 @keyframes flashFade {
-  0% { opacity: 1; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
 
+/* Bottom "action" bar */
+.actionsContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: .97rem, 1.2rem 1rem;
+  position: absolute;
+  bottom: 0;
+}
+
+.actionsInner {
+  display: flex;
+  width: 100%;
+  gap: 1rem;
+  min-height: 4.1rem;
+  /* fixed single-line height like Room5Brain */
+  align-items: center;
+  justify-content: center;
+}
+
+.actionsInner span {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+.feedbackText {
+  font-size: 1.25rem;
+  color: var(--color-text);
+  font-family: 'Quintessential', serif;
+  text-shadow: 0 0 6px rgba(255, 122, 0, 0.7);
+  text-align: center;
+}

@@ -30,8 +30,10 @@ body {
   padding: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden; /* No scroll globally */
-  overscroll-behavior: none; /* Prevent iOS bounce */
+  overflow: hidden;
+  /* No scroll globally */
+  overscroll-behavior: none;
+  /* Prevent iOS bounce */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
@@ -47,11 +49,9 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(
-    135deg,
-    var(--color-bg-gradient-start),
-    var(--color-bg-gradient-end)
-  );
+  background: linear-gradient(135deg,
+      var(--color-bg-gradient-start),
+      var(--color-bg-gradient-end));
 }
 
 /* ---------------------------------------------------
@@ -63,6 +63,7 @@ a {
   font-weight: 500;
   transition: color 0.25s;
 }
+
 a:hover {
   color: var(--color-ember-light);
 }
@@ -83,10 +84,12 @@ button {
   font-family: inherit;
   text-shadow: 0 0 8px rgba(255, 140, 0, 0.6);
 }
+
 button:hover {
   border-color: var(--color-button-hover-border);
   transform: scale(1.05);
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -96,15 +99,23 @@ button:focus-visible {
    Ember Flicker Animation
 --------------------------------------------------- */
 @keyframes ember-flicker {
-  0%, 100% {
+
+  0%,
+  100% {
     text-shadow: 0 0 8px rgba(255, 140, 0, 0.6);
   }
+
   50% {
     text-shadow: 0 0 16px rgba(255, 80, 0, 0.9);
   }
 }
 
-h1, h2, h3, p, button, .continueBtn {
+h1,
+h2,
+h3,
+p,
+button,
+.continueBtn {
   animation: ember-flicker 3s infinite alternate;
 }
 
@@ -116,9 +127,11 @@ h1, h2, h3, p, button, .continueBtn {
   justify-content: center;
   align-items: center;
 }
+
 .column {
   flex-direction: column;
 }
+
 .fullscreen-fit {
   width: 100vw;
   height: 100svh;
@@ -143,7 +156,7 @@ h1, h2, h3, p, button, .continueBtn {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: 
+  background:
     url('/assets/textures/aged-paper.png') repeat,
     radial-gradient(circle at center, var(--color-bg-gradient-end) 0%, var(--color-bg-dark) 100%);
   background-blend-mode: overlay;
@@ -175,46 +188,11 @@ h1, h2, h3, p, button, .continueBtn {
   cursor: pointer;
   transition: transform 0.2s, background 0.2s;
 }
+
 .room-intro-overlay button:hover {
   transform: scale(1.05);
   background: rgba(255, 122, 0, 0.3);
 }
-
-/* -------------------------------
-   New floating action bubble styles
---------------------------------- */
-
-.actionLogBubble {
-  position: fixed;
-  bottom: 15rem; /* Above action buttons */
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(20, 10, 10, 0.85);
-  padding: 0.6rem 1.2rem;
-  border-radius: 12px;
-  font-size: 1rem;
-  color: #ffdf9e;
-  text-align: center;
-  max-width: 90vw;
-  box-shadow: 0 0 12px #ff7a00;
-  z-index: 10000;
-  user-select: none;
-  animation: fadeOut 4s ease-in forwards;
-  pointer-events: none; /* Prevent blocking input */
-}
-.room2ActionLog {
-  top: auto !important;
-  bottom: 1rem !important;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-@keyframes fadeOut {
-  0% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
 
 .continueBtn {
   font-family: 'Metal Mania', serif;
@@ -285,17 +263,23 @@ h1, h2, h3, p, button, .continueBtn {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes popIn {
-  from { transform: scale(0.8); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
-
-
-
-
-
-

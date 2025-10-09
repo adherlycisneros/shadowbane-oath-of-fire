@@ -50,8 +50,19 @@ export default function Room5Brain({
     setAttempts(newAttempts);
 
     if (cleanedInput === correct) {
-      setFeedback({ success: true, message: "🧠 The brain hums in approval. You may pass." });
-      setCanContinue(true);
+      setFeedback({
+        success: true,
+        message: "🧠 The brain hums in approval. You may pass."
+      });
+
+      setEnemyPose("idle");
+      setIsPolymorphed(false);
+
+      const tContinue = setTimeout(() => {
+        setCanContinue(true);
+      }, 2500);
+      timeouts.current.push(tContinue);
+
     } else if (newAttempts === 1) {
       // First wrong attempt: shake input and red flash, no message yet
       setShakeInput(true);
@@ -66,21 +77,19 @@ export default function Room5Brain({
       // Show feedback text immediately
       setFeedback({
         success: false,
-        message: "🧠 The brain lashes out, polymorphing you both into pitiful forms."
+        message: "🧠 The brain lashes out. You must continue your quest in these pitiful forms."
       });
 
       // Delay polymorph sprites slightly to emphasize the attack
       const tPolymorph = setTimeout(() => {
         setIsPolymorphed(true);
-      }, 600); // adjust delay for best visual effect
+      }, 1000); // adjust delay for best visual effect
       timeouts.current.push(tPolymorph);
 
-      // When brain attack finishes, return to idle and show continue
+      // show continue button
       const tEnd = setTimeout(() => {
-        setEnemyPose("idle");
-        setFeedback(null);
         setCanContinue(true);
-      }, 5000); // attack duration
+      }, 2500); // attack duration
       timeouts.current.push(tEnd);
     }
   };

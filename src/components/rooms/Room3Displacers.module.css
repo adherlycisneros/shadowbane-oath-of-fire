@@ -45,7 +45,7 @@
 
 /* Adjust if enemy sprite taller */
 .enemyWrapper .floatingDamage {
-  top: 50%;
+  top: 30%;
   right: -40px;
   left: auto;
   transform: translate(0, -50%);
@@ -68,7 +68,8 @@
   pointer-events: none;
   /* keep existing animation / styles below */
   color: #ff3b3b;
-  font-weight: bold;
+  font-weight: 700;
+  text-shadow: 0 0 6px #ff0303;
   font-size: 1.5rem;
   animation: floatUpFade 2s ease forwards;
   user-select: none;
