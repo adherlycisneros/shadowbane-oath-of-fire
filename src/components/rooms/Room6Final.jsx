@@ -142,7 +142,7 @@ export default function Room6Final({
     // Assume existing setFloatingDamage({ value, target }) pattern
     const showEnemyDodge = () => {
         setFloatingDamage({ value: 0, target: "enemy", dodge: true });
-        setTimeout(() => setFloatingDamage(null), 1500);
+        setTimeout(() => setFloatingDamage(null), 1800);
     };
 
     // PLAYER ATTACK

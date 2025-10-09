@@ -28,7 +28,7 @@ export default function Room2Heads({
   const [isPlayingSequence, setIsPlayingSequence] = useState(true);
   const [showRedFlash, setShowRedFlash] = useState(false);
   const [glowingIndex, setGlowingIndex] = useState(null);
-  const [actionLog, setActionLog] = useState([]);
+  const [actionLog, setActionLog] = useState(["Heads shuffle their glow... Watch carefully."]);
   const [floatingDamage, setFloatingDamage] = useState([]);
 
   const isDeadRef = useRef(false);
@@ -66,6 +66,7 @@ export default function Room2Heads({
       prevBothDead.current = false;
       setPlayerInput([]);
       setCanContinue(false);
+      addActionLog("Heads shuffle their glow... Watch carefully.")
       const timer = setTimeout(() => generateNewSequence(), 2000);
       timeouts.current.push(timer);
     }
@@ -82,7 +83,6 @@ export default function Room2Heads({
     setPlayerInput([]);
 
     playGlowSequence(newSeq);
-    addActionLog("Heads shuffle their glow...");
   };
 
   const playGlowSequence = async (sequence) => {
@@ -110,10 +110,15 @@ export default function Room2Heads({
     timeouts.current.push(timeout);
   };
 
-  const showDamage = (damage, targets) => {
-    const entries = targets.map((target) => ({ value: damage, target }));
-    setFloatingDamage(entries);
-    setTimeout(() => setFloatingDamage([]), 1500);
+  const showDamage = (value, targets) => {
+    const entries = targets.map((target) => ({ id: Date.now() + Math.random(), value, target }));
+    setFloatingDamage((prev) => [...prev, ...entries]);
+    entries.forEach((entry) => {
+      const t = setTimeout(() => {
+        setFloatingDamage((prev) => prev.filter((d) => d.id !== entry.id));
+      }, 1800);
+      timeouts.current.push(t);
+    });
   };
 
   const addActionLog = (text) => {
@@ -151,16 +156,20 @@ export default function Room2Heads({
 
       showDamage(damage, targets);
 
-      const retryTimer = setTimeout(() => generateNewSequence(), 1500);
+      const retryTimer = setTimeout(() => {
+        addActionLog("Heads shuffle their glow... Watch carefully.");
+        generateNewSequence();
+      }, 1500);
       timeouts.current.push(retryTimer);
+
       return;
     }
 
     // Correct input
-    addActionLog("✅ Correct ✅");
+    addActionLog("✔️ Correct Head ✔️ ");
 
     if (newInput.length === glowSequence.length) {
-      addActionLog("✅ Sequence matched! Safe passage unlocked ✅");
+      addActionLog("✨ Sequence matched! Safe passage unlocked! ✨");
       setTimeout(() => setCanContinue(true), 3000);
     }
   };
@@ -183,37 +192,41 @@ export default function Room2Heads({
         <div className={styles.contentWrapper}>
           <div className={styles.leftSide}>
             <div
-              className={`${styles.heroesContainer} ${darklordDead || chxospixieDead ? styles.dead : ""
-                }`}
+              className={`${styles.heroesContainer} ${darklordDead || chxospixieDead ? styles.dead : ""}`}
             >
-              <ChampionCard
-                championKey="Darklord"
-                isDead={darklordDead}
-                isPolymorphed={isPolymorphed}
-                size="large"
-              />
-              <ChampionCard
-                championKey="Chxospixie"
-                isDead={chxospixieDead}
-                isPolymorphed={isPolymorphed}
-                size="large"
-              />
+              <div className={shared.championWrapper}>
+                <ChampionCard
+                  championKey="Darklord"
+                  isDead={darklordDead}
+                  isPolymorphed={isPolymorphed}
+                  size="large"
+                />
+                {floatingDamage
+                  .filter((d) => d.target === "Darklord")
+                  .map((d) => (
+                    <div key={d.id} className={shared.floatingDamage}>
+                      -{d.value}
+                    </div>
+                  ))}
+              </div>
 
-              {/* Floating Damage */}
-              {floatingDamage.map((entry, idx) => (
-                <div
-                  key={idx}
-                  className={`${shared.floatingDamage} ${entry.target === "Darklord"
-                    ? shared.leftDamage
-                    : shared.rightDamage
-                    }`}
-                >
-                  -{entry.value}
-                </div>
-              ))}
+              <div className={shared.championWrapper}>
+                <ChampionCard
+                  championKey="Chxospixie"
+                  isDead={chxospixieDead}
+                  isPolymorphed={isPolymorphed}
+                  size="large"
+                />
+                {floatingDamage
+                  .filter((d) => d.target === "Chxospixie")
+                  .map((d) => (
+                    <div key={d.id} className={shared.floatingDamage}>
+                      -{d.value}
+                    </div>
+                  ))}
+              </div>
             </div>
           </div>
-
           <div className={styles.rightSide}>
             <div className={styles.headsGrid}>
               {headOptions.map((head) => (

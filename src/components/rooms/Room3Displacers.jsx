@@ -63,7 +63,7 @@ export default function Room3Displacers({
 
   const showDamage = (damage, target) => {
     setFloatingDamage({ value: damage, target });
-    setTimeout(() => setFloatingDamage(null), 1500);
+    setTimeout(() => setFloatingDamage(null), 1800);
   };
 
   const dealDamage = (damage, attacker) => {

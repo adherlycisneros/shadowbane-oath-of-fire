@@ -132,7 +132,7 @@ export default function Room4Dragon({
     setFloatingDamage((prev) => [...prev, { id, value, target, type }]);
     setTimeout(() => {
       setFloatingDamage((prev) => prev.filter(d => d.id !== id));
-    }, 1500);
+    }, 1800);
   };
 
   const dealDamage = (damage, attacker) => {
