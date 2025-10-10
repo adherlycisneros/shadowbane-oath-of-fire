@@ -17,7 +17,6 @@ export default function Room3Displacers({
   isPolymorphed,
   darklordDead,
   chxospixieDead,
-  setActionLog,
 }) {
   const [enemyHealth, setEnemyHealth] = useState(180);
   const [enemyDefeated, setEnemyDefeated] = useState(false);
@@ -42,24 +41,15 @@ export default function Room3Displacers({
     setTimeout(() => setShowRedFlash(false), 300);
   };
 
-  const logAction = (entry) => {
-    setActionLog([entry]);
-  };
-
-  useEffect(() => {
-    setActionLog([]);
-  }, [setActionLog]);
-
   useEffect(() => {
     if (enemyHealth <= 0) {
       const timer = setTimeout(() => {
         setEnemyDefeated(true);
-        logAction(["✅ Displacers defeated!"]);
-        setTimeout(() => setCanContinue(true), 1500);
-      }, 600);
+        setTimeout(() => setCanContinue(true), 1000);
+      }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [enemyHealth, setCanContinue, setActionLog]);
+  }, [enemyHealth, setCanContinue]);
 
   const showDamage = (damage, target) => {
     setFloatingDamage({ value: damage, target });
@@ -102,27 +92,22 @@ export default function Room3Displacers({
   const enemyAttack = (attacker) => {
     if (enemyDefeated || isGameOver) return;
 
-    // Determine valid targets
     const targets = [];
     if (!darklordDead) targets.push("Darklord");
     if (!chxospixieDead) targets.push("Chxospixie");
 
-    if (targets.length === 0) return; // no one to attack
+    if (targets.length === 0) return;
 
-    // Attack the attacker if alive, otherwise the other target
     let target;
     if (targets.includes(attacker)) {
       target = attacker;
     } else {
-      // attacker dead or invalid, pick the other alive target
       target = targets.find(t => t !== attacker);
     }
 
-    if (!target) return; // safety check
+    if (!target) return;
 
     const damage = Math.floor(Math.random() * 6) + 10;
-    // const moves = ["Tentacle Flurry", "Shadow Pounce", "Illusory Strikes"];
-    // if (newHealth <= 0) setDarklordDead(true);
 
     if (target === "Darklord") {
       setDarklordHealth((prev) => Math.max(prev - damage, 0));
@@ -213,53 +198,57 @@ export default function Room3Displacers({
         isPolymorphed={isPolymorphed}
       />
 
-      {!enemyDefeated && (
-        <div className={styles.actionsContainer}>
-          <div className={styles.actionsInnerRow}>
-            <div className={styles.actionGroup}>
-              <h4>{darklord.displayName}'s Actions:</h4>
-              <div className={styles.actionButtonsRow}>
-                {darklord.moves.map((move) => (
-                  <button
-                    key={move.name}
-                    className={`${styles.actionButton} ${actionDisabled || darklordDead ? styles.disabled : ""}`}
-                    disabled={actionDisabled || darklordDead}
-                    onClick={() => dealDamage(move.damage, "Darklord", move.name)}
-                  >
-                    {move.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className={styles.actionGroup}>
-              <h4>{chxospixie.displayName}'s Actions:</h4>
-              <div className={styles.actionButtonsRow}>
-                {chxospixie.moves.map((move) => {
-                  const staminaBlocked = move.staminaCost && chxospixieStamina < move.staminaCost;
-                  const isDisabled = chxospixieDead || actionDisabled || staminaBlocked;
-
-                  return (
+      <div className={`${styles.actionsContainer} ${styles.actionsContainerFeedback}`}>
+        <div className={styles.actionsInner}>
+          {enemyDefeated ? (
+            <span className={styles.feedbackText}>✨ Displacers defeated! Safe passage unlocked! ✨</span>
+          ) : (
+            <div className={styles.actionsInnerRow}>
+              <div className={styles.actionGroup}>
+                <h4>{darklord.displayName}'s Actions:</h4>
+                <div className={styles.actionButtonsRow}>
+                  {darklord.moves.map((move) => (
                     <button
                       key={move.name}
-                      className={`${styles.actionButton} ${isDisabled ? styles.disabled : ""}`}
-                      disabled={isDisabled}
-                      onClick={() => {
-                        dealDamage(move.damage, "Chxospixie", move.name);
-                        if (move.staminaCost) {
-                          setChxospixieStamina((s) => Math.max(s - move.staminaCost, 0));
-                        }
-                      }}
+                      className={`${styles.actionButton} ${actionDisabled || darklordDead ? styles.disabled : ""}`}
+                      disabled={actionDisabled || darklordDead}
+                      onClick={() => dealDamage(move.damage, "Darklord", move.name)}
                     >
                       {move.name}
                     </button>
-                  );
-                })}
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.actionGroup}>
+                <h4>{chxospixie.displayName}'s Actions:</h4>
+                <div className={styles.actionButtonsRow}>
+                  {chxospixie.moves.map((move) => {
+                    const staminaBlocked = move.staminaCost && chxospixieStamina < move.staminaCost;
+                    const isDisabled = chxospixieDead || actionDisabled || staminaBlocked;
+
+                    return (
+                      <button
+                        key={move.name}
+                        className={`${styles.actionButton} ${isDisabled ? styles.disabled : ""}`}
+                        disabled={isDisabled}
+                        onClick={() => {
+                          dealDamage(move.damage, "Chxospixie", move.name);
+                          if (move.staminaCost) {
+                            setChxospixieStamina((s) => Math.max(s - move.staminaCost, 0));
+                          }
+                        }}
+                      >
+                        {move.name}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
