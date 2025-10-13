@@ -14,7 +14,6 @@ export default function Room4Dragon({
   setDarklordHealth,
   setChxospixieHealth,
   setChxospixieStamina,
-  setActionLog,
   dragonAwakened,
   setDragonAwakened,
   setCanContinue,
@@ -22,7 +21,7 @@ export default function Room4Dragon({
   darklordDead,
   chxospixieDead
 }) {
-  const [enemyHealth, setEnemyHealth] = useState(300);
+  const [enemyHealth, setEnemyHealth] = useState(3); //300 health
   const [enemyDefeated, setEnemyDefeated] = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
   const [enemyPose, setEnemyPose] = useState("idle");
@@ -33,6 +32,10 @@ export default function Room4Dragon({
   const [chxospixiePose, setChxospixiePose] = useState("idle");
 
   const [floatingDamage, setFloatingDamage] = useState([]);
+  const [feedback, setFeedback] = useState("");
+
+  // Track when the global Continue button should be up and the screen should be minimal on bg2
+  const [continuePhase, setContinuePhase] = useState(false);
 
   const stateKey = isPolymorphed ? "polymorphed" : "normal";
   const darklord = characterStates.Darklord[stateKey];
@@ -52,23 +55,6 @@ export default function Room4Dragon({
     setTimeout(() => setShowRedFlash(false), 300);
   };
 
-  const showAction = (text, delay = 1600) => {
-    setCanContinue(false);
-    setActionLog([text]);
-    setTimeout(() => {
-      setActionLog([]);
-
-      //Only continue if enemy defated 
-      if (enemyDefeated) {
-        setCanContinue(true);
-      }
-    }, delay);
-  };
-
-  useEffect(() => {
-    setActionLog([]);
-  }, [setActionLog]);
-
   const healOne = (character) => {
     if (character === "Darklord" && !darklordDead) {
       setDarklordHealth((h) => {
@@ -83,7 +69,12 @@ export default function Room4Dragon({
         return newHealth;
       });
     }
-    setCanContinue(true);
+    setFeedback("✨ You've been healed... the dragon continues to sleep ✨");
+
+    setTimeout(() => {
+      setCanContinue(true);
+      setContinuePhase(true); // switch to bg2 and hide battlefield/HUD
+    }, 2000);
   };
 
   const attemptDualHeal = () => {
@@ -113,19 +104,26 @@ export default function Room4Dragon({
         });
       }
       setFightStarted(true);
+      setFeedback("✨ You've been healed... the dragon continues to sleep ✨");
+
+      setTimeout(() => {
+        setCanContinue(true);
+        setContinuePhase(true); // switch to bg2 and hide battlefield/HUD
+      }, 2000);
     }
   };
 
   useEffect(() => {
-    if (enemyHealth <= 0) {
-      const timer = setTimeout(() => {
-        setEnemyDefeated(true);
-        showAction(["✅ Amethyst Dragon Defeated!"]);
-        setTimeout(() => setCanContinue(true), 1500);
-      }, 600);
-      return () => clearTimeout(timer);
+    if (enemyHealth <= 0 && !enemyDefeated) {
+      setEnemyDefeated(true);
+      setFeedback("✨ Amethyst Dragon defeated! Safe passage unlocked! ✨");
+
+      setTimeout(() => {
+        setCanContinue(true);
+        setContinuePhase(true); // switch to bg2 and hide battlefield/HUD
+      }, 2000);
     }
-  }, [enemyHealth, setCanContinue, setActionLog]);
+  }, [enemyHealth, enemyDefeated, setCanContinue]);
 
   const showDamage = (value, target, type = "damage") => {
     const id = Date.now() + Math.random(); //unique key 
@@ -207,14 +205,16 @@ export default function Room4Dragon({
       ? "/assets/sprites/enemies/room4/dragon-attack.png"
       : "/assets/sprites/enemies/room4/dragon-idle.png";
 
-  //RETURN FOR COMBAT VERSION
-  if (dragonAwakened && !enemyDefeated) {
+
+  // Keep full combat layout visible until continuePhase is true,
+  // even after enemyDefeated, so everything disappears together.
+  if (dragonAwakened && !continuePhase) {
     return (
       <div className={`${styles.roomBackground2}`}>
         {showRedFlash && <div className={shared.redFlash} />}
 
         <div className={`${shared.battlefield} ${styles.battlefield}`}>
-          <div className={shared.leftSide}>
+          <div className={`${shared.leftSide} ${styles.leftSide}`}>
             <div className={shared.championWrapper}>
               <ChampionCard
                 championKey="Darklord"
@@ -253,15 +253,13 @@ export default function Room4Dragon({
           </div>
           <div className={shared.rightSide}>
             <div className={shared.enemyWrapper}>
-              {/* Enemy HUD */}
-              {!enemyDefeated && (
-                <EnemyHUD
-                  enemyName="Amethyst Dragon"
-                  health={enemyHealth}
-                  maxHealth={enemyMaxHealth}
-                  isDead={enemyDefeated}
-                />
-              )}
+              {/* Keep HUD visible until continuePhase triggers */}
+              <EnemyHUD
+                enemyName="Amethyst Dragon"
+                health={enemyHealth}
+                maxHealth={enemyMaxHealth}
+                isDead={enemyDefeated}
+              />
               <EnemyCard
                 enemyName="Amethyst Dragon"
                 spritePath={enemySpritePath}
@@ -291,8 +289,13 @@ export default function Room4Dragon({
           isPolymorphed={isPolymorphed}
         />
 
-        {!enemyDefeated && (
-          <div className={`${shared.actionsContainer}`}>
+        {/* Bottom bar: show actions during combat, switch to feedback immediately on defeat */}
+        <div className={`${shared.actionsContainer} ${styles.actionsContainer} ${(enemyDefeated ? styles.feedbackContainer : "")}`}>
+          {enemyDefeated ? (
+            <div className={styles.actionsInner}>
+              <div className={styles.feedbackText}>{feedback}</div>
+            </div>
+          ) : (
             <div className={shared.actionsInnerRow}>
               <div className={shared.actionGroup}>
                 <h4>{darklord.displayName}'s Actions:</h4>
@@ -316,7 +319,6 @@ export default function Room4Dragon({
                   {chxospixie.moves.map((move) => {
                     const staminaBlocked = move.staminaCost && chxospixieStamina < move.staminaCost;
                     const isDisabled = chxospixieDead || actionDisabled || staminaBlocked;
-
                     return (
                       <button
                         key={move.name}
@@ -336,104 +338,109 @@ export default function Room4Dragon({
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     );
   }
 
-  if (enemyDefeated) {
-    return (
-      <div className={`${styles.roomBackground2}`}>
-
-      </div>
-    )
-  }
-
+  // HEALING / PRE-COMBAT
   return (
-    <div className={`${styles.roomBackground1}`}>
+    <div className={(dragonAwakened || continuePhase) ? styles.roomBackground2 : styles.roomBackground1}>
       <div className={shared.battlefield}>
-        <div className={`${shared.leftSide} ${styles.leftSide}`}>
-          <div className={shared.championWrapper}>
-            <ChampionCard
-              championKey="Darklord"
-              pose="idle"
-              size="large"
-            />
-            {floatingDamage.filter(d => d.target === "Darklord").map(d => (
-              <div
-                key={d.id}
-                className={`${styles.heal} ${shared.floatingDamage} ${d.type === "heal" ? shared.heal : ""}`}>
-                {d.type === "heal" ? `${d.value}` : `-${d.value}`}
-              </div>
-            ))}
+        {!continuePhase && (
+          <div className={`${shared.leftSide} ${styles.leftSide}`}>
+            <div className={shared.championWrapper}>
+              <ChampionCard
+                championKey="Darklord"
+                pose="idle"
+                size="large"
+              />
+              {floatingDamage.filter(d => d.target === "Darklord").map(d => (
+                <div
+                  key={d.id}
+                  className={`${styles.heal} ${shared.floatingDamage} ${d.type === "heal" ? shared.heal : ""}`}>
+                  {d.type === "heal" ? `${d.value}` : `-${d.value}`}
+                </div>
+              ))}
 
-          </div>
+            </div>
 
-          <div className={shared.championWrapper}>
-            <ChampionCard
-              championKey="Chxospixie"
-              pose="idle"
-              size="large"
-            />
-            {floatingDamage.filter(d => d.target === "Chxospixie").map(d => (
-              <div
-                key={d.id}
-                className={`${styles.heal} ${shared.floatingDamage} ${d.type === "heal" ? shared.heal : ""}`}>
-                {d.type === "heal" ? `${d.value}` : `-${d.value}`}
-              </div>
-            ))}
+            <div className={shared.championWrapper}>
+              <ChampionCard
+                championKey="Chxospixie"
+                pose="idle"
+                size="large"
+              />
+              {floatingDamage.filter(d => d.target === "Chxospixie").map(d => (
+                <div
+                  key={d.id}
+                  className={`${styles.heal} ${shared.floatingDamage} ${d.type === "heal" ? shared.heal : ""}`}>
+                  {d.type === "heal" ? `${d.value}` : `-${d.value}`}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
-      <ChampionHUD
-        darklordHealth={darklordHealth}
-        chxospixieHealth={chxospixieHealth}
-        darklordDead={darklordDead}
-        chxospixieDead={chxospixieDead}
-        chxospixieStamina={chxospixieStamina}
-        chxospixieMaxStamina={60}
-        isPolymorphed={isPolymorphed}
-      />
+      {!continuePhase && (
+        <ChampionHUD
+          darklordHealth={darklordHealth}
+          chxospixieHealth={chxospixieHealth}
+          darklordDead={darklordDead}
+          chxospixieDead={chxospixieDead}
+          chxospixieStamina={chxospixieStamina}
+          chxospixieMaxStamina={60}
+          isPolymorphed={isPolymorphed}
+        />
+      )}
 
-      <div className={`${shared.actionsContainer} ${styles.actionsContainer}`}>
-        <h4>The crystal glows softly.
-          <br />
-          Choose carefully:
-        </h4>
-        <button
-          className={styles.actionButton}
-          disabled={actionDisabled || darklordDead}
-          onClick={() => {
-            healOne("Darklord");
-            setActionDisabled(true);
-          }}
-        >
-          Heal Darklord (+50)
-        </button>
-        <button
-          className={styles.actionButton}
-          disabled={actionDisabled || chxospixieDead}
-          onClick={() => {
-            healOne("Chxospixie");
-            setActionDisabled(true);
-          }}
-        >
-          Heal Chxospixie (+50)
-        </button>
-        <button
-          className={styles.actionButton}
-          disabled={actionDisabled}
-          onClick={() => {
-            attemptDualHeal();
-            setActionDisabled(true);
-          }}
-        >
-          Heal both.
-          <br />
-          (⚠️ Might Disturb the Dragon)
-        </button>
+      <div className={`${shared.actionsContainer} ${styles.actionsContainer} ${styles.feedbackContainer}`}>
+        <div className={styles.actionsInner}>
+          {feedback || continuePhase ? (
+            <div className={styles.feedbackText}>{feedback}</div>
+          ) : (
+            <>
+              <h4>The crystal glows softly.
+                <br />
+                Choose carefully:
+              </h4>
+              <button
+                className={styles.actionButton}
+                disabled={actionDisabled || darklordDead}
+                onClick={() => {
+                  healOne("Darklord");
+                  setActionDisabled(true);
+                }}
+              >
+                Heal Darklord (+50)
+              </button>
+              <button
+                className={styles.actionButton}
+                disabled={actionDisabled || chxospixieDead}
+                onClick={() => {
+                  healOne("Chxospixie");
+                  setActionDisabled(true);
+                }}
+              >
+                Heal Chxospixie (+50)
+              </button>
+              <button
+                className={styles.actionButton}
+                disabled={actionDisabled}
+                onClick={() => {
+                  attemptDualHeal();
+                  setActionDisabled(true);
+                }}
+              >
+                Heal both.
+                <br />
+                (⚠️ Might Disturb the Dragon)
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

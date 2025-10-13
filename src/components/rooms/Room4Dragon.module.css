@@ -23,7 +23,7 @@
 }
 
 .actionsContainer {
-  background-color: #140a0af7 !important;
+  background-color: #140a0acc !important;
   justify-content: space-between !important;
   padding-bottom: .4rem;
   max-height: 21vh;
@@ -37,18 +37,19 @@
 .actionButton {
   box-shadow: 0 0 6px 1px rgba(255, 140, 0, 0.35) !important;
   border: 1px solid #ff7a00 !important;
+  min-height: 5rem;
 }
 
 .leftSide {
-  margin-bottom: 5.5rem !important;
+  margin-bottom: 3.5rem !important;
   gap: 1.5rem;
 }
 
 .dragonEnemy {
   width: 400px !important;
   /* dragon needs to be larger than cinematic size */
+  margin-bottom: 0.9rem !important;
   margin-right: 5rem !important;
-  margin-bottom: 2.8rem !important;
 }
 
 .heal {
@@ -63,4 +64,33 @@
     0 0 8px #ffd700,
     0 0 12px #ffae00,
     0 0 18px #ff8c00;
+}
+
+/* Bottom bar for "action log" at bottom */
+.feedbackText {
+  font-size: 1.25rem;
+  color: var(--color-text);
+  font-family: 'Quintessential', serif;
+  text-shadow: 0 0 6px rgba(255, 122, 0, 0.7);
+  text-align: center;
+}
+
+.feedbackContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 1.2rem 1rem;
+}
+
+.actionsInner {
+  display: flex;
+  width: 100%;
+  gap: 1rem;
+  min-height: 3.5rem;
+  /* match your input + button height */
+  align-items: center;
+  justify-content: center;
 }

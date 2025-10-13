@@ -28,7 +28,7 @@ export default function Room2Heads({
   const [isPlayingSequence, setIsPlayingSequence] = useState(true);
   const [showRedFlash, setShowRedFlash] = useState(false);
   const [glowingIndex, setGlowingIndex] = useState(null);
-  const [actionLog, setActionLog] = useState(["Heads shuffle their glow... Watch carefully."]);
+  const [feedback, setFeedback] = useState(["Heads shuffle their glow... Watch carefully."]);
   const [floatingDamage, setFloatingDamage] = useState([]);
 
   const isDeadRef = useRef(false);
@@ -66,7 +66,7 @@ export default function Room2Heads({
       prevBothDead.current = false;
       setPlayerInput([]);
       setCanContinue(false);
-      addActionLog("Heads shuffle their glow... Watch carefully.")
+      addFeedback("Heads shuffle their glow... Watch carefully.")
       const timer = setTimeout(() => generateNewSequence(), 2000);
       timeouts.current.push(timer);
     }
@@ -121,8 +121,8 @@ export default function Room2Heads({
     });
   };
 
-  const addActionLog = (text) => {
-    setActionLog([text]); // only one line visible
+  const addFeedback = (text) => {
+    setFeedback([text]); // only one line visible
   };
 
   const handleHeadClick = (index) => {
@@ -140,7 +140,7 @@ export default function Room2Heads({
 
     // Wrong input
     if (index !== glowSequence[currentStep]) {
-      addActionLog("⚡ Wrong head ⚡");
+      addFeedback("⚡ Wrong head ⚡");
       triggerRedFlash();
 
       const damage = 20;
@@ -157,7 +157,7 @@ export default function Room2Heads({
       showDamage(damage, targets);
 
       const retryTimer = setTimeout(() => {
-        addActionLog("Heads shuffle their glow... Watch carefully.");
+        addFeedback("Heads shuffle their glow... Watch carefully.");
         generateNewSequence();
       }, 1500);
       timeouts.current.push(retryTimer);
@@ -166,10 +166,10 @@ export default function Room2Heads({
     }
 
     // Correct input
-    addActionLog("✔️ Correct Head ✔️ ");
+    addFeedback("✔️ Correct Head ✔️ ");
 
     if (newInput.length === glowSequence.length) {
-      addActionLog("✨ Sequence matched! Safe passage unlocked! ✨");
+      addFeedback("✨ Sequence matched! Safe passage unlocked! ✨");
       setTimeout(() => setCanContinue(true), 3000);
     }
   };

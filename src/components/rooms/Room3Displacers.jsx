@@ -45,8 +45,8 @@ export default function Room3Displacers({
     if (enemyHealth <= 0) {
       const timer = setTimeout(() => {
         setEnemyDefeated(true);
-        setTimeout(() => setCanContinue(true), 1000);
-      }, 1000);
+        setTimeout(() => setCanContinue(true), 1500);
+      }, 600);
       return () => clearTimeout(timer);
     }
   }, [enemyHealth, setCanContinue]);
