@@ -14,7 +14,6 @@ export default function Room6Final({
     setDarklordHealth,
     setChxospixieHealth,
     setChxospixieStamina,
-    setActionLog,
     setCanContinue,
     isPolymorphed,
     setIsPolymorphed,
@@ -60,7 +59,7 @@ export default function Room6Final({
         `P.S. No respecs allowed. You are stuck with me for the rest of the campaign. 💖`
     ];
 
-    const [enemyHealth, setEnemyHealth] = useState(300);
+    const [enemyHealth, setEnemyHealth] = useState(3); //300 health
     const [enemyDefeated, setEnemyDefeated] = useState(false);
     const [showRedFlash, setShowRedFlash] = useState(false);
     const [enemyPose, setEnemyPose] = useState("idle");
@@ -84,14 +83,6 @@ export default function Room6Final({
         setTimeout(() => setShowRedFlash(false), 300);
     };
 
-    const logAction = (entry) => {
-        setActionLog([entry]);
-    };
-
-    useEffect(() => {
-        setActionLog([]);
-    }, [setActionLog]);
-
     useEffect(() => {
         if (enemyHealth <= 0) {
             const timer = setTimeout(() => {
@@ -100,11 +91,11 @@ export default function Room6Final({
                 // Polymorph-aware victory message logic
                 if (isPolymorphed) {
                     setVictoryMessage(
-                        "✅ Displacer defeated! Polymorph spell lifted!"
+                        "✨ Beholder defeated! Polymorph spell lifted! ✨"
                     );
                     setIsPolymorphed(false);
                 } else {
-                    setVictoryMessage("✅ Displacer defeated!");
+                    setVictoryMessage("✨ Beholder defeated! Safe passage unlocked! ✨");
                 }
 
                 setTimeout(() => setCanContinue(true), 1500);
@@ -274,7 +265,7 @@ export default function Room6Final({
                 <div className={`${styles.roomBackground} fullscreen-fit`}>
                     {showRedFlash && <div className={shared.redFlash} />}
 
-                    <div className={`${shared.battlefield} ${styles.battlefield}`}>
+                    <div className={shared.battlefield}>
                         <div className={`${shared.leftSide} ${styles.leftSide}`}>
                             <div className={`${styles.leftChampionWrapper} ${isPolymorphed ? styles.polymorphed : ""}`}>
                                 <div className={`${shared.championWrapper} ${isPolymorphed ? styles.polySlot : ""}`}>

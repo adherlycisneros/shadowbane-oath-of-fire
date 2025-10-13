@@ -7,20 +7,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding-bottom: 2rem;
-}
-
-.battlefield {
-  margin-bottom: 2.7rem !important;
-}
-
-
-.leftSide {
-  margin-top: 3rem !important;
 }
 
 .rightSide {
   margin-right: 2rem !important;
+  margin-bottom: 3rem !important;
+}
+
+.leftSide {
+  margin-bottom: 3.5rem !important;
 }
 
 /* Polymorphed hero position adjustment */
