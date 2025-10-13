@@ -28,7 +28,7 @@ export default function Room2Heads({
   const [isPlayingSequence, setIsPlayingSequence] = useState(true);
   const [showRedFlash, setShowRedFlash] = useState(false);
   const [glowingIndex, setGlowingIndex] = useState(null);
-  const [feedback, setFeedback] = useState(["Heads shuffle their glow... Watch carefully."]);
+  const [feedback, setFeedback] = useState(["↳↰ Heads shuffle their glow... Watch carefully. ↳↰"]);
   const [floatingDamage, setFloatingDamage] = useState([]);
 
   const isDeadRef = useRef(false);
@@ -66,7 +66,7 @@ export default function Room2Heads({
       prevBothDead.current = false;
       setPlayerInput([]);
       setCanContinue(false);
-      addFeedback("Heads shuffle their glow... Watch carefully.")
+      addFeedback("↳↰ Heads shuffle their glow... Watch carefully. ↳↰")
       const timer = setTimeout(() => generateNewSequence(), 2000);
       timeouts.current.push(timer);
     }
@@ -157,7 +157,7 @@ export default function Room2Heads({
       showDamage(damage, targets);
 
       const retryTimer = setTimeout(() => {
-        addFeedback("Heads shuffle their glow... Watch carefully.");
+        addFeedback("↳↰ Heads shuffle their glow... Watch carefully. ↳↰");
         generateNewSequence();
       }, 1500);
       timeouts.current.push(retryTimer);

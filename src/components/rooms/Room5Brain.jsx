@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { characterStates } from "../../data/characterData";
 import EnemyCard from "../EnemyCard";
 import ChampionCard from "../ChampionCard";
@@ -12,7 +12,6 @@ export default function Room5Brain({
   isPolymorphed,
   darklordDead,
   chxospixieDead,
-  setActionLog,
 }) {
   const [input, setInput] = useState("");
   const [attempts, setAttempts] = useState(0);
@@ -32,11 +31,6 @@ export default function Room5Brain({
 
   const timeouts = useRef([]);
 
-  useEffect(() => {
-    setActionLog([]);
-    return () => timeouts.current.forEach(clearTimeout);
-  }, [setActionLog]);
-
   const triggerRedFlash = () => {
     setShowRedFlash(true);
     const t = setTimeout(() => setShowRedFlash(false), 300);
@@ -52,7 +46,7 @@ export default function Room5Brain({
     if (cleanedInput === correct) {
       setFeedback({
         success: true,
-        message: "🧠 The brain hums in approval. You may pass."
+        message: "✨ The brain hums in approval. Safe passage unlocked! ✨ ."
       });
 
       setEnemyPose("idle");
@@ -77,7 +71,7 @@ export default function Room5Brain({
       // Show feedback text immediately
       setFeedback({
         success: false,
-        message: "🧠 The brain lashes out. You must continue your quest in these pitiful forms."
+        message: "🧠 The brain lashes out. You must continue your quest in these pitiful forms. 🧠"
       });
 
       // Delay polymorph sprites slightly to emphasize the attack
