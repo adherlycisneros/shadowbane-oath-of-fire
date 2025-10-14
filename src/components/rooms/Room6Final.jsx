@@ -67,8 +67,11 @@ export default function Room6Final({
     const [darklordPose, setDarklordPose] = useState("idle");
     const [chxospixiePose, setChxospixiePose] = useState("idle");
     const [floatingDamage, setFloatingDamage] = useState(null);
-    const [victoryMessage, setVictoryMessage] = useState("");
+    
     const [showTreasure, setShowTreasure] = useState(false);
+    const [feedback, setFeedback] = useState(null);
+    const [showChestPrompt, setShowChestPrompt] = useState(false);
+    const [victoryProcessed, setVictoryProcessed] = useState(false);
 
     const stateKey = isPolymorphed ? "polymorphed" : "normal";
     const darklord = characterStates.Darklord[stateKey];
@@ -84,26 +87,37 @@ export default function Room6Final({
     };
 
     useEffect(() => {
-        if (enemyHealth <= 0) {
-            const timer = setTimeout(() => {
-                setEnemyDefeated(true);
+        // run the defeat flow exactly once
+        if (enemyHealth <= 0 && !victoryProcessed) {
+            setVictoryProcessed(true);      // prevent re-run
+            setEnemyDefeated(true);
 
-                // Polymorph-aware victory message logic
-                if (isPolymorphed) {
-                    setVictoryMessage(
-                        "✨ Beholder defeated! Polymorph spell lifted! ✨"
-                    );
+            // If they were polymorphed, show that message and revert, then show chest prompt
+            if (isPolymorphed) {
+                setFeedback("✨ Beholder defeated! Polymorph spell lifted! ✨");
+
+                setTimeout(() => {
                     setIsPolymorphed(false);
-                } else {
-                    setVictoryMessage("✨ Beholder defeated! Safe passage unlocked! ✨");
-                }
+                }, 1800);
 
-                setTimeout(() => setCanContinue(true), 1500);
-            }, 600);
+                setTimeout(() => {
+                    setFeedback(null);
+                    setShowChestPrompt(true);
+                    setCanContinue(true);
+                }, 3500);
+            }
 
-            return () => clearTimeout(timer);
+
+            // Non-polymorphed flow: show a shorter message, then chest prompt
+            setFeedback("✨ Beholder defeated! ✨");
+
+            setTimeout(() => {
+                setFeedback(null);
+                setShowChestPrompt(true);
+                setCanContinue(true);
+            }, 2500);
         }
-    }, [enemyHealth, isPolymorphed, setIsPolymorphed, setCanContinue, setVictoryMessage]);
+    }, [enemyHealth, victoryProcessed, isPolymorphed, setIsPolymorphed, setCanContinue]);
 
     const showDamage = (damage, target) => {
         setFloatingDamage({ value: damage, target });
@@ -434,14 +448,22 @@ export default function Room6Final({
                         </div>
                     )}
                     {enemyDefeated && !showTreasure && (
-                        <div className={shared.actionsContainer}>
-                            <div className={`${shared.actionsInnerRow} ${styles.actionsInnerRowChest}`} style={{ justifyContent: "center" }}>
-                                <p className={styles.treasureMessage}>
-                                    🌟 Open the treasure chest and fulfill your destiny! 🌟
-                                </p>
+                        <div className={`${shared.actionsContainer} ${styles.actionsContainer}`}>
+                            <div
+                                className={`${styles.actionsInner} ${shared.actionsInner}`}
+                                style={{ justifyContent: "center" }}
+                            >
+                                {feedback ? (
+                                    <span className={styles.feedbackText}>{feedback}</span>
+                                ) : showChestPrompt ? (
+                                    <p className={styles.feedbackText}>
+                                        🌟 Open the treasure chest and fulfill your destiny! 🌟
+                                    </p>
+                                ) : null}
                             </div>
                         </div>
                     )}
+
                 </div>
             )}
         </div>

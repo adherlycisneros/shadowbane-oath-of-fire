@@ -50,25 +50,37 @@
   }
 }
 
-.actionsInnerRowChest {
-  margin-bottom: 1rem;
-  /* increase spacing to match action buttons area */
-  transition: margin 0.3s ease;
-  /* optional smooth transition */
+.actionsContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.25rem 1rem;
 }
 
-.treasureMessage {
-  color: #f1c40f;
-  font-size: 1.2rem;
-  font-weight: bold;
-  text-align: center;
-  text-shadow: 0 0 8px #ffd700;
+.actionsInner {
+  display: flex;
+  width: 100%;
+  gap: 1rem;
+  height: 4rem; /* fixed height for consistent bar size */
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* prevents text from stretching container */
 }
 
 .treasureChestImage {
   transform: translateY(30px) translateX(-30px);
 }
 
+.feedbackText {
+  font-size: 1.25rem;
+  color: var(--color-text);
+  font-family: 'Quintessential', serif;
+  text-shadow: 0 0 6px rgba(255, 122, 0, 0.7);
+  text-align: center;
+}
 
 /*SPARKLE FX*/
 .treasureSparkle {
@@ -94,6 +106,8 @@
     opacity: 0;
   }
 }
+
+
 
 /* Treasure Reveal Overlay / Layout */
 .treasureScreen {
