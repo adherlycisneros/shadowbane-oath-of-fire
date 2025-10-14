@@ -105,17 +105,17 @@ export default function Room6Final({
                     setShowChestPrompt(true);
                     setCanContinue(true);
                 }, 3500);
+            } else {
+
+                // Non-polymorphed flow: show a shorter message, then chest prompt
+                setFeedback("✨ Beholder defeated! ✨");
+
+                setTimeout(() => {
+                    setFeedback(null);
+                    setShowChestPrompt(true);
+                    setCanContinue(true);
+                }, 2500);
             }
-
-
-            // Non-polymorphed flow: show a shorter message, then chest prompt
-            setFeedback("✨ Beholder defeated! ✨");
-
-            setTimeout(() => {
-                setFeedback(null);
-                setShowChestPrompt(true);
-                setCanContinue(true);
-            }, 2500);
         }
     }, [enemyHealth, victoryProcessed, isPolymorphed, setIsPolymorphed, setCanContinue]);
 
@@ -281,8 +281,8 @@ export default function Room6Final({
 
                     <div className={shared.battlefield}>
                         <div className={`${shared.leftSide} ${styles.leftSide}`}>
-                            <div className={`${styles.leftChampionWrapper} ${isPolymorphed ? styles.polymorphed : ""}`}>
-                                <div className={`${shared.championWrapper} ${isPolymorphed ? styles.polySlot : ""}`}>
+                            <div className={`${styles.leftChampionWrapper}`}>
+                                <div className={`${shared.championWrapper} ${styles.polySlot}`}>
                                     <ChampionCard
                                         championKey="Darklord"
                                         pose={darklordDead ? "dead" : darklordPose}
@@ -298,8 +298,8 @@ export default function Room6Final({
                                 </div>
                             </div>
 
-                            <div className={`${styles.rightChampionWrapper} ${isPolymorphed ? styles.polymorphed : ""}`}>
-                                <div className={`${shared.championWrapper} ${isPolymorphed ? styles.polySlot : ""}`}>
+                            <div className={`${styles.rightChampionWrapper}`}>
+                                  <div className={`${shared.championWrapper} ${styles.polySlot}`}>
                                     <ChampionCard
                                         championKey="Chxospixie"
                                         pose={chxospixieDead ? "dead" : chxospixiePose}
