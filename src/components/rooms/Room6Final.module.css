@@ -213,3 +213,14 @@
   letter-spacing: 0.05em;
   text-shadow: 0 0 5px rgba(255, 200, 150, 0.8);
 }
+
+/* DEAD SPRITES POSITIONING */
+.spriteImage.dead-chxospixie {
+  transform: translateY(48px) rotate(-35deg);
+
+}
+
+.spriteImage.dead-darklord {
+  transform: translateY(-2px);
+}
+/* Dead hero positioning end */

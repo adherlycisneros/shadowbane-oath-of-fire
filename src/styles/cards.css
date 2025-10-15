@@ -41,20 +41,12 @@
   width: 320px;
 }
 
-/* DEAD HEROES POSITIONING */
-.spriteImage.dead-chxospixie {
-  transform: translateY(60px) rotate(25deg);
-  width: 170px !important;
-}
-
-.spriteImage.dead-darklord {
-  transform: translateY(30px);
-  width: 170px !important;
-}
-
-/*Dead hero positioning end*/
-
 .spriteImage {
   height: auto;
   transition: transform 0.3s ease;
+}
+
+/* DEAD heroes use a smaller fixed width in all rooms */
+.cardContainer.dead .spriteImage {
+  width: 170px !important;
 }

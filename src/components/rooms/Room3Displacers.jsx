@@ -18,7 +18,7 @@ export default function Room3Displacers({
   darklordDead,
   chxospixieDead,
 }) {
-  const [enemyHealth, setEnemyHealth] = useState(1); //180 health
+  const [enemyHealth, setEnemyHealth] = useState(180); //180 health
   const [enemyDefeated, setEnemyDefeated] = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
   const [enemyPose, setEnemyPose] = useState("idle");
@@ -107,7 +107,7 @@ export default function Room3Displacers({
 
     if (!target) return;
 
-    const damage = Math.floor(Math.random() * 6) + 10;
+    const damage =  200//Math.floor(Math.random() * 6) + 10;
 
     if (target === "Darklord") {
       setDarklordHealth((prev) => Math.max(prev - damage, 0));
@@ -132,13 +132,15 @@ export default function Room3Displacers({
       <div className={styles.battlefield}>
         <div className={styles.leftSide}>
           <div className={styles.championWrapper}>
-            <ChampionCard
-              championKey="Darklord"
-              pose={darklordDead ? "dead" : darklordPose}
-              isDead={darklordDead}
-              isPolymorphed={isPolymorphed}
-              size="large"
-            />
+            <div className={`${styles.spriteImage} ${darklordDead ? styles["dead-darklord"] : ""}`}>
+              <ChampionCard
+                championKey="Darklord"
+                pose={darklordDead ? "dead" : darklordPose}
+                isDead={darklordDead}
+                isPolymorphed={isPolymorphed}
+                size="large"
+              />
+            </div>
             {floatingDamage?.target === "Darklord" && (
               <div className={`${styles.floatingDamage} ${floatingDamage.status ? styles.status : ""}`}>
                 {floatingDamage.status ? floatingDamage.value : `-${floatingDamage.value}`}
@@ -147,13 +149,15 @@ export default function Room3Displacers({
           </div>
 
           <div className={styles.championWrapper}>
-            <ChampionCard
-              championKey="Chxospixie"
-              pose={chxospixieDead ? "dead" : chxospixiePose}
-              isDead={chxospixieDead}
-              isPolymorphed={isPolymorphed}
-              size="large"
-            />
+            <div className={`${styles.spriteImage} ${chxospixieDead ? styles["dead-chxospixie"] : ""}`}>
+              <ChampionCard
+                championKey="Chxospixie"
+                pose={chxospixieDead ? "dead" : chxospixiePose}
+                isDead={chxospixieDead}
+                isPolymorphed={isPolymorphed}
+                size="large"
+              />
+            </div>
             {floatingDamage?.target === "Chxospixie" && (
               <div className={`${styles.floatingDamage} ${floatingDamage.status ? styles.status : ""}`}>
                 {floatingDamage.status ? floatingDamage.value : `-${floatingDamage.value}`}

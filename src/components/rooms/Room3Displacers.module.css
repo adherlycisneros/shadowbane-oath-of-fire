@@ -243,3 +243,14 @@
   align-items: center;
   justify-content: center;
 }
+
+/* DEAD SPRITES POSITIONING */
+.spriteImage.dead-chxospixie {
+  transform: translateY(45px) rotate(-35deg);
+
+}
+
+.spriteImage.dead-darklord {
+  transform: translateY(-2px);
+}
+/* Dead hero positioning end */

@@ -8,6 +8,7 @@ export default function ChampionCard({
   isDead = false,
   isPolymorphed = false,
   size = "large",
+  className = "",
 }) {
   const championData = isPolymorphed
     ? characterStates[championKey].polymorphed
@@ -18,11 +19,14 @@ export default function ChampionCard({
     : championData.sprites[pose] || championData.sprites.idle;
 
   // Adjust size dynamically for polymorphed attack poses
-  const effectiveSize = isPolymorphed
-    ? pose === "attack"
-      ? "medium"
-      : "small"
-    : size;
+  const effectiveSize =
+    isDead
+      ? "dead" // force a special size class for dead sprites
+      : isPolymorphed
+        ? pose === "attack"
+          ? "medium"
+          : "small"
+        : size;
 
   // Add a dead pose class specific to championKey for room-specific styling
   const deadClass = isDead ? `dead-${championKey.toLowerCase()}` : "";
@@ -32,7 +36,7 @@ export default function ChampionCard({
       <img
         src={spriteSrc}
         alt={championData.displayName}
-        className={`spriteImage ${deadClass}`}
+        className={`spriteImage ${deadClass} ${className}`}
       />
     </div>
   );

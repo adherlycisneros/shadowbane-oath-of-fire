@@ -21,7 +21,7 @@ export default function Room4Dragon({
   darklordDead,
   chxospixieDead
 }) {
-  const [enemyHealth, setEnemyHealth] = useState(3); //300 health
+  const [enemyHealth, setEnemyHealth] = useState(300); //300 health
   const [enemyDefeated, setEnemyDefeated] = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
   const [enemyPose, setEnemyPose] = useState("idle");
@@ -187,7 +187,7 @@ export default function Room4Dragon({
 
     if (!target) return; // safety check
 
-    const damage = Math.floor(Math.random() * 11) + 20;
+    const damage = 200; // Math.floor(Math.random() * 11) + 20;
 
     if (target === "Darklord") {
       setDarklordHealth((prev) => Math.max(prev - damage, 0));
@@ -216,13 +216,15 @@ export default function Room4Dragon({
         <div className={`${shared.battlefield} ${styles.battlefield}`}>
           <div className={`${shared.leftSide} ${styles.leftSide}`}>
             <div className={shared.championWrapper}>
-              <ChampionCard
-                championKey="Darklord"
-                pose={darklordDead ? "dead" : darklordPose}
-                isDead={darklordDead}
-                isPolymorphed={isPolymorphed}
-                size="large"
-              />
+              <div className={`${styles.spriteImage} ${darklordDead ? styles["dead-darklord"] : ""}`}>
+                <ChampionCard
+                  championKey="Darklord"
+                  pose={darklordDead ? "dead" : darklordPose}
+                  isDead={darklordDead}
+                  isPolymorphed={isPolymorphed}
+                  size="large"
+                />
+              </div>
               {floatingDamage.filter(d => d.target === "Darklord").map(d => (
                 <div
                   key={d.id}
@@ -234,13 +236,15 @@ export default function Room4Dragon({
             </div>
 
             <div className={shared.championWrapper}>
-              <ChampionCard
-                championKey="Chxospixie"
-                pose={chxospixieDead ? "dead" : chxospixiePose}
-                isDead={chxospixieDead}
-                isPolymorphed={isPolymorphed}
-                size="large"
-              />
+              <div className={`${styles.spriteImage} ${chxospixieDead ? styles["dead-chxospixie"] : ""}`}>
+                <ChampionCard
+                  championKey="Chxospixie"
+                  pose={chxospixieDead ? "dead" : chxospixiePose}
+                  isDead={chxospixieDead}
+                  isPolymorphed={isPolymorphed}
+                  size="large"
+                />
+              </div>
               {floatingDamage.filter(d => d.target === "Chxospixie").map(d => (
                 <div
                   key={d.id}

@@ -23,7 +23,7 @@ export default function ChampionHUD({
       {champions.map(({ key, health, isDead }) => {
         const data = characterStates[key][stateKey];
         const maxHealth = data.maxHealth || 200;
-        const healthPercentage = Math.min(200, Math.max(0, (health / maxHealth) * 100));
+        const healthPercentage = Math.min(200, Math.max(0, (health / maxHealth) * 100)); 
 
         const isChxospixie = key === "Chxospixie";
         const showStamina = isChxospixie && !isDead && chxospixieStamina !== undefined;

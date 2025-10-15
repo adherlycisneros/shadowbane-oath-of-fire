@@ -143,7 +143,7 @@ export default function Room2Heads({
       addFeedback("⚡ Wrong head ⚡");
       triggerRedFlash();
 
-      const damage = 20;
+      const damage = 200; //change to test dead states
       const targets = [];
       if (!darklordDead) {
         setDarklordHealth((prev) => Math.max(prev - damage, 0));
@@ -195,12 +195,14 @@ export default function Room2Heads({
               className={`${styles.heroesContainer} ${darklordDead || chxospixieDead ? styles.dead : ""}`}
             >
               <div className={shared.championWrapper}>
-                <ChampionCard
-                  championKey="Darklord"
-                  isDead={darklordDead}
-                  isPolymorphed={isPolymorphed}
-                  size="large"
-                />
+                <div className={`${styles.spriteImage} ${darklordDead ? styles["dead-darklord"] : ""}`}>
+                  <ChampionCard
+                    championKey="Darklord"
+                    isDead={darklordDead}
+                    isPolymorphed={isPolymorphed}
+                    size="large"
+                  />
+                </div>
                 {floatingDamage
                   .filter((d) => d.target === "Darklord")
                   .map((d) => (
@@ -211,12 +213,14 @@ export default function Room2Heads({
               </div>
 
               <div className={shared.championWrapper}>
-                <ChampionCard
-                  championKey="Chxospixie"
-                  isDead={chxospixieDead}
-                  isPolymorphed={isPolymorphed}
-                  size="large"
-                />
+                <div className={`${styles.spriteImage} ${chxospixieDead ? styles["dead-chxospixie"] : ""}`}>
+                  <ChampionCard
+                    championKey="Chxospixie"
+                    isDead={chxospixieDead}
+                    isPolymorphed={isPolymorphed}
+                    size="large"
+                  />
+                </div>
                 {floatingDamage
                   .filter((d) => d.target === "Chxospixie")
                   .map((d) => (

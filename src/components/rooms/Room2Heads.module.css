@@ -44,12 +44,24 @@
   width: 100%;
 }
 
-.heroesContainer.dead {
+.dead {
   gap: 2rem;
   margin-left: 2.5rem !important;
   /* Shift both to the right */
   position: fixed;
 }
+
+/* DEAD SPRITES POSITIONING */
+.spriteImage.dead-chxospixie {
+  transform: translateY(100px) rotate(-35deg);
+
+}
+
+.spriteImage.dead-darklord {
+  transform: translateY(40px);
+}
+/* Dead hero positioning end */
+
 
 
 /* Right side: heads */
