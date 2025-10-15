@@ -23,7 +23,7 @@
 }
 
 .actionsContainer {
-  background-color: #140a0acc !important;
+  background-color: #140a0ac2 !important; /*#140a0acc*/
   justify-content: space-between !important;
   padding-bottom: .4rem;
   max-height: 21vh;

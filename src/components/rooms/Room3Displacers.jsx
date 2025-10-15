@@ -18,7 +18,7 @@ export default function Room3Displacers({
   darklordDead,
   chxospixieDead,
 }) {
-  const [enemyHealth, setEnemyHealth] = useState(180);
+  const [enemyHealth, setEnemyHealth] = useState(1); //180 health
   const [enemyDefeated, setEnemyDefeated] = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
   const [enemyPose, setEnemyPose] = useState("idle");
