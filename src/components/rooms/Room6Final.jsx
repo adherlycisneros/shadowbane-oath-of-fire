@@ -59,7 +59,7 @@ export default function Room6Final({
         `P.S. No respecs allowed. You are stuck with me for the rest of the campaign. 💖`
     ];
 
-    const [enemyHealth, setEnemyHealth] = useState(300); //300 health
+    const [enemyHealth, setEnemyHealth] = useState(3); //300 health TEST
     const [enemyDefeated, setEnemyDefeated] = useState(false);
     const [showRedFlash, setShowRedFlash] = useState(false);
     const [enemyPose, setEnemyPose] = useState("idle");
@@ -135,9 +135,9 @@ export default function Room6Final({
 
     // BEHOLDER ATTACKS
     const beholderAttacks = [
-       // { name: "Disintegration Ray", baseDamage: 8 }, 
-     //   { name: "Necrotic Beam", baseDamage: 14 }, 
-        { name: "Force Blast", baseDamage: 200 } 
+        { name: "Disintegration Ray", baseDamage: 8 }, //TEST
+        { name: "Necrotic Beam", baseDamage: 14 }, //TEST
+        { name: "Force Blast", baseDamage: 20 } //TEST
     ];
 
 
@@ -279,7 +279,7 @@ export default function Room6Final({
                 <div className={`${styles.roomBackground} fullscreen-fit`}>
                     {showRedFlash && <div className={shared.redFlash} />}
 
-                    <div className={shared.battlefield}>
+                    <div className={`${shared.battlefield} ${styles.battlefield}`}>
                         <div className={`${shared.leftSide} ${styles.leftSide}`}>
                             <div className={`${styles.leftChampionWrapper}`}>
                                 <div className={`${shared.championWrapper} ${styles.polySlot}`}>

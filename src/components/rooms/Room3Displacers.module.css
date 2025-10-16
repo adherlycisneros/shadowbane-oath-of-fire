@@ -20,6 +20,10 @@
   /* Also changed this margin-bottom, this wasnt here at all before*/
 }
 
+.battlefieldGap {
+  gap: 4.5rem !important;
+}
+
 .leftSide {
   display: flex;
   align-items: end;

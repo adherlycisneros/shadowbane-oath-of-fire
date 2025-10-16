@@ -9,19 +9,17 @@
   justify-content: flex-end;
 }
 
+.battlefield {
+  gap: 4.5rem !important;
+}
+
 .rightSide {
   margin-right: 2rem !important;
   margin-bottom: 3rem !important;
 }
 
 .leftSide {
-  margin-bottom: 3.5rem !important;
-}
-
-/* Polymorphed hero position adjustment */
-.leftChampionWrapper.polymorphed,
-.rightChampionWrapper.polymorphed {
-  transform: translateY(5%) translateX(20%);
+  margin-bottom: 4rem !important;
 }
 
 /* Fixed-size slot so polymorphed idle/attack sprites don't push layout */
@@ -30,6 +28,7 @@
   display: inline-flex;
   justify-content: center;
   align-items: flex-end;
+  transform: translateY(5%) translateX(10%);
 
   /* lock footprint so sprite width changes won't reflow */
   width: 210px;
@@ -57,7 +56,7 @@
   justify-content: space-between;
   gap: 1rem;
   width: 100%;
-  padding: 0.25rem 1rem;
+  padding: 0.2rem 1rem;
 }
 
 .actionsInner {

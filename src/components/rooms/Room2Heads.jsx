@@ -143,7 +143,7 @@ export default function Room2Heads({
       addFeedback("⚡ Wrong head ⚡");
       triggerRedFlash();
 
-      const damage = 200; //change to test dead states
+      const damage = 20; //TEST
       const targets = [];
       if (!darklordDead) {
         setDarklordHealth((prev) => Math.max(prev - damage, 0));

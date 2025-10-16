@@ -21,7 +21,7 @@ export default function Room4Dragon({
   darklordDead,
   chxospixieDead
 }) {
-  const [enemyHealth, setEnemyHealth] = useState(300); //300 health
+  const [enemyHealth, setEnemyHealth] = useState(3); //300 health TEST
   const [enemyDefeated, setEnemyDefeated] = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
   const [enemyPose, setEnemyPose] = useState("idle");
@@ -187,7 +187,7 @@ export default function Room4Dragon({
 
     if (!target) return; // safety check
 
-    const damage = 200; // Math.floor(Math.random() * 11) + 20;
+    const damage = Math.floor(Math.random() * 11) + 20; //TEST
 
     if (target === "Darklord") {
       setDarklordHealth((prev) => Math.max(prev - damage, 0));
