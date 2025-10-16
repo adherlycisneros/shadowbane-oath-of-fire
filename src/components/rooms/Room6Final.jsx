@@ -52,7 +52,7 @@ export default function Room6Final({
    Chxospixie's heart shall remain yours—  
    steadfast as the oath that binds you, fierce as the fire in her blood.`,
 
-        `On this day and hereafter, my champion,  
+        `On this special day and hereafter, my champion,  
    may your quests be ever-epic, your loot forever legendary,  
    and your aggro management (with me) top-tier.`,
 

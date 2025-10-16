@@ -7,8 +7,8 @@ const cinematicLines = [
   "a hidden sanctum holding secrets and power beyond mortal reckoning.",
   "Today, two heroes descend into the unknown...",
   "not just for riches, but for legacy.",
-  "But legend says... it only stirs for those who share a bond deeper than memory or reason.",
-  `Chxospixie: "Seriously? Us? That seems… unlikely." Chxospixie smirks.`,
+  "But legend says... it only stirs once a year on the day the stars remember their vow",
+  `Chxospixie: "Wait... isn't that today...?" Chxospixie smirks.`,
 ];
 
 export default function Room1Intro({ setCanContinue }) {
@@ -16,8 +16,25 @@ export default function Room1Intro({ setCanContinue }) {
   const [showOverlay, setShowOverlay] = useState(null);
   const [showFinal, setShowFinal] = useState(false);
   const [allBackstoriesRead, setAllBackstoriesRead] = useState(false);
-
   const [currentLineIndex, setCurrentLineIndex] = useState(-1);
+
+  const [isFading, setIsFading] = useState(false);
+
+  const handleNext = () => {
+    if (currentLineIndex < cinematicLines.length - 1) {
+      // trigger fade out
+      setIsFading(true);
+      setTimeout(() => {
+        setCurrentLineIndex((prev) => prev + 1);
+        setIsFading(false); // fade in new line
+      }, 300); // matches fade duration (300ms)
+    } else {
+      // last line -> finish cinematic
+      setCurrentLineIndex(cinematicLines.length);
+      setCanContinue(true);
+      setShowFinal(false);
+    }
+  };
 
   const characters = [
     {
@@ -97,17 +114,7 @@ export default function Room1Intro({ setCanContinue }) {
   }, [showFinal, setCanContinue]);
 
   useEffect(() => {
-    if (currentLineIndex === -1) return;
-
-    const cinematicSpeed = 6000;
-
-    if (currentLineIndex < cinematicLines.length) {
-      const timer = setTimeout(() => {
-        setCurrentLineIndex((prev) => prev + 1);
-      }, cinematicSpeed);
-
-      return () => clearTimeout(timer);
-    } else {
+    if (currentLineIndex === cinematicLines.length) {
       setCanContinue(true);
       setShowFinal(false);
     }
@@ -175,22 +182,43 @@ export default function Room1Intro({ setCanContinue }) {
       {showFinal && (
         <div className={styles.cinematicContainer}>
           {currentLineIndex >= 0 && currentLineIndex < cinematicLines.length && (
-            <p key={currentLineIndex} className={styles.cinematicLine}>
+            <p 
+              key={currentLineIndex} 
+              className={styles.cinematicLine}
+              style={{ opacity: isFading ? 0 : 1 }}
+            >
               {cinematicLines[currentLineIndex]}
             </p>
           )}
-          <button
-            className={styles.skipButton}
-            onClick={() => {
-              setCurrentLineIndex(cinematicLines.length); // jump to end
-              setCanContinue(true); // allow continue immediately
-              setShowFinal(false);
-            }}
-          >
-            Skip
-          </button>
+
+          {/* Navigation buttons */}
+          <div className={styles.cinematicNav}>
+            <button
+              className={`${styles.cinematicButton} ${styles.skipButton}`}
+              onClick={() => {
+                setCurrentLineIndex(cinematicLines.length);
+                setCanContinue(true);
+                setShowFinal(false);
+              }}
+            >
+              Skip
+            </button>
+
+            {/* Next arrow button (right side) */}
+            <button
+              className={`${styles.cinematicButton} ${styles.cinematicArrow}`}
+              onClick={() =>
+                setCurrentLineIndex((prev) =>
+                  Math.min(prev + 1, cinematicLines.length)
+                )
+              }
+            >
+              ➜
+            </button>
+          </div>
         </div>
       )}
+
     </div>
   );
 }

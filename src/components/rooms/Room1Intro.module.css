@@ -57,10 +57,9 @@
 
 .flip img {
   transform: scaleX(-1);
-  /* CHANGED: Flip Chxospixie */
 }
 
-/* === CHANGED: Nameplates under sprites === */
+/* Nameplates under sprites */
 .nameBanner {
   margin-top: 0.5rem;
   background: rgba(0, 0, 0, 0.7);
@@ -109,28 +108,67 @@
 
 /* Cinematic text lines */
 .cinematicLine {
-  opacity: 0;
+  opacity: 1;
   font-family: 'Quintessential', serif;
   font-size: clamp(1.5rem, 4vw, 2.5rem);
   line-height: 1.4;
   margin: 1.5rem 3.5rem;
   color: #ffdf9e;
   text-shadow: 0 0 8px rgba(255, 140, 0, 0.6), 0 0 16px rgba(255, 50, 0, 0.4);
-  animation-fill-mode: forwards;
-  animation-timing-function: ease-in-out;
-  animation-name: fadeInOut, pulseGlow;
-  animation-duration: 10s, 2s;
-  animation-iteration-count: 1, infinite;
+  transition: opacity 0.5s ease; /* smooth fade transition */
 }
 
-/* Skip cinematic button */
+/* === Cinematic Buttons === */
+/* Base button styling */
+.cinematicButton {
+  background: none;
+  border: none;
+  color: #ffdf9e;;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 1500;
+  transition: transform 0.2s ease, text-shadow 0.3s ease;
+  outline: none;
+}
+
+.cinematicButton:focus {
+  outline: none;
+}
+
+.cinematicButton:hover {
+  transform: scale(1.1);
+  text-shadow: 0 0 8px rgba(255, 200, 100, 0.8);
+}
+
+/* Skip button (bottom-left) */
 .skipButton {
   position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
+  bottom: 18px;
+  left: 24px;
 }
+
+/* Next arrow (bottom-right) */
+.cinematicArrow {
+  position: fixed;
+  bottom: 18px;
+  right: 24px;
+  font-size: 1.6rem;
+  animation: pulseArrow 1.5s infinite;
+}
+
+/* Subtle glowing arrow pulse */
+@keyframes pulseArrow {
+  0% {
+    text-shadow: 0 0 6px rgba(255, 140, 0, 0.6);
+  }
+  50% {
+    text-shadow: 0 0 14px rgba(255, 200, 0, 0.9);
+  }
+  100% {
+    text-shadow: 0 0 6px rgba(255, 140, 0, 0.6);
+  }
+}
+
 
 /* Fade in and fade out keyframe */
 @keyframes fadeInOut {
