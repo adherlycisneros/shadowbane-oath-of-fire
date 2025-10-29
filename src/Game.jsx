@@ -8,7 +8,7 @@ import Room5Brain from "./components/rooms/Room5Brain";
 import Room6Final from "./components/rooms/Room6Final";
 import TitleScreen from "./components/TitleScreen";
 import ChampionCard from "./components/ChampionCard";
-import shared from "./components/rooms/Room3Displacers.module.css";
+import WhisperOverlay from "./components/WhisperOverlay";
 
 const DEV_ROOM_INDEX = import.meta.env.VITE_DEV_ROOM_INDEX
   ? parseInt(import.meta.env.VITE_DEV_ROOM_INDEX, 10)
@@ -22,11 +22,9 @@ const whisperedPhrases = [
   "Light reveals the path",
   "Trust the whispering wind",
   "The silent watch guards the gate",
-  "I've always been good enough",
-  "That's the power of the keyblade",
+  "Shadows speak in silence",
+  "The night hides more than shadows",
 ];
-
-
 
 function CharacterSprites({
   isPolymorphed,
@@ -69,7 +67,7 @@ export default function Game() {
   const [chxospixieStamina, setChxospixieStamina] = useState(60);
   const [dragonAwakened, setDragonAwakened] = useState(false);
   const [whisperedPhrase, setWhisperedPhrase] = useState("");
-  const [showWhisper, setShowWhisper] = useState(false);
+  const [showWhisperOverlay, setShowWhisperOverlay] = useState(false);
   const [whisperedRoomIndex, setWhisperedRoomIndex] = useState(null);
   const [canContinue, setCanContinue] = useState(false);
   const [isPolymorphed, setIsPolymorphed] = useState(false);
@@ -146,16 +144,15 @@ export default function Game() {
   }, []);
   //Make the whispered phrase disappear after a bit
   useEffect(() => {
-    if (roomIndex === whisperedRoomIndex) {
-      setShowWhisper(true);
-      const timeout = setTimeout(() => setShowWhisper(false), 4000);
-      return () => clearTimeout(timeout);
+    if (roomIndex === whisperedRoomIndex) { //change to 1 or whisperedRoomIndex to EDIT TO TEST
+      setShowWhisperOverlay(true);
     }
   }, [roomIndex, whisperedRoomIndex]);
 
+
   // DELAYED CONTINUE BUTTON LOGIC
   useEffect(() => {
-    if (canContinue && currentRoom.id !== 1, 4) {
+    if (canContinue && currentRoom.id !== 1 && currentRoom.id !== 4) {
       const timer = setTimeout(() => {
         setDelayedContinue(true);
       }, 1500);
@@ -174,7 +171,7 @@ export default function Game() {
     setChxospixieDead(false);
     setCanContinue(false);
     setRestartOverlayMessage("");
-    setShowWhisper(false);
+    setShowWhisperOverlay(false);
     setDarklordPose("idle");
     setChxospixiePose("idle");
   };
@@ -275,11 +272,19 @@ export default function Game() {
           )}
 
           {/* Show whispered phrase in random room */}
-          {currentRoom.id === whisperedRoomIndex && showWhisper && (
-            <p style={{ fontStyle: "italic", color: "mediumvioletred" }}>
-              {" "}
-              👂 A whisper tickles your mind: "{whisperedPhrase}"
-            </p>
+          {showWhisperOverlay && (
+            <WhisperOverlay
+              phrase={
+                <>
+                  A whisper tickles your mind: <br />
+                  "{whisperedPhrase}"
+                </>
+              }
+              onFinish={() => {
+                setShowWhisperOverlay(false);
+                setShowRoomIntro(true);
+              }}
+            />
           )}
 
           {/* Render Room Component only if overlay is dismissed */}
@@ -402,12 +407,6 @@ export default function Game() {
               </button>
             </div>
           )}
-
-          {/* Finish Adventure Button on last room 
-          {roomIndex === rooms.length - 1 && canContinue && !showRoomIntro && (
-            <button className="continueBtn" onClick={finishAdventure}>Finish Adventure</button>
-          )}*/}
-
         </div>
       )}
     </>

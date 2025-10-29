@@ -1,0 +1,83 @@
+/* WhisperOverlay.module.css — Themed to match your global ember aesthetic */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(60, 20, 10, 0.98) 0%,       /* glowing ember core */
+    rgba(20, 10, 5, 0.98) 50%,       /* deep warm fade */
+    rgba(0, 0, 0, 1) 100%             /* almost pitch-black edges */
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  overflow: hidden;
+  box-shadow: inset 0 0 100px rgba(255, 100, 0, 0.2); /* subtle inner glow */
+  animation: fadeInOut 3.5s ease-in-out forwards, emberPulse 4s ease-in-out infinite;
+}
+
+.fog {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: url("/assets/textures/fog-overlay.jpg");
+  background-size: cover;
+  opacity: 0.6;
+  animation: fogDrift 20s linear infinite;
+  filter: blur(6px);
+  mix-blend-mode: screen;
+}
+
+.phrase {
+  font-family: 'Quintessential', serif;
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  color: var(--color-text);
+  text-align: center;
+  line-height: 5rem;
+  padding: 1rem 2rem;
+  z-index: 2;
+
+  /* Warm ember glow */
+  text-shadow:
+    0 0 8px var(--color-ember),
+    0 0 16px rgba(255, 122, 0, 0.7),
+    0 0 24px rgba(255, 80, 0, 0.4);
+
+  animation: whisperIn 3.5s cubic-bezier(0.42, 0, 0.58, 1) forwards,
+             whisperDrift 3.5s ease-in-out infinite alternate,
+             ember-flicker 3s infinite alternate;
+}
+
+/* Animations */
+@keyframes fogDrift {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes whisperIn {
+  0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+  20% { opacity: 1; transform: translateY(0) scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-10px) scale(0.98); }
+}
+
+@keyframes emberPulse {
+  0%, 100% { box-shadow: inset 0 0 60px rgba(255, 100, 0, 0.25); }
+  50% { box-shadow: inset 0 0 100px rgba(255, 94, 0, 0.45); }
+}
+
+/* subtle horizontal drift to make text feel like a whisper */
+@keyframes whisperDrift {
+  0% { transform: translateX(-2px); }
+  50% { transform: translateX(2px); }
+  100% { transform: translateX(-2px); }
+}

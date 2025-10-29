@@ -7,8 +7,8 @@ const cinematicLines = [
   "a hidden sanctum holding secrets and power beyond mortal reckoning.",
   "Today, two heroes descend into the unknown...",
   "not just for riches, but for legacy.",
-  "But legend says... it only stirs once a year on the day the stars remember their vow",
-  `Chxospixie: "Wait... isn't that today...?" Chxospixie smirks.`,
+  "But legend says... it only stirs once a year on the month the stars remember their vow",
+  `Chxospixie: "Wait... isn't that now...?" Chxospixie smirks.`,
 ];
 
 export default function Room1Intro({ setCanContinue }) {

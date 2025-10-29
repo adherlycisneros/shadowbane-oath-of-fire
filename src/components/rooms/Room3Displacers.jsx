@@ -23,6 +23,7 @@ export default function Room3Displacers({
   const [showRedFlash, setShowRedFlash] = useState(false);
   const [enemyPose, setEnemyPose] = useState("idle");
   const [actionDisabled, setActionDisabled] = useState(false);
+  const [continuePhase, setContinuePhase] = useState(false);
 
   const [darklordPose, setDarklordPose] = useState("idle");
   const [chxospixiePose, setChxospixiePose] = useState("idle");
@@ -44,9 +45,14 @@ export default function Room3Displacers({
   useEffect(() => {
     if (enemyHealth <= 0) {
       const timer = setTimeout(() => {
+        // Mark defeated but DON'T hide UI yet
         setEnemyDefeated(true);
-        setTimeout(() => setCanContinue(true), 1500);
-      }, 600);
+        // Switch to continue phase (clean view) after a short pause
+        setTimeout(() => {
+          setContinuePhase(true);
+          setCanContinue(true);
+        }, 800); // shorter delay to sync visuals better
+      }, 400);
       return () => clearTimeout(timer);
     }
   }, [enemyHealth, setCanContinue]);
@@ -102,12 +108,12 @@ export default function Room3Displacers({
     if (targets.includes(attacker)) {
       target = attacker;
     } else {
-      target = targets.find(t => t !== attacker);
+      target = targets.find((t) => t !== attacker);
     }
 
     if (!target) return;
 
-    const damage =  Math.floor(Math.random() * 6) + 10; //TEST
+    const damage = Math.floor(Math.random() * 6) + 10; // TEST
 
     if (target === "Darklord") {
       setDarklordHealth((prev) => Math.max(prev - damage, 0));
@@ -125,6 +131,22 @@ export default function Room3Displacers({
       ? "/assets/sprites/enemies/room3/displacer-attack.png"
       : "/assets/sprites/enemies/room3/displacer-idle.png";
 
+  // ✅ Unified conditional render — hides EVERYTHING simultaneously
+  if (continuePhase) {
+    return (
+      <div className={`${styles.roomBackground} fullscreen-fit`}>
+        <div className={`${styles.actionsContainer} ${styles.actionsContainerFeedback}`}>
+          <div className={styles.actionsInner}>
+            <span className={styles.feedbackText}>
+              ✨ Displacers defeated! Safe passage unlocked! ✨
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ Normal rendering below
   return (
     <div className={`${styles.roomBackground} fullscreen-fit`}>
       {showRedFlash && <div className={styles.redFlash} />}
@@ -181,14 +203,13 @@ export default function Room3Displacers({
             )}
           </div>
 
-          {!enemyDefeated && (
-            <EnemyHUD
-              enemyName="Twin Displacer Beasts"
-              health={enemyHealth}
-              maxHealth={enemyMaxHealth}
-              isDead={enemyDefeated}
-            />
-          )}
+          {/* keep HUD visible until continuePhase */}
+          <EnemyHUD
+            enemyName="Twin Displacer Beasts"
+            health={enemyHealth}
+            maxHealth={enemyMaxHealth}
+            isDead={enemyDefeated}
+          />
         </div>
       </div>
 
