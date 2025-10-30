@@ -60,7 +60,7 @@ export default function Room6Final({
         `P.S. No respecs allowed. You are stuck with me for the rest of the campaign. 💖`
     ];
 
-    const [enemyHealth, setEnemyHealth] = useState(300); //300 health TEST
+    const [enemyHealth, setEnemyHealth] = useState(480); //480 health TEST
     const [enemyDefeated, setEnemyDefeated] = useState(false);
     const [showRedFlash, setShowRedFlash] = useState(false);
     const [enemyPose, setEnemyPose] = useState("idle");
@@ -79,7 +79,7 @@ export default function Room6Final({
     const chxospixie = characterStates.Chxospixie[stateKey];
 
     const isGameOver = darklordDead && chxospixieDead;
-    const enemyMaxHealth = 300;
+    const enemyMaxHealth = 480;
 
     //Watch for reset trigger and restore defaults
     useEffect(() => {
@@ -143,11 +143,10 @@ export default function Room6Final({
 
     // BEHOLDER ATTACKS
     const beholderAttacks = [
-        { name: "Disintegration Ray", baseDamage: 200 }, //TEST should be 8
-       // { name: "Necrotic Beam", baseDamage: 14 }, //TEST
-       // { name: "Force Blast", baseDamage: 20 } //TEST
+        { name: "Disintegration Ray", baseDamage: 20 }, //TEST 
+        { name: "Necrotic Beam", baseDamage: 28 }, //TEST
+        { name: "Force Blast", baseDamage: 35 } //TEST
     ];
-
 
     const lastAttackerRef = useRef(null);
 

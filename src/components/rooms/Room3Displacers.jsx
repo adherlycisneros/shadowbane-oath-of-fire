@@ -19,7 +19,7 @@ export default function Room3Displacers({
   chxospixieDead,
   roomResetTrigger,
 }) {
-  const [enemyHealth, setEnemyHealth] = useState(1); //180 health TEST
+  const [enemyHealth, setEnemyHealth] = useState(220); //220 health TEST
   const [enemyDefeated, setEnemyDefeated] = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
   const [enemyPose, setEnemyPose] = useState("idle");
@@ -34,7 +34,7 @@ export default function Room3Displacers({
   const chxospixie = characterStates.Chxospixie[stateKey];
 
   const isGameOver = darklordDead && chxospixieDead;
-  const enemyMaxHealth = 180;
+  const enemyMaxHealth = 220;
 
   const [floatingDamage, setFloatingDamage] = useState(null);
 
@@ -121,7 +121,7 @@ export default function Room3Displacers({
 
     if (!target) return;
 
-    const damage = Math.floor(Math.random() * 6) + 10; // TEST
+    const damage = Math.floor(Math.random() * 5) + 16; // TEST
 
     if (target === "Darklord") {
       setDarklordHealth((prev) => Math.max(prev - damage, 0));

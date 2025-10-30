@@ -22,7 +22,7 @@ export default function Room4Dragon({
   chxospixieDead,
   roomResetTrigger,
 }) {
-  const [enemyHealth, setEnemyHealth] = useState(3); //300 health TEST
+  const [enemyHealth, setEnemyHealth] = useState(320); //320 health TEST
   const [enemyDefeated, setEnemyDefeated] = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
   const [enemyPose, setEnemyPose] = useState("idle");
@@ -43,7 +43,7 @@ export default function Room4Dragon({
   const chxospixie = characterStates.Chxospixie[stateKey];
 
   const isGameOver = darklordDead && chxospixieDead;
-  const enemyMaxHealth = 300;
+  const enemyMaxHealth = 320;
 
   //Watch for reset trigger and restore defaults
   useEffect(() => {
@@ -66,13 +66,13 @@ export default function Room4Dragon({
   const healOne = (character) => {
     if (character === "Darklord" && !darklordDead) {
       setDarklordHealth((h) => {
-        const newHealth = Math.min(120, h + 120);
+        const newHealth = Math.min(200, h + 200);
         showDamage("HP↑", "Darklord", "heal");
         return newHealth;
       });
     } else if (character === "Chxospixie" && !chxospixieDead) {
       setChxospixieHealth((h) => {
-        const newHealth = Math.min(120, h + 120);
+        const newHealth = Math.min(200, h + 200);
         showDamage("HP↑", "Chxospixie", "heal");
         return newHealth;
       });
@@ -99,14 +99,14 @@ export default function Room4Dragon({
     } else {
       if (!darklordDead) {
         setDarklordHealth((h) => {
-          const newHealth = Math.min(120, h + 120);
+          const newHealth = Math.min(200, h + 200);
           showDamage("HP↑", "Darklord", "heal");
           return newHealth;
         });
       }
       if (!chxospixieDead) {
         setChxospixieHealth((h) => {
-          const newHealth = Math.min(120, h + 120);
+          const newHealth = Math.min(200, h + 200);
           showDamage("HP↑", "Chxospixie", "heal");
           return newHealth;
         });
@@ -195,7 +195,7 @@ export default function Room4Dragon({
 
     if (!target) return; // safety check
 
-    const damage = Math.floor(Math.random() * 11) + 20; //TEST
+    const damage = Math.floor(Math.random() * 5) + 23; //TEST
 
     if (target === "Darklord") {
       setDarklordHealth((prev) => Math.max(prev - damage, 0));
