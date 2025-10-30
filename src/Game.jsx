@@ -76,6 +76,7 @@ export default function Game() {
   const [restartOverlayMessage, setRestartOverlayMessage] = useState("");
   const [showRoomIntro, setShowRoomIntro] = useState(true);
   const [delayedContinue, setDelayedContinue] = useState(false);
+  const [roomResetTrigger, setRoomResetTrigger] = useState(0);
 
   // Sprite pose states
   const [darklordPose, setDarklordPose] = useState("idle"); // "idle", "attack", "dead"
@@ -174,6 +175,7 @@ export default function Game() {
     setShowWhisperOverlay(false);
     setDarklordPose("idle");
     setChxospixiePose("idle");
+    setRoomResetTrigger((prev) => prev + 1);
   };
 
   // Sprite pose logic for attacks
@@ -312,6 +314,7 @@ export default function Game() {
               {currentRoom.id === 3 && (
                 <Room3Displacers
                   key={`room3-${roomIndex}`}
+                  roomResetTrigger={roomResetTrigger}
                   darklordHealth={darklordHealth}
                   chxospixieHealth={chxospixieHealth}
                   chxospixieStamina={chxospixieStamina}
@@ -329,6 +332,7 @@ export default function Game() {
               {currentRoom.id === 4 && (
                 <Room4Dragon
                   key={`room4-${roomIndex}`}
+                  roomResetTrigger={roomResetTrigger}
                   darklordHealth={darklordHealth}
                   chxospixieHealth={chxospixieHealth}
                   chxospixieStamina={chxospixieStamina}
@@ -364,6 +368,7 @@ export default function Game() {
               {currentRoom.id === 6 && (
                 <Room6Final
                   key={`room6-${roomIndex}`}
+                  roomResetTrigger={roomResetTrigger}
                   darklordHealth={darklordHealth}
                   chxospixieHealth={chxospixieHealth}
                   setDarklordHealth={setDarklordHealth}

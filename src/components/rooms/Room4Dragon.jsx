@@ -19,7 +19,8 @@ export default function Room4Dragon({
   setCanContinue,
   isPolymorphed,
   darklordDead,
-  chxospixieDead
+  chxospixieDead,
+  roomResetTrigger,
 }) {
   const [enemyHealth, setEnemyHealth] = useState(3); //300 health TEST
   const [enemyDefeated, setEnemyDefeated] = useState(false);
@@ -43,6 +44,13 @@ export default function Room4Dragon({
 
   const isGameOver = darklordDead && chxospixieDead;
   const enemyMaxHealth = 300;
+
+  //Watch for reset trigger and restore defaults
+  useEffect(() => {
+    setEnemyHealth(enemyMaxHealth);
+    setEnemyDefeated(false);
+    setEnemyPose("idle");
+  }, [roomResetTrigger]);
 
   const awakenDragon = () => {
     setDragonAwakened(true);
