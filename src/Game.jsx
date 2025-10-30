@@ -383,7 +383,7 @@ export default function Game() {
           )}
 
           {/* Continue Button */}
-          {roomIndex < rooms.length - 1 && canContinue && (currentRoom.id === 1 || delayedContinue) && (
+          {roomIndex < rooms.length - 1 && canContinue && (currentRoom.id === 1 || delayedContinue || currentRoom.id === 4) && (
             <div
               className="continue-overlay"
               style={{

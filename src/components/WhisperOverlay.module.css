@@ -5,7 +5,7 @@
   inset: 0;
   background: radial-gradient(
     circle at center,
-    rgba(60, 20, 10, 0.98) 0%,       /* glowing ember core */
+    rgba(60, 20, 10, 1) 0%,       /* glowing ember core */
     rgba(20, 10, 5, 0.98) 50%,       /* deep warm fade */
     rgba(0, 0, 0, 1) 100%             /* almost pitch-black edges */
   );
@@ -15,7 +15,7 @@
   z-index: 9999;
   overflow: hidden;
   box-shadow: inset 0 0 100px rgba(255, 100, 0, 0.2); /* subtle inner glow */
-  animation: fadeInOut 3.5s ease-in-out forwards, emberPulse 4s ease-in-out infinite;
+  animation: fadeInOut 5.5s ease-in-out forwards, emberPulse 4s ease-in-out infinite;
 }
 
 .fog {
@@ -45,7 +45,7 @@
     0 0 16px rgba(255, 122, 0, 0.7),
     0 0 24px rgba(255, 80, 0, 0.4);
 
-  animation: whisperIn 3.5s cubic-bezier(0.42, 0, 0.58, 1) forwards,
+  animation: whisperIn 5.5s cubic-bezier(0.42, 0, 0.58, 1) forwards,
              whisperDrift 3.5s ease-in-out infinite alternate,
              ember-flicker 3s infinite alternate;
 }

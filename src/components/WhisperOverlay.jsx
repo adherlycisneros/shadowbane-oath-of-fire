@@ -3,7 +3,7 @@ import styles from "./WhisperOverlay.module.css";
 
 export default function WhisperOverlay({ phrase, onFinish }) {
   useEffect(() => {
-    const timer = setTimeout(onFinish, 7500); // auto-dismiss after 3.5s
+    const timer = setTimeout(onFinish, 5500); // auto-dismiss after 5.5s
     return () => clearTimeout(timer);
   }, [onFinish]);
 
