@@ -18,7 +18,7 @@ export default function Room3Displacers({
   darklordDead,
   chxospixieDead,
 }) {
-  const [enemyHealth, setEnemyHealth] = useState(1); //180 health TEST
+  const [enemyHealth, setEnemyHealth] = useState(180); //180 health TEST
   const [enemyDefeated, setEnemyDefeated] = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
   const [enemyPose, setEnemyPose] = useState("idle");
@@ -113,7 +113,7 @@ export default function Room3Displacers({
 
     if (!target) return;
 
-    const damage = Math.floor(Math.random() * 6) + 10; // TEST
+    const damage = 200;//Math.floor(Math.random() * 6) + 10; // TEST
 
     if (target === "Darklord") {
       setDarklordHealth((prev) => Math.max(prev - damage, 0));
