@@ -222,4 +222,14 @@
 .spriteImage.dead-darklord {
   transform: translateY(-2px);
 }
+
+.spriteImage.dead-chxospixie-polymorphed {
+  /* neutral transform — tweak to position polymorphed dead Chxospixie */
+  transform: translateY(0) rotate(0deg);
+}
+
+.spriteImage.dead-darklord-polymorphed {
+  /* neutral transform — tweak to position polymorphed dead Darklord */
+  transform: translateY(20px);
+}
 /* Dead hero positioning end */

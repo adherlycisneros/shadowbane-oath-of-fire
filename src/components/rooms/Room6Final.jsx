@@ -60,7 +60,7 @@ export default function Room6Final({
         `P.S. No respecs allowed. You are stuck with me for the rest of the campaign. 💖`
     ];
 
-    const [enemyHealth, setEnemyHealth] = useState(480); //480 health TEST
+    const [enemyHealth, setEnemyHealth] = useState(300); //480 health TEST
     const [enemyDefeated, setEnemyDefeated] = useState(false);
     const [showRedFlash, setShowRedFlash] = useState(false);
     const [enemyPose, setEnemyPose] = useState("idle");
@@ -79,7 +79,7 @@ export default function Room6Final({
     const chxospixie = characterStates.Chxospixie[stateKey];
 
     const isGameOver = darklordDead && chxospixieDead;
-    const enemyMaxHealth = 480;
+    const enemyMaxHealth = 300;
 
     //Watch for reset trigger and restore defaults
     useEffect(() => {
@@ -290,7 +290,7 @@ export default function Room6Final({
                         <div className={`${shared.leftSide} ${styles.leftSide}`}>
                             <div className={`${styles.leftChampionWrapper}`}>
                                 <div className={`${shared.championWrapper} ${styles.polySlot}`}>
-                                    <div className={`${styles.spriteImage} ${darklordDead ? styles["dead-darklord"] : ""}`}>
+                                    <div className={`${styles.spriteImage} ${darklordDead ? `${styles["dead-darklord"]} ${isPolymorphed ? styles["dead-darklord-polymorphed"] : ""}` : ""}`}>
                                         <ChampionCard
                                             championKey="Darklord"
                                             pose={darklordDead ? "dead" : darklordPose}
@@ -309,7 +309,7 @@ export default function Room6Final({
 
                             <div className={`${styles.rightChampionWrapper}`}>
                                   <div className={`${shared.championWrapper} ${styles.polySlot}`}>
-                                    <div className={`${styles.spriteImage} ${chxospixieDead ? styles["dead-chxospixie"] : ""}`}>
+                                    <div className={`${styles.spriteImage} ${chxospixieDead ? `${styles["dead-chxospixie"]} ${isPolymorphed ? styles["dead-chxospixie-polymorphed"] : ""}` : ""}`}>
                                         <ChampionCard
                                             championKey="Chxospixie"
                                             pose={chxospixieDead ? "dead" : chxospixiePose}

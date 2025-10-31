@@ -22,7 +22,7 @@ export default function Room4Dragon({
   chxospixieDead,
   roomResetTrigger,
 }) {
-  const [enemyHealth, setEnemyHealth] = useState(320); //320 health TEST
+  const [enemyHealth, setEnemyHealth] = useState(240); //320 health TEST
   const [enemyDefeated, setEnemyDefeated] = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
   const [enemyPose, setEnemyPose] = useState("idle");
@@ -43,7 +43,7 @@ export default function Room4Dragon({
   const chxospixie = characterStates.Chxospixie[stateKey];
 
   const isGameOver = darklordDead && chxospixieDead;
-  const enemyMaxHealth = 320;
+  const enemyMaxHealth = 240;
 
   //Watch for reset trigger and restore defaults
   useEffect(() => {

@@ -9,11 +9,12 @@ import Room6Final from "./components/rooms/Room6Final";
 import TitleScreen from "./components/TitleScreen";
 import ChampionCard from "./components/ChampionCard";
 import WhisperOverlay from "./components/WhisperOverlay";
+import useRoomMusic from "./hooks/useRoomMusic";
+import { firstInteractionRef } from "./firstInteractionRef";
 
 const DEV_ROOM_INDEX = import.meta.env.VITE_DEV_ROOM_INDEX
   ? parseInt(import.meta.env.VITE_DEV_ROOM_INDEX, 10)
   : null;
-
 
 // Store whispered phrases
 const whisperedPhrases = [
@@ -40,7 +41,7 @@ function CharacterSprites({
       <ChampionCard
         championKey="Darklord"
         health={darklordHealth}
-        maxHealth={120}
+        maxHealth={200}
         pose={darklordPose}
         isDead={darklordDead}
         isPolymorphed={isPolymorphed}
@@ -49,7 +50,7 @@ function CharacterSprites({
       <ChampionCard
         championKey="Chxospixie"
         health={chxospixieHealth}
-        maxHealth={120}
+        maxHealth={200}
         pose={chxospixiePose}
         isDead={chxospixieDead}
         isPolymorphed={isPolymorphed}
@@ -62,8 +63,8 @@ function CharacterSprites({
 export default function Game() {
   const [gameStarted, setGameStarted] = useState(DEV_ROOM_INDEX !== null);
   const [roomIndex, setRoomIndex] = useState(DEV_ROOM_INDEX ?? 0);
-  const [darklordHealth, setDarklordHealth] = useState(120);
-  const [chxospixieHealth, setChxospixieHealth] = useState(120);
+  const [darklordHealth, setDarklordHealth] = useState(200);
+  const [chxospixieHealth, setChxospixieHealth] = useState(200);
   const [chxospixieStamina, setChxospixieStamina] = useState(60);
   const [dragonAwakened, setDragonAwakened] = useState(false);
   const [whisperedPhrase, setWhisperedPhrase] = useState("");
@@ -87,8 +88,8 @@ export default function Game() {
     setGameStarted(true);
     setRoomIndex(0);
     setShowRoomIntro(true);
-    setDarklordHealth(120);
-    setChxospixieHealth(120);
+    setDarklordHealth(200);
+    setChxospixieHealth(200);
     setChxospixieStamina(60);
     setDarklordDead(false);
     setChxospixieDead(false);
@@ -224,12 +225,12 @@ export default function Game() {
     }
 
     if (darklordDead) {
-      setDarklordHealth(120 * 0.5);
+      setDarklordHealth(200 * 0.5);
       setDarklordDead(false);
       setDarklordPose("idle");
     }
     if (chxospixieDead) {
-      setChxospixieHealth(120 * 0.5);
+      setChxospixieHealth(200 * 0.5);
       setChxospixieStamina(60 * 0.5);
       setChxospixieDead(false);
       setChxospixiePose("idle");
@@ -242,6 +243,17 @@ export default function Game() {
   };
 
   const currentRoom = rooms[roomIndex];
+  const isTitleScreen = !gameStarted;
+
+  // ROOM MUSIC HOOK
+  useRoomMusic({
+    roomIndex,
+    showRoomIntro,
+    isTitleScreen,
+    room4Mode: dragonAwakened ? "battle" : "healing",
+    room6Mode: currentRoom.id === 6 && canContinue ? "reward" : "boss",
+    firstInteractionRef,
+  });
 
   return (
     <>
