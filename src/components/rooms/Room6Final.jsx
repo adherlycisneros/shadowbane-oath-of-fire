@@ -79,7 +79,7 @@ export default function Room6Final({
     const chxospixie = characterStates.Chxospixie[stateKey];
 
     const isGameOver = darklordDead && chxospixieDead;
-    const enemyMaxHealth = 300;
+    const enemyMaxHealth = 220;
 
     //Watch for reset trigger and restore defaults
     useEffect(() => {
@@ -139,7 +139,7 @@ export default function Room6Final({
     };
 
     // Dodge chance (enemy only)
-    const ENEMY_DODGE_CHANCE = 0.3;
+    const ENEMY_DODGE_CHANCE = 0.1;
 
     // BEHOLDER ATTACKS
     const beholderAttacks = [

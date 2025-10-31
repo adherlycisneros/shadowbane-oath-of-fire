@@ -6,7 +6,7 @@
   background: radial-gradient(
     circle at center,
     rgba(60, 20, 10, 1) 0%,       /* glowing ember core */
-    rgba(20, 10, 5, 0.98) 50%,       /* deep warm fade */
+    rgba(20, 10, 5, 1) 50%,       /* deep warm fade */
     rgba(0, 0, 0, 1) 100%             /* almost pitch-black edges */
   );
   display: flex;

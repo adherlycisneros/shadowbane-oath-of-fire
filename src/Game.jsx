@@ -146,7 +146,8 @@ export default function Game() {
   }, []);
   //Make the whispered phrase disappear after a bit
   useEffect(() => {
-    if (roomIndex === whisperedRoomIndex) { //change to 1 or whisperedRoomIndex to EDIT TO TEST
+    // compare the room's id (1-based) to the stored whisperedRoomIndex
+    if (rooms[roomIndex]?.id === whisperedRoomIndex) {
       setShowWhisperOverlay(true);
     }
   }, [roomIndex, whisperedRoomIndex]);

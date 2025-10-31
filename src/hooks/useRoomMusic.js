@@ -3,24 +3,58 @@ import { useEffect, useRef } from "react";
 
 const roomMusicMap = {
   title: "/assets/audio/title_screen.mp3",
-  1: "/assets/audio/room1_intro.mp3",
-  2: "/assets/audio/puzzle.mp3",
+  1: "/assets/audio/title_screen.mp3",
+  2: "/assets/audio/room2_puzzle.mp3",
   3: "/assets/audio/combat.mp3",
   4: {
     healing: "/assets/audio/healing.mp3",
     battle: "/assets/audio/combat.mp3",
   },
-  5: "/assets/audio/puzzle.mp3",
+  5: "/assets/audio/room5_puzzle.mp3",
   6: {
     boss: "/assets/audio/room6_boss.mp3",
     reward: "/assets/audio/room6_reward.mp3",
   },
 };
 
+const DEFAULT_VOLUME = 0.35;
+// Per-track volume overrides (use room id keys). Room 5 slightly louder.
+const PER_TRACK_VOLUME = {
+  5: 0.80,
+};
+const FADE_MS = 800; // crossfade duration, tweak as needed
+const FADE_INTERVAL = 50;
+
+function rampVolume(audio, from, to, duration) {
+  return new Promise((resolve) => {
+    if (!audio) return resolve();
+    // cancel existing timer if present
+    if (audio._fadeTimer) {
+      clearInterval(audio._fadeTimer);
+      audio._fadeTimer = null;
+    }
+    const steps = Math.max(1, Math.floor(duration / FADE_INTERVAL));
+    const stepAmount = (to - from) / steps;
+    let currentStep = 0;
+    audio.volume = Math.max(0, Math.min(1, from));
+    audio._fadeTimer = setInterval(() => {
+      currentStep += 1;
+      const next = audio.volume + stepAmount;
+      audio.volume = Math.max(0, Math.min(1, next));
+      if (currentStep >= steps) {
+        clearInterval(audio._fadeTimer);
+        audio._fadeTimer = null;
+        audio.volume = Math.max(0, Math.min(1, to));
+        resolve();
+      }
+    }, FADE_INTERVAL);
+  });
+}
+
 export default function useRoomMusic({
   isTitleScreen = false,
   roomIndex,
-  showRoomIntro, // kept for API compatibility
+  showRoomIntro, // kept for API compatibility — used to decide Room1 behavior elsewhere
   room4Mode = "healing",
   room6Mode = "boss",
   firstInteractionRef, // shared ref: { current: bool, audio?: Audio }
@@ -28,7 +62,6 @@ export default function useRoomMusic({
   const audioRef = useRef(null);
 
   useEffect(() => {
-    // wait for first interaction unlock
     if (!firstInteractionRef?.current) return;
 
     // Normalize incoming value to a room id that matches roomMusicMap keys (1..6)
@@ -37,7 +70,6 @@ export default function useRoomMusic({
       roomId = "title";
     } else {
       if (typeof roomIndex === "number") {
-        // convert 0-based index (0..5) to 1-based room ids (1..6)
         if (roomIndex >= 0 && roomIndex <= 5) roomId = roomIndex + 1;
         else roomId = roomIndex;
       } else {
@@ -53,50 +85,91 @@ export default function useRoomMusic({
 
     if (!trackSrc) return;
 
-    // If we already have an unlocked title audio (played inside TitleScreen), reuse it for the title
-    if (firstInteractionRef?.audio && isTitleScreen) {
-      audioRef.current = firstInteractionRef.audio;
-      audioRef.current.loop = true;
-      audioRef.current.volume = 0.35;
-      audioRef.current.play().catch(() => {});
-      return () => {};
+    // target volume for this track (apply per-track overrides)
+    let targetVolume = DEFAULT_VOLUME;
+    if (roomId !== "title") {
+      if (PER_TRACK_VOLUME[roomId]) targetVolume = PER_TRACK_VOLUME[roomId];
     }
 
-    // If a stored title audio exists and we're switching to a room track, stop and clear it
-    if (firstInteractionRef?.audio && !isTitleScreen) {
+    let cancelled = false;
+
+    async function switchToTrack() {
+      // If current audio already matches desired track, keep it (no restart)
+      if (audioRef.current && audioRef.current.src && audioRef.current.src.includes(trackSrc)) {
+        audioRef.current.loop = true;
+        audioRef.current.volume = targetVolume;
+        audioRef.current.play().catch(() => {});
+        return;
+      }
+
+      // determine old audio(s) to fade out: audioRef.current and possibly firstInteractionRef.audio
+      const oldAudio = audioRef.current;
+      const storedTitleAudio = firstInteractionRef?.audio && firstInteractionRef.audio !== oldAudio ? firstInteractionRef.audio : null;
+
+      // create and start new audio at volume 0
+      const newAudio = new Audio(trackSrc);
+      newAudio.loop = true;
+      newAudio.volume = 0;
       try {
-        firstInteractionRef.audio.pause();
-      } catch (e) {}
-      firstInteractionRef.audio = null;
+        await newAudio.play();
+      } catch (e) {
+        // play may fail without user gesture; still proceed with fade attempts
+        console.warn("Audio play failed (new):", trackSrc, e);
+      }
+
+      if (cancelled) {
+        try { newAudio.pause(); } catch (e) {}
+        return;
+      }
+
+      // start crossfade: fade in new while fading out old(s)
+      const fadeInPromise = rampVolume(newAudio, 0, targetVolume, FADE_MS);
+
+      const fadeOutPromises = [];
+      if (oldAudio && oldAudio !== newAudio) {
+        fadeOutPromises.push(
+          rampVolume(oldAudio, oldAudio.volume ?? DEFAULT_VOLUME, 0, FADE_MS).then(() => {
+            try { oldAudio.pause(); } catch (e) {}
+            if (oldAudio._fadeTimer) { clearInterval(oldAudio._fadeTimer); oldAudio._fadeTimer = null; }
+          })
+        );
+      }
+      if (storedTitleAudio && storedTitleAudio !== newAudio && storedTitleAudio !== oldAudio) {
+        fadeOutPromises.push(
+          rampVolume(storedTitleAudio, storedTitleAudio.volume ?? DEFAULT_VOLUME, 0, FADE_MS).then(() => {
+            try { storedTitleAudio.pause(); } catch (e) {}
+            if (storedTitleAudio._fadeTimer) { clearInterval(storedTitleAudio._fadeTimer); storedTitleAudio._fadeTimer = null; }
+            // clear stored title audio reference so hook can manage future tracks normally
+            try { firstInteractionRef.audio = null; } catch (e) {}
+          })
+        );
+      }
+
+      // wait for fades to finish
+      await Promise.all([fadeInPromise, ...fadeOutPromises]);
+
+      if (cancelled) {
+        try { newAudio.pause(); } catch (e) {}
+        return;
+      }
+
+      // set new audio as current
+      audioRef.current = newAudio;
     }
 
-    // stop previous music if any
-    if (audioRef.current) {
-      try { audioRef.current.pause(); } catch (e) {}
-      audioRef.current = null;
-    }
-
-    const audio = new Audio(trackSrc);
-    audio.loop = true;
-    audio.volume = 0.35;
-    audio.play().catch(() => {
-      console.warn("Audio play failed:", audio.src);
-    });
-    audioRef.current = audio;
+    switchToTrack();
 
     return () => {
-      if (audioRef.current) {
-        try { audioRef.current.pause(); } catch (e) {}
-      }
+      cancelled = true;
     };
+    // run effect when these change
   }, [
     isTitleScreen,
     roomIndex,
-    // showRoomIntro intentionally left in dependencies for future use but not used to block playback
     showRoomIntro,
     room4Mode,
     room6Mode,
     firstInteractionRef?.current,
     firstInteractionRef?.audio,
   ]);
-}
+ }

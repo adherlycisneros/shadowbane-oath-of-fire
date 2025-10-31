@@ -15,7 +15,7 @@ export const characterStates = {
     },
     polymorphed: {
       displayName: "Toadlord",
-      maxHealth: 150,
+      maxHealth: 200,
       sprites: {
         idle: "/assets/sprites/champions/toadlord-idle.png",
         attack: "/assets/sprites/champions/toadlord-attack.png",
@@ -44,7 +44,7 @@ export const characterStates = {
     },
     polymorphed: {
       displayName: "Sheepspixie",
-      maxHealth: 150,
+      maxHealth: 200,
       sprites: {
         idle: "/assets/sprites/champions/sheepspixie-idle.png",
         attack: "/assets/sprites/champions/sheepspixie-attack.png",
