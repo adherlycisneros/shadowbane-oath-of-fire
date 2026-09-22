@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
 import rooms from "./data/rooms";
+import { characterStates } from "./data/characterData";
 import Room1Intro from "./components/rooms/Room1Intro";
 import Room2Heads from "./components/rooms/Room2Heads";
 import Room3Displacers from "./components/rooms/Room3Displacers";
@@ -7,17 +8,29 @@ import Room4Dragon from "./components/rooms/Room4Dragon";
 import Room5Brain from "./components/rooms/Room5Brain";
 import Room6Final from "./components/rooms/Room6Final";
 import TitleScreen from "./components/TitleScreen";
-import ChampionCard from "./components/ChampionCard";
-import WhisperOverlay from "./components/WhisperOverlay";
+import OmenOverlay from "./components/OmenOverlay";
 import useRoomMusic from "./hooks/useRoomMusic";
-import { firstInteractionRef } from "./firstInteractionRef";
+import MuteButton from "./components/MuteButton";
+import { useOrientationGate } from "./orientationGate";
+import { primeChampionForm, primeIntroTexture, primeRewardScene, primeScene } from "./spritePreload";
 
 const DEV_ROOM_INDEX = import.meta.env.VITE_DEV_ROOM_INDEX
   ? parseInt(import.meta.env.VITE_DEV_ROOM_INDEX, 10)
   : null;
 
-// Store whispered phrases
-const whisperedPhrases = [
+// DEV TESTING launcher (title screen, development only). `import.meta.env.DEV` is a
+// build-time constant, so in production this is `null` and the dev module is never bundled.
+const DevLauncher = import.meta.env.DEV ? lazy(() => import("./dev/DevLauncher")) : null;
+
+const HERO_MAX_HEALTH = 200;
+const HERO_MAX_STAMINA = 60;
+// A fallen hero rejoins at half strength when the party moves to the next room.
+const REVIVE_FACTOR = 0.5;
+// How long the fallen party is left looking at the field before the restart prompt appears.
+const PARTY_DEFEAT_DELAY_MS = 2000;
+
+// The omen's words; the brain in Room 5 demands them back.
+const omenPhrases = [
   "Memory is the key to the door",
   "The shadows hide the truth",
   "Light reveals the path",
@@ -27,49 +40,27 @@ const whisperedPhrases = [
   "The night hides more than shadows",
 ];
 
-function CharacterSprites({
-  isPolymorphed,
-  darklordDead,
-  chxospixieDead,
-  darklordPose,
-  chxospixiePose,
-  darklordHealth,
-  chxospixieHealth,
-}) {
-  return (
-    <div className="championSprites">
-      <ChampionCard
-        championKey="Darklord"
-        health={darklordHealth}
-        maxHealth={200}
-        pose={darklordPose}
-        isDead={darklordDead}
-        isPolymorphed={isPolymorphed}
-        size="large"
-      />
-      <ChampionCard
-        championKey="Chxospixie"
-        health={chxospixieHealth}
-        maxHealth={200}
-        pose={chxospixiePose}
-        isDead={chxospixieDead}
-        isPolymorphed={isPolymorphed}
-        size="large"
-      />
-    </div>
-  );
+// The omen appears in one of these rooms, once its intro is dismissed:
+// never the antechamber, never the vault that tests it.
+const OMEN_ROOM_IDS = [2, 3, 4];
+
+function rollOmen() {
+  return {
+    roomId: OMEN_ROOM_IDS[Math.floor(Math.random() * OMEN_ROOM_IDS.length)],
+    phrase: omenPhrases[Math.floor(Math.random() * omenPhrases.length)],
+  };
 }
 
 export default function Game() {
+  const initialRoomIndex = DEV_ROOM_INDEX ?? 0;
   const [gameStarted, setGameStarted] = useState(DEV_ROOM_INDEX !== null);
-  const [roomIndex, setRoomIndex] = useState(DEV_ROOM_INDEX ?? 0);
-  const [darklordHealth, setDarklordHealth] = useState(200);
-  const [chxospixieHealth, setChxospixieHealth] = useState(200);
-  const [chxospixieStamina, setChxospixieStamina] = useState(60);
+  const [roomIndex, setRoomIndex] = useState(initialRoomIndex);
+  const [darklordHealth, setDarklordHealth] = useState(HERO_MAX_HEALTH);
+  const [chxospixieHealth, setChxospixieHealth] = useState(HERO_MAX_HEALTH);
+  const [chxospixieStamina, setChxospixieStamina] = useState(HERO_MAX_STAMINA);
   const [dragonAwakened, setDragonAwakened] = useState(false);
-  const [whisperedPhrase, setWhisperedPhrase] = useState("");
-  const [showWhisperOverlay, setShowWhisperOverlay] = useState(false);
-  const [whisperedRoomIndex, setWhisperedRoomIndex] = useState(null);
+  const [omen, setOmen] = useState(rollOmen);
+  const [showOmen, setShowOmen] = useState(false);
   const [canContinue, setCanContinue] = useState(false);
   const [isPolymorphed, setIsPolymorphed] = useState(false);
   const [darklordDead, setDarklordDead] = useState(false);
@@ -78,26 +69,110 @@ export default function Game() {
   const [showRoomIntro, setShowRoomIntro] = useState(true);
   const [delayedContinue, setDelayedContinue] = useState(false);
   const [roomResetTrigger, setRoomResetTrigger] = useState(0);
+  // Set the moment the Beholder falls; drives the Room 6 reward track (see useRoomMusic).
+  const [bossDefeated, setBossDefeated] = useState(false);
+  // Champions who rose at half strength on entering the current room.
+  const [revivalNotice, setRevivalNotice] = useState([]);
+  // Per-adventure bookkeeping: the omen is delivered once.
+  const omenDeliveredRef = useRef(false);
+  // Player state at the moment the current room's encounter began. A full-party defeat
+  // restores exactly this, so retrying is never a heal or a stamina refill. Captured wherever
+  // room-entry state is established (new adventure, next room, dev scenario). Both champions
+  // always stand at room entry (a fallen one returns at the next room), so no dead flags here.
+  // Room 4: the awakened dragon is fought from the values the party carried into the chamber
+  // (a wake interrupts Heal Both before any healing), so the room-entry capture already is the
+  // pre-heal fight-entry state.
+  const encounterCheckpointRef = useRef({
+    darklordHealth: HERO_MAX_HEALTH,
+    chxospixieHealth: HERO_MAX_HEALTH,
+    chxospixieStamina: HERO_MAX_STAMINA,
+    isPolymorphed: false,
+  });
 
-  // Sprite pose states
-  const [darklordPose, setDarklordPose] = useState("idle"); // "idle", "attack", "dead"
-  const [chxospixiePose, setChxospixiePose] = useState("idle");
+  const captureEncounter = ({ darklordHealth, chxospixieHealth, chxospixieStamina, isPolymorphed }) => {
+    encounterCheckpointRef.current = { darklordHealth, chxospixieHealth, chxospixieStamina, isPolymorphed };
+  };
 
-  //START GAME
+  // Defeat overlay: "Restart Adventure" asks for confirmation before abandoning the run.
+  const [confirmRestart, setConfirmRestart] = useState(false);
+  const cancelRestartRef = useRef(null);
+  const retryEncounterRef = useRef(null);
+  // DEV TESTING only: mount Room 6 already in its reward state ("Treasure / Epilogue").
+  // Always false in production builds (only startScenario, itself DEV-only, sets it).
+  const [devRewardStart, setDevRewardStart] = useState(false);
+
+  const currentRoom = rooms[roomIndex];
+  const isTitleScreen = !gameStarted;
+  const orientationGated = useOrientationGate();
+
+  //START GAME — every new adventure begins from clean run state
   const startGame = () => {
     setGameStarted(true);
     setRoomIndex(0);
     setShowRoomIntro(true);
-    setDarklordHealth(200);
-    setChxospixieHealth(200);
-    setChxospixieStamina(60);
+    if (import.meta.env.DEV) setDevRewardStart(false);
+    setDarklordHealth(HERO_MAX_HEALTH);
+    setChxospixieHealth(HERO_MAX_HEALTH);
+    setChxospixieStamina(HERO_MAX_STAMINA);
     setDarklordDead(false);
     setChxospixieDead(false);
     setCanContinue(false);
     setIsPolymorphed(false);
-    setDarklordPose("idle");
-    setChxospixiePose("idle");
+    setDragonAwakened(false);
+    setRestartOverlayMessage("");
+    setConfirmRestart(false);
+    setBossDefeated(false);
+    setRevivalNotice([]);
+    setOmen(rollOmen());
+    setShowOmen(false);
+    omenDeliveredRef.current = false;
+    captureEncounter({
+      darklordHealth: HERO_MAX_HEALTH,
+      chxospixieHealth: HERO_MAX_HEALTH,
+      chxospixieStamina: HERO_MAX_STAMINA,
+      isPolymorphed: false,
+    });
   };
+
+  // DEV TESTING: start a fresh run directly in a room with preset champion state
+  // (see dev/scenarios.js). Progression, balance and room logic are untouched: this only
+  // seeds the same state startGame() seeds. Absent from production builds.
+  const startScenario = import.meta.env.DEV
+    ? (scenario) => {
+        const index = rooms.findIndex((room) => room.id === scenario.roomId);
+        if (index < 0) return;
+        setGameStarted(true);
+        setRoomIndex(index);
+        // The reward shortcut lands after the fight, where no room intro would be showing.
+        setShowRoomIntro(!scenario.reward);
+        setDevRewardStart(Boolean(scenario.reward));
+        setDarklordHealth(scenario.darklordHealth);
+        setChxospixieHealth(scenario.chxospixieHealth);
+        setChxospixieStamina(scenario.chxospixieStamina);
+        setDarklordDead(false);
+        setChxospixieDead(false);
+        setCanContinue(false);
+        setIsPolymorphed(Boolean(scenario.polymorphed));
+        setDragonAwakened(Boolean(scenario.dragonAwakened));
+        setRestartOverlayMessage("");
+        // Reward shortcut: the Beholder already fell, so the reward track plays as it would.
+        setBossDefeated(Boolean(scenario.reward));
+        setRevivalNotice([]);
+        // Omen: if the launched room can carry it, deliver it there so Room 5 is answerable;
+        // rooms past the omen's window count it as already delivered.
+        const omenHere = OMEN_ROOM_IDS.includes(scenario.roomId);
+        const rolled = rollOmen();
+        setOmen(omenHere ? { ...rolled, roomId: scenario.roomId } : rolled);
+        setShowOmen(false);
+        omenDeliveredRef.current = !omenHere;
+        captureEncounter({
+          darklordHealth: scenario.darklordHealth,
+          chxospixieHealth: scenario.chxospixieHealth,
+          chxospixieStamina: scenario.chxospixieStamina,
+          isPolymorphed: Boolean(scenario.polymorphed),
+        });
+      }
+    : null;
 
   //FINISH GAME
   const finishAdventure = () => {
@@ -109,11 +184,9 @@ export default function Game() {
   useEffect(() => {
     if (darklordHealth <= 0) {
       setDarklordDead(true);
-      setDarklordPose("dead");
     }
     if (chxospixieHealth <= 0) {
       setChxospixieDead(true);
-      setChxospixiePose("dead");
     }
   }, [darklordHealth, chxospixieHealth]);
 
@@ -122,36 +195,13 @@ export default function Game() {
     if (darklordDead && chxospixieDead) {
       const overlayTimer = setTimeout(() => {
         setRestartOverlayMessage("Both heroes have fallen!");
-      }, 5000);
+      }, PARTY_DEFEAT_DELAY_MS);
 
       return () => clearTimeout(overlayTimer);
     } else {
       setRestartOverlayMessage("");
     }
   }, [darklordDead, chxospixieDead]);
-
-  //Randomly pick a room excluding 5, 6 to whisper random phrase in
-  useEffect(() => {
-    const eligibleRooms = rooms
-      .filter((r) => r.id !== 5 && r.id !== 6)
-      .map((r) => r.id);
-
-    const randomRoomId =
-      eligibleRooms[Math.floor(Math.random() * eligibleRooms.length)];
-    const randomPhrase =
-      whisperedPhrases[Math.floor(Math.random() * whisperedPhrases.length)];
-
-    setWhisperedRoomIndex(randomRoomId);
-    setWhisperedPhrase(randomPhrase);
-  }, []);
-  //Make the whispered phrase disappear after a bit
-  useEffect(() => {
-    // compare the room's id (1-based) to the stored whisperedRoomIndex
-    if (rooms[roomIndex]?.id === whisperedRoomIndex) {
-      setShowWhisperOverlay(true);
-    }
-  }, [roomIndex, whisperedRoomIndex]);
-
 
   // DELAYED CONTINUE BUTTON LOGIC
   useEffect(() => {
@@ -163,61 +213,52 @@ export default function Game() {
     } else {
       setDelayedContinue(false);
     }
-  }, [canContinue, roomIndex]);
+  }, [canContinue, currentRoom.id]);
 
-  //RESTART ROOM IF HEROES DEAD
-  const restartRoom = () => {
-    setDarklordHealth(200);
-    setChxospixieHealth(200);
-    setChxospixieStamina(60);
+  // RETRY ENCOUNTER (full-party defeat): the party retries from its encounter-entry state, not
+  // from full. Enemy health and the rooms' own fight state reset through roomResetTrigger; the
+  // dragon's awakened flag is deliberately left alone so an awake dragon stays awake.
+  const retryEncounter = () => {
+    setConfirmRestart(false);
+    const entry = encounterCheckpointRef.current;
+    setDarklordHealth(entry.darklordHealth);
+    setChxospixieHealth(entry.chxospixieHealth);
+    setChxospixieStamina(entry.chxospixieStamina);
+    setIsPolymorphed(entry.isPolymorphed);
     setDarklordDead(false);
     setChxospixieDead(false);
     setCanContinue(false);
     setRestartOverlayMessage("");
-    setShowWhisperOverlay(false);
-    setDarklordPose("idle");
-    setChxospixiePose("idle");
+    setShowOmen(false);
+    setBossDefeated(false);
     setRoomResetTrigger((prev) => prev + 1);
   };
 
-  // Sprite pose logic for attacks
-  const handleAction = (character, action) => {
-    let logEntry = "";
-
-    if (character === "Darklord") {
-      if (!isPolymorphed) {
-        if (action === "Divine Strike") {
-          setDarklordPose("attack");
-          setTimeout(() => setDarklordPose(darklordDead ? "dead" : "idle"), 500);
-        } else if (action === "Shield Block") {
-          setDarklordPose("idle");
-        }
-      } else {
-        if (action === "Toad Slap") {
-        } else if (action === "Croak of Confusion") {
-        }
-      }
-    }
-
-    if (character === "Chxospixie") {
-      if (!isPolymorphed) {
-        if (action === "Savage Slash") {
-          setChxospixiePose("attack");
-          setTimeout(() => setChxospixiePose(chxospixieDead ? "dead" : "idle"), 500);
-        } else if (action === "Fury Charge" && chxospixieStamina >= 12) {
-          setChxospixiePose("attack");
-          setTimeout(() => setChxospixiePose(chxospixieDead ? "dead" : "idle"), 500);
-          setChxospixieStamina((prev) => prev - 12);
-        } else if (action === "Fury Charge" && chxospixieStamina < 12) {
-          setChxospixiePose("idle");
-        }
-      } else {
-        if (action === "Woolly Bash") {
-        } else if (action === "Baa of Distraction") {
-        }
-      }
-    }
+  // RESTART ADVENTURE (confirmed): abandon the run. Returning to the title screen is the same
+  // path the epilogue's "End Adventure" takes, and "Begin Your Journey" then runs startGame(),
+  // the one place a fresh run is initialised. No second set of reset assignments exists.
+  const restartAdventure = () => {
+    setConfirmRestart(false);
+    setRestartOverlayMessage("");
+    finishAdventure();
   };
+
+  // When the defeat overlay is up (and the confirmation is not), keyboard focus goes to
+  // Retry Encounter instead of staying on a disabled move button behind the overlay.
+  useEffect(() => {
+    if (restartOverlayMessage && !confirmRestart) retryEncounterRef.current?.focus();
+  }, [restartOverlayMessage, confirmRestart]);
+
+  // Land focus on the safe choice when the confirmation opens; Escape backs out.
+  useEffect(() => {
+    if (!confirmRestart) return;
+    cancelRestartRef.current?.focus();
+    const onKey = (event) => {
+      if (event.key === "Escape") setConfirmRestart(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [confirmRestart]);
 
   const nextRoom = () => {
     if (roomIndex >= rooms.length - 1) {
@@ -225,41 +266,97 @@ export default function Game() {
       return;
     }
 
+    // A fallen champion returns at half strength; survivors carry their remaining HP.
+    // The values the party walks in with are the next room's encounter checkpoint.
+    const stateKey = isPolymorphed ? "polymorphed" : "normal";
+    const entry = {
+      darklordHealth: darklordDead ? HERO_MAX_HEALTH * REVIVE_FACTOR : darklordHealth,
+      chxospixieHealth: chxospixieDead ? HERO_MAX_HEALTH * REVIVE_FACTOR : chxospixieHealth,
+      chxospixieStamina: chxospixieDead ? HERO_MAX_STAMINA * REVIVE_FACTOR : chxospixieStamina,
+      isPolymorphed,
+    };
+    const revived = [];
     if (darklordDead) {
-      setDarklordHealth(200 * 0.5);
+      setDarklordHealth(entry.darklordHealth);
       setDarklordDead(false);
-      setDarklordPose("idle");
+      revived.push(characterStates.Darklord[stateKey].displayName);
     }
     if (chxospixieDead) {
-      setChxospixieHealth(200 * 0.5);
-      setChxospixieStamina(60 * 0.5);
+      setChxospixieHealth(entry.chxospixieHealth);
+      setChxospixieStamina(entry.chxospixieStamina);
       setChxospixieDead(false);
-      setChxospixiePose("idle");
+      revived.push(characterStates.Chxospixie[stateKey].displayName);
     }
-    setRoomIndex(roomIndex + 1);
+    setRevivalNotice(revived);
+    captureEncounter(entry);
+
+    const nextIndex = roomIndex + 1;
+    setRoomIndex(nextIndex);
     setShowRoomIntro(true);
     setCanContinue(false);
-    setDarklordPose("idle");
-    setChxospixiePose("idle");
   };
 
-  const currentRoom = rooms[roomIndex];
-  const isTitleScreen = !gameStarted;
+  // Dismissing a room's intro is also the moment the omen appears, if this is its room.
+  const dismissRoomIntro = () => {
+    setShowRoomIntro(false);
+    if (currentRoom.id === omen.roomId && !omenDeliveredRef.current) {
+      omenDeliveredRef.current = true;
+      setShowOmen(true);
+    }
+  };
+
+  const handleOmenDismiss = useCallback(() => {
+    setShowOmen(false);
+  }, []);
+
+  const handleBossDefeated = useCallback(() => {
+    setBossDefeated(true);
+  }, []);
+
+  // ASSET READINESS (fire-and-forget; nothing below is ever awaited by gameplay).
+  // Title: the parchment behind the first room intro. Each room, the moment its intro appears:
+  // its own background(s) and critical enemy art first, then both champions' idle/attack/dead
+  // artwork (normal form always; polymorphed form on entering the Cerebral Vault, before the
+  // brain can transform anyone, and whenever the party is already transformed). Room 6 also
+  // primes the treasure painting and chest once its own art is in, long before the chest appears.
+  useEffect(() => {
+    if (!gameStarted) {
+      primeIntroTexture();
+      return;
+    }
+    const scene = primeScene(currentRoom.id);
+    primeChampionForm("normal");
+    if (isPolymorphed || currentRoom.id >= 5) primeChampionForm("polymorphed");
+    if (currentRoom.id === 6) scene.then(primeRewardScene);
+  }, [gameStarted, isPolymorphed, currentRoom.id]);
+
+  // While the Continue overlay is up, the next room's art is primed ahead of the move.
+  useEffect(() => {
+    if (!canContinue) return;
+    const next = rooms[roomIndex + 1];
+    if (next) primeScene(next.id);
+  }, [canContinue, roomIndex]);
 
   // ROOM MUSIC HOOK
   useRoomMusic({
     roomIndex,
-    showRoomIntro,
     isTitleScreen,
     room4Mode: dragonAwakened ? "battle" : "healing",
-    room6Mode: currentRoom.id === 6 && canContinue ? "reward" : "boss",
-    firstInteractionRef,
+    room6Mode: currentRoom.id === 6 && bossDefeated ? "reward" : "boss",
+    suspended: orientationGated,
   });
 
   return (
     <>
       {!gameStarted ? (
-        <TitleScreen onStart={startGame} />
+        <>
+          <TitleScreen onStart={startGame} />
+          {DevLauncher && (
+            <Suspense fallback={null}>
+              <DevLauncher onLaunch={startScenario} />
+            </Suspense>
+          )}
+        </>
       ) : (
         <div className="game-container">
 
@@ -268,7 +365,12 @@ export default function Game() {
             <div className="room-intro-overlay">
               <h2>{currentRoom.name}</h2>
               <p>{currentRoom.text}</p>
-              <button onClick={() => setShowRoomIntro(false)}>
+              {revivalNotice.map((name) => (
+                <p key={name} className="room-intro-notice">
+                  {name} rises at half strength.
+                </p>
+              ))}
+              <button type="button" aria-label="Continue" onClick={dismissRoomIntro}>
                 ➔
               </button>
             </div>
@@ -277,33 +379,63 @@ export default function Game() {
           {/* Restart room if heroes are dead */}
           {restartOverlayMessage && (
             <div className="restart-overlay">
-              <div className="restart-message">
-                <p>{restartOverlayMessage}</p>
-                <button className="restart-button" onClick={restartRoom}>
-                  Restart Room
-                </button>
-              </div>
+              {confirmRestart ? (
+                <div
+                  className="restart-message restart-confirm"
+                  role="alertdialog"
+                  aria-modal="true"
+                  aria-labelledby="restart-confirm-title"
+                  aria-describedby="restart-confirm-body"
+                >
+                  <p id="restart-confirm-title">Restart the entire adventure?</p>
+                  <p id="restart-confirm-body" className="restart-confirm-body">
+                    Your current progress will be lost.
+                  </p>
+                  <div className="restart-actions">
+                    <button
+                      ref={cancelRestartRef}
+                      type="button"
+                      className="restart-button"
+                      onClick={() => setConfirmRestart(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="restart-button restart-button--secondary"
+                      onClick={restartAdventure}
+                    >
+                      Restart Adventure
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="restart-message">
+                  <p>{restartOverlayMessage}</p>
+                  <div className="restart-actions">
+                    <button ref={retryEncounterRef} type="button" className="restart-button" onClick={retryEncounter}>
+                      Retry Encounter
+                    </button>
+                    <button
+                      type="button"
+                      className="restart-button restart-button--secondary"
+                      onClick={() => setConfirmRestart(true)}
+                    >
+                      Restart Adventure
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Show whispered phrase in random room */}
-          {showWhisperOverlay && (
-            <WhisperOverlay
-              phrase={
-                <>
-                  A whisper tickles your mind: <br />
-                  "{whisperedPhrase}"
-                </>
-              }
-              onFinish={() => {
-                setShowWhisperOverlay(false);
-                setShowRoomIntro(true);
-              }}
-            />
+          {/* The omen: once, in its room, right after the intro. The room waits underneath it. */}
+          {showOmen && (
+            <OmenOverlay phrase={omen.phrase} onDismiss={handleOmenDismiss} />
           )}
 
-          {/* Render Room Component only if overlay is dismissed */}
-          {!showRoomIntro && (
+          {/* Render Room Component only once the intro (and the omen, if any) is dismissed */}
+          {!showRoomIntro && !showOmen && (
             <>
               {currentRoom.id === 1 && (
                 <Room1Intro key={`room1-${roomIndex}`} setCanContinue={setCanContinue} />
@@ -320,8 +452,6 @@ export default function Game() {
                   chxospixieHealth={chxospixieHealth}
                   darklordDead={darklordDead}
                   chxospixieDead={chxospixieDead}
-                  handleAction={handleAction}
-                  restartOverlayMessage={restartOverlayMessage}
                 />
               )}
               {currentRoom.id === 3 && (
@@ -331,7 +461,6 @@ export default function Game() {
                   darklordHealth={darklordHealth}
                   chxospixieHealth={chxospixieHealth}
                   chxospixieStamina={chxospixieStamina}
-                  setRoomIndex={setRoomIndex}
                   setCanContinue={setCanContinue}
                   setDarklordHealth={setDarklordHealth}
                   setChxospixieHealth={setChxospixieHealth}
@@ -339,7 +468,6 @@ export default function Game() {
                   isPolymorphed={isPolymorphed}
                   darklordDead={darklordDead}
                   chxospixieDead={chxospixieDead}
-                  handleAction={handleAction}
                 />
               )}
               {currentRoom.id === 4 && (
@@ -355,27 +483,22 @@ export default function Game() {
                   dragonAwakened={dragonAwakened}
                   setDragonAwakened={setDragonAwakened}
                   setCanContinue={setCanContinue}
+                  isPolymorphed={isPolymorphed}
                   darklordDead={darklordDead}
                   chxospixieDead={chxospixieDead}
-                  onAction={handleAction}
+                  setDarklordDead={setDarklordDead}
+                  setChxospixieDead={setChxospixieDead}
                 />
               )}
               {currentRoom.id === 5 && (
                 <Room5Brain
                   key={`room5-${roomIndex}`}
-                  whisperedPhrase={whisperedPhrase}
+                  omenPhrase={omen.phrase}
                   setCanContinue={setCanContinue}
                   setIsPolymorphed={setIsPolymorphed}
                   isPolymorphed={isPolymorphed}
                   darklordDead={darklordDead}
                   chxospixieDead={chxospixieDead}
-                  darklordHealth={darklordHealth}
-                  chxospixieHealth={chxospixieHealth}
-                  chxospixieStamina={chxospixieStamina}
-                  setChxospixieStamina={setChxospixieStamina}
-                  setDarklordHealth={setDarklordHealth}
-                  setChxospixieHealth={setChxospixieHealth}
-
                 />
               )}
               {currentRoom.id === 6 && (
@@ -392,9 +515,9 @@ export default function Game() {
                   setIsPolymorphed={setIsPolymorphed}
                   darklordDead={darklordDead}
                   chxospixieDead={chxospixieDead}
-                  setCanContinue={setCanContinue}
+                  onBossDefeated={handleBossDefeated}
                   onFinish={finishAdventure}
-                  onAction={handleAction}
+                  devStartAtReward={import.meta.env.DEV && devRewardStart}
                 />
               )}
             </>
@@ -414,7 +537,7 @@ export default function Game() {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                background: `url('/assets/backgrounds/room${currentRoom.id}-bg.png') center/cover no-repeat`
+                background: `url('${currentRoom.continueBackground}') center/cover no-repeat`
               }}
             >
               <button
@@ -427,6 +550,9 @@ export default function Game() {
           )}
         </div>
       )}
+      {/* Music toggle: one fixed control for the title, every room, the reward scene and the
+          epilogue. Last in DOM order so it follows the scene's own controls in the tab order. */}
+      <MuteButton />
     </>
   );
 }

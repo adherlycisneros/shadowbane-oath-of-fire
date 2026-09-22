@@ -50,3 +50,10 @@
 .cardContainer.dead .spriteImage {
   width: 170px !important;
 }
+
+/* Reduced motion: no continuous flicker on champion / enemy cards. */
+@media (prefers-reduced-motion: reduce) {
+  .cardContainer {
+    animation: none;
+  }
+}

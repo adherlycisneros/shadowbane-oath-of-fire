@@ -1,7 +1,7 @@
 /* src/components/TitleScreen.module.css */
 
 .container {
-  background: url('/assets/backgrounds/title-bg.png') center/cover no-repeat,
+  background: url('/assets/backgrounds/title-bg.webp') center/cover no-repeat,
               linear-gradient(135deg, var(--color-bg-gradient-start), var(--color-bg-gradient-end));
   color: var(--color-text);
   padding: 1rem;

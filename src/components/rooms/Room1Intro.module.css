@@ -2,7 +2,7 @@
   height: 100svh;
   /* full safe viewport height */
   width: 100vw;
-  background: url('/assets/backgrounds/room1-bg.png') center bottom 10%/cover no-repeat;
+  background: url('/assets/backgrounds/room1-bg.webp') center bottom 10%/cover no-repeat;
   position: relative;
   display: flex;
   align-items: center;
@@ -87,7 +87,7 @@
   width: 100vw;
   height: 100vh;
   background:
-    url('/assets/textures/aged-paper.png') repeat,
+    url('/assets/textures/aged-paper.webp') repeat,
     radial-gradient(circle at center, var(--color-bg-gradient-end) 0%, var(--color-bg-dark) 100%);
   background-blend-mode: overlay;
   display: flex;
@@ -128,11 +128,19 @@
   cursor: pointer;
   z-index: 1500;
   transition: transform 0.2s ease, text-shadow 0.3s ease;
+  border-radius: 6px;
+}
+
+/* Keyboard focus shows an ember ring; mouse focus stays quiet. */
+.cinematicButton:focus:not(:focus-visible),
+.closeBtn:focus:not(:focus-visible) {
   outline: none;
 }
 
-.cinematicButton:focus {
-  outline: none;
+.cinematicButton:focus-visible,
+.closeBtn:focus-visible {
+  outline: 2px solid var(--color-ember-light);
+  outline-offset: 3px;
 }
 
 .cinematicButton:hover {
@@ -225,7 +233,7 @@
 
 .overlayContent {
   background:
-    #1c1c1c url('/assets/textures/aged-paper.png') repeat;
+    #1c1c1c url('/assets/textures/aged-paper.webp') repeat;
   background-blend-mode: overlay;
   color: #ffdf9e;
   padding: 2rem;
@@ -245,6 +253,7 @@
   right: 1rem;
   background: none;
   border: none;
+  border-radius: 6px;
   color: #ff7a00;
   font-size: 2rem;
   cursor: pointer;
@@ -306,5 +315,33 @@
   to {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+/* ---------------------------------------------------
+   Shorter / narrower landscape phones. The 320px hero sprites are sized for 932x430; on
+   shorter screens their boxes ran past the top edge, and at 667px wide they met under the
+   "Meet Your Heroes" heading. Cap the sprite by the available height, and at the narrowest
+   widths by the room left beside the heading (the heading stays clear of the opaque art).
+   932x430 is above these breakpoints and unchanged.
+--------------------------------------------------- */
+@media (max-width: 896px) {
+  .championSprite {
+    width: min(320px, calc(100svh - 6rem));
+  }
+}
+
+@media (max-width: 720px) {
+  .championSprite {
+    width: min(240px, calc(100svh - 6rem));
+  }
+}
+
+/* Reduced motion: the name banners and the next arrow stop pulsing, and the backstory panel
+   appears without the slide. The short opacity fades are kept. */
+@media (prefers-reduced-motion: reduce) {
+  .nameBanner,
+  .cinematicArrow,
+  .overlayContent {
+    animation: none;
   }
 }

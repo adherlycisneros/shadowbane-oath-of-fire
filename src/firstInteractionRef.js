@@ -1,1 +1,0 @@
-export const firstInteractionRef = { current: false, audio: null };

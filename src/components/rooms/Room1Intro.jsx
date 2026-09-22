@@ -18,24 +18,6 @@ export default function Room1Intro({ setCanContinue }) {
   const [allBackstoriesRead, setAllBackstoriesRead] = useState(false);
   const [currentLineIndex, setCurrentLineIndex] = useState(-1);
 
-  const [isFading, setIsFading] = useState(false);
-
-  const handleNext = () => {
-    if (currentLineIndex < cinematicLines.length - 1) {
-      // trigger fade out
-      setIsFading(true);
-      setTimeout(() => {
-        setCurrentLineIndex((prev) => prev + 1);
-        setIsFading(false); // fade in new line
-      }, 300); // matches fade duration (300ms)
-    } else {
-      // last line -> finish cinematic
-      setCurrentLineIndex(cinematicLines.length);
-      setCanContinue(true);
-      setShowFinal(false);
-    }
-  };
-
   const characters = [
     {
       key: "Darklord",
@@ -164,7 +146,9 @@ export default function Room1Intro({ setCanContinue }) {
         <div className={styles.overlay}>
           <div className={styles.overlayContent}>
             <button
+              type="button"
               className={styles.closeBtn}
+              aria-label="Close"
               onClick={() => setShowOverlay(null)}
             >
               ×
@@ -182,10 +166,9 @@ export default function Room1Intro({ setCanContinue }) {
       {showFinal && (
         <div className={styles.cinematicContainer}>
           {currentLineIndex >= 0 && currentLineIndex < cinematicLines.length && (
-            <p 
-              key={currentLineIndex} 
+            <p
+              key={currentLineIndex}
               className={styles.cinematicLine}
-              style={{ opacity: isFading ? 0 : 1 }}
             >
               {cinematicLines[currentLineIndex]}
             </p>
@@ -194,6 +177,7 @@ export default function Room1Intro({ setCanContinue }) {
           {/* Navigation buttons */}
           <div className={styles.cinematicNav}>
             <button
+              type="button"
               className={`${styles.cinematicButton} ${styles.skipButton}`}
               onClick={() => {
                 setCurrentLineIndex(cinematicLines.length);
@@ -206,7 +190,9 @@ export default function Room1Intro({ setCanContinue }) {
 
             {/* Next arrow button (right side) */}
             <button
+              type="button"
               className={`${styles.cinematicButton} ${styles.cinematicArrow}`}
+              aria-label="Next"
               onClick={() =>
                 setCurrentLineIndex((prev) =>
                   Math.min(prev + 1, cinematicLines.length)

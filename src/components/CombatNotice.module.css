@@ -1,0 +1,29 @@
+.notice {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -2.05rem;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.notice span {
+  display: inline-block;
+  max-width: min(92vw, 720px);
+  padding: 0.2rem 0.9rem;
+  border: 1px solid rgba(255, 122, 0, 0.5);
+  border-radius: 8px;
+  background: rgba(20, 10, 10, 0.84);
+  font-family: 'Quintessential', serif;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  text-shadow: 0 0 6px rgba(255, 122, 0, 0.7);
+  text-align: center;
+  animation: noticeIn 0.25s ease-out;
+}
+
+@keyframes noticeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}

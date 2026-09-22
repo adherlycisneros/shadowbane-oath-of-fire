@@ -1,11 +1,29 @@
 import { useEffect, useState, useRef } from "react";
 import { characterStates } from "../../data/characterData";
+import { GUARDS, disabledReason, guardHolds, resolveCounter } from "../../data/combat";
 import EnemyHUD from "../EnemyHUD";
 import EnemyCard from "../EnemyCard";
 import ChampionHUD from "../ChampionHUD";
 import ChampionCard from "../ChampionCard";
+import MoveButton from "../MoveButton";
+import FloatingText from "../FloatingText";
+import CombatNotice from "../CombatNotice";
+import useFloatingText from "../../hooks/useFloatingText";
+import useNotice from "../../hooks/useNotice";
+import useTimeouts from "../../hooks/useTimeouts";
+import useHeroFallNotice from "../../hooks/useHeroFallNotice";
 import styles from "./Room6Final.module.css";
 import shared from "./Room3Displacers.module.css";
+
+const ENEMY_MAX_HEALTH = 220;
+// Dodge chance (enemy only)
+const ENEMY_DODGE_CHANCE = 0.1;
+// BEHOLDER ATTACKS
+const beholderAttacks = [
+    { name: "Disintegration Ray", baseDamage: 20 },
+    { name: "Necrotic Beam", baseDamage: 28 },
+    { name: "Force Blast", baseDamage: 35 }
+];
 
 export default function Room6Final({
     darklordHealth,
@@ -14,17 +32,28 @@ export default function Room6Final({
     setDarklordHealth,
     setChxospixieHealth,
     setChxospixieStamina,
-    setCanContinue,
+    onBossDefeated,
     isPolymorphed,
     setIsPolymorphed,
     darklordDead,
     chxospixieDead,
     onFinish,
     roomResetTrigger,
+    devStartAtReward = false,
 }) {
+    // Development-only shortcut (DEV TESTING "Treasure / Epilogue"): mount already in the
+    // post-victory reward state, exactly as the victory beat leaves it. Constant false in
+    // production builds, so every initializer below reduces to its normal value.
+    const startAtReward = import.meta.env.DEV && Boolean(devStartAtReward);
 
     const [currentPage, setCurrentPage] = useState(0);
     const [showOverlay, setShowOverlay] = useState(true);
+    // When the last page is closed the parchment leaves and End Adventure takes its place;
+    // keyboard focus follows it so the flow stays reachable.
+    const endAdventureRef = useRef(null);
+    useEffect(() => {
+        if (!showOverlay) endAdventureRef.current?.focus();
+    }, [showOverlay]);
 
 
     const pages = [
@@ -60,77 +89,93 @@ export default function Room6Final({
         `P.S. No respecs allowed. You are stuck with me for the rest of the campaign. 💖`
     ];
 
-    const [enemyHealth, setEnemyHealth] = useState(300); //480 health TEST
-    const [enemyDefeated, setEnemyDefeated] = useState(false);
+    const enemyMaxHealth = ENEMY_MAX_HEALTH;
+    const [enemyHealth, setEnemyHealth] = useState(startAtReward ? 0 : enemyMaxHealth);
+    // Mirrors enemyHealth for timer callbacks so damage math never runs inside a state
+    // updater (React StrictMode double-invokes updaters in development).
+    const enemyHealthRef = useRef(startAtReward ? 0 : enemyMaxHealth);
+    const [enemyDefeated, setEnemyDefeated] = useState(startAtReward);
     const [showRedFlash, setShowRedFlash] = useState(false);
     const [enemyPose, setEnemyPose] = useState("idle");
     const [actionDisabled, setActionDisabled] = useState(false);
     const [darklordPose, setDarklordPose] = useState("idle");
     const [chxospixiePose, setChxospixiePose] = useState("idle");
-    const [floatingDamage, setFloatingDamage] = useState(null);
-    
+
     const [showTreasure, setShowTreasure] = useState(false);
     const [feedback, setFeedback] = useState(null);
-    const [showChestPrompt, setShowChestPrompt] = useState(false);
-    const [victoryProcessed, setVictoryProcessed] = useState(false);
+    const [showChestPrompt, setShowChestPrompt] = useState(startAtReward);
+    const [victoryProcessed, setVictoryProcessed] = useState(startAtReward);
+    // Victory beat: fighting -> falling (the killing blow registers on the Beholder)
+    // -> defeated (the chest appears) -> reward (the chest prompt is up).
+    // The future audio stage can key the reward track off these phases.
+    const [bossPhase, setBossPhase] = useState(startAtReward ? "reward" : "fighting");
+    // One-shot guard raised by the acting hero's move ({ hero, kind }); gone once the counter lands.
+    const [guard, setGuard] = useState(null);
+    const [enemyDaze, setEnemyDaze] = useState(null);
+
+    const later = useTimeouts();
+    const floaters = useFloatingText();
+    const [notice, showNotice] = useNotice();
 
     const stateKey = isPolymorphed ? "polymorphed" : "normal";
     const darklord = characterStates.Darklord[stateKey];
     const chxospixie = characterStates.Chxospixie[stateKey];
 
     const isGameOver = darklordDead && chxospixieDead;
-    const enemyMaxHealth = 220;
+
+    useHeroFallNotice({
+        darklordDead,
+        chxospixieDead,
+        darklordName: darklord.displayName,
+        chxospixieName: chxospixie.displayName,
+        showNotice,
+    });
 
     //Watch for reset trigger and restore defaults
     useEffect(() => {
-        setEnemyHealth(enemyMaxHealth);
-        setEnemyDefeated(false);
+        // Runs on mount as well; the dev reward shortcut keeps its post-victory values.
+        enemyHealthRef.current = startAtReward ? 0 : ENEMY_MAX_HEALTH;
+        setEnemyHealth(startAtReward ? 0 : ENEMY_MAX_HEALTH);
+        setEnemyDefeated(startAtReward);
         setEnemyPose("idle");
-    }, [roomResetTrigger]);
+        setBossPhase(startAtReward ? "reward" : "fighting");
+        setGuard(null);
+        setEnemyDaze(null);
+    }, [roomResetTrigger, startAtReward]);
 
 
     const triggerRedFlash = () => {
         setShowRedFlash(true);
-        setTimeout(() => setShowRedFlash(false), 300);
+        later(() => setShowRedFlash(false), 300);
     };
 
+    // Run the defeat beat exactly once: the Beholder stays up while the final hit registers,
+    // the defeat is announced, then the chest takes its place.
     useEffect(() => {
-        // run the defeat flow exactly once
-        if (enemyHealth <= 0 && !victoryProcessed) {
-            setVictoryProcessed(true);      // prevent re-run
-            setEnemyDefeated(true);
+        if (bossPhase !== "falling" || victoryProcessed) return;
+        setVictoryProcessed(true);
+        setFeedback("☠️ The Ancient Beholder has been defeated! ☠️");
 
-            // If they were polymorphed, show that message and revert, then show chest prompt
-            if (isPolymorphed) {
-                setFeedback("✨ Beholder defeated! Polymorph spell lifted! ✨");
+        later(() => setBossPhase("defeated"), 1500);
 
-                setTimeout(() => {
-                    setIsPolymorphed(false);
-                }, 1800);
-
-                setTimeout(() => {
-                    setFeedback(null);
-                    setShowChestPrompt(true);
-                    setCanContinue(true);
-                }, 3500);
-            } else {
-
-                // Non-polymorphed flow: show a shorter message, then chest prompt
-                setFeedback("✨ Beholder defeated! ✨");
-
-                setTimeout(() => {
-                    setFeedback(null);
-                    setShowChestPrompt(true);
-                    setCanContinue(true);
-                }, 2500);
-            }
+        if (isPolymorphed) {
+            later(() => {
+                setFeedback("✨ The polymorph spell is lifted! ✨");
+                setIsPolymorphed(false);
+            }, 2000);
+            later(() => {
+                setFeedback(null);
+                setShowChestPrompt(true);
+                setBossPhase("reward");
+            }, 4000);
+        } else {
+            later(() => {
+                setFeedback(null);
+                setShowChestPrompt(true);
+                setBossPhase("reward");
+            }, 3000);
         }
-    }, [enemyHealth, victoryProcessed, isPolymorphed, setIsPolymorphed, setCanContinue]);
-
-    const showDamage = (damage, target) => {
-        setFloatingDamage({ value: damage, target });
-        setTimeout(() => setFloatingDamage(null), 1500);
-    };
+    }, [bossPhase, victoryProcessed, isPolymorphed, setIsPolymorphed, later]);
 
     // Helper to safely spend stamina
     const spendStamina = (cost) => {
@@ -138,78 +183,79 @@ export default function Room6Final({
         setChxospixieStamina(s => Math.max(s - cost, 0));
     };
 
-    // Dodge chance (enemy only)
-    const ENEMY_DODGE_CHANCE = 0.1;
+    // Raise the acting move's guard (if any). Returns the guard kind the counter must respect.
+    const raiseGuard = (hero, kind, landed) => {
+        if (!guardHolds(kind, landed)) return null;
+        setGuard({ hero, kind });
+        const status = GUARDS[kind].enemyStatus;
+        if (status) {
+            floaters.add("enemy", status, { kind: "status", ms: 1600 });
+            setEnemyDaze(kind);
+            later(() => setEnemyDaze(null), 1600);
+        }
+        return kind;
+    };
 
-    // BEHOLDER ATTACKS
-    const beholderAttacks = [
-        { name: "Disintegration Ray", baseDamage: 20 }, //TEST 
-        { name: "Necrotic Beam", baseDamage: 28 }, //TEST
-        { name: "Force Blast", baseDamage: 35 } //TEST
-    ];
-
-    const lastAttackerRef = useRef(null);
-
-    // Helper to show floating damage (extend existing showDamage if you have one)
-    // Assume existing setFloatingDamage({ value, target }) pattern
-    const showEnemyDodge = () => {
-        setFloatingDamage({ value: 0, target: "enemy", dodge: true });
-        setTimeout(() => setFloatingDamage(null), 1800);
+    // After the hero's swing lands (or is dodged), the beholder winds up (2s) and strikes back (1s).
+    const scheduleEnemyCounter = (attacker, guardKind) => {
+        later(() => {
+            setEnemyPose("attack");
+            later(() => {
+                enemyAttack(attacker, guardKind);
+                setEnemyPose("idle");
+                setActionDisabled(false);
+                // The ward fades right after the blow it was raised against.
+                if (guardKind) later(() => setGuard(null), 350);
+            }, 1000);
+        }, 2000);
     };
 
     // PLAYER ATTACK
-    const dealDamage = (damage, attacker) => {
-        if (enemyDefeated || isGameOver || actionDisabled) return;
+    const dealDamage = (move, attacker) => {
+        if (enemyDefeated || isGameOver || actionDisabled) return false;
 
-        lastAttackerRef.current = attacker;
         setActionDisabled(true);
         const poseSetter = attacker === "Darklord" ? setDarklordPose : setChxospixiePose;
         const dead = attacker === "Darklord" ? darklordDead : chxospixieDead;
         poseSetter("attack");
 
-        setTimeout(() => {
+        later(() => {
             poseSetter(dead ? "dead" : "idle");
 
             // Enemy dodge roll
             if (Math.random() < ENEMY_DODGE_CHANCE) {
-                showEnemyDodge();
-                // Still lets enemy counter
-                setTimeout(() => {
-                    setEnemyPose("attack");
-                    setTimeout(() => {
-                        enemyAttack(attacker);
-                        setEnemyPose("idle");
-                        setActionDisabled(false);
-                    }, 1000);
-                }, 2000);
+                floaters.add("enemy", "Dodge", { kind: "dodge" });
+                // A slipped strike still draws the counter; only a stance (Shield Block) survives the miss.
+                scheduleEnemyCounter(attacker, raiseGuard(attacker, move.guard, false));
                 return;
             }
 
-            setEnemyHealth(prev => {
-                const newHP = Math.max(prev - damage, 0);
-                showDamage(damage, "enemy");
-                if (newHP <= 0) {
-                    // defeat flow
-                    setEnemyDefeated(true);
-                    setCanContinue(true);
-                    setActionDisabled(false);
-                } else {
-                    setTimeout(() => {
-                        setEnemyPose("attack");
-                        setTimeout(() => {
-                            enemyAttack(attacker);
-                            setEnemyPose("idle");
-                            setActionDisabled(false);
-                        }, 1000);
-                    }, 2000);
-                }
-                return newHP;
-            });
+            const newHP = Math.max(enemyHealthRef.current - move.damage, 0);
+            enemyHealthRef.current = newHP;
+            setEnemyHealth(newHP);
+            floaters.add("enemy", `-${move.damage}`);
+            if (newHP <= 0) {
+                // The killing blow: the fight is over, the defeat beat takes it from here.
+                setEnemyDefeated(true);
+                setBossPhase("falling");
+                onBossDefeated();
+                setActionDisabled(false);
+            } else {
+                scheduleEnemyCounter(attacker, raiseGuard(attacker, move.guard, true));
+            }
         }, 1000);
+        return true;
+    };
+
+    const performMove = (move, attacker) => {
+        if (!dealDamage(move, attacker)) return;
+        if (move.staminaCost) {
+            spendStamina(move.staminaCost);
+        }
     };
 
     // ENEMY ATTACK (no sleep)
-    const enemyAttack = (attacker) => {
+    const enemyAttack = (attacker, guardKind) => {
         if (enemyDefeated || isGameOver) return;
 
         // Target last attacker if alive, else the other
@@ -221,18 +267,27 @@ export default function Room6Final({
         }
 
         const attack = beholderAttacks[Math.floor(Math.random() * beholderAttacks.length)];
-        const dmg = attack.baseDamage;
+        // A guard only covers the hero who raised it.
+        const { damage, label } = target === attacker
+            ? resolveCounter(attack.baseDamage, guardKind)
+            : { damage: attack.baseDamage, label: null };
+        const setHealth = target === "Darklord" ? setDarklordHealth : setChxospixieHealth;
 
-        if (target === "Darklord") {
-            setDarklordHealth(prev => Math.max(prev - dmg, 0));
-            triggerRedFlash();
-            showDamage(dmg, "Darklord");
-        } else {
-            setChxospixieHealth(prev => Math.max(prev - dmg, 0));
-            triggerRedFlash();
-            showDamage(dmg, "Chxospixie");
-        }
+        setHealth(prev => Math.max(prev - damage, 0));
+        triggerRedFlash();
+        floaters.add(target, `-${damage}`, { label, accent: GUARDS[guardKind]?.accent });
     };
+
+    const darklordGuarded = guard?.hero === "Darklord" && GUARDS[guard.kind]?.heroGlow;
+    const chxospixieGuarded = guard?.hero === "Chxospixie" && GUARDS[guard.kind]?.heroGlow;
+    const enemyDazeClass = enemyDaze === "confuse" ? shared.dazed : enemyDaze === "distract" ? shared.distracted : "";
+    const beholderVisible = bossPhase === "fighting" || bossPhase === "falling";
+    // Reward presentation: from the moment the chest replaces the Beholder, the scene stops
+    // looking like combat. Both champions stand (a fallen one is shown standing, not revived:
+    // HP, stamina and dead flags are untouched), both are drawn in their original forms from the
+    // first reward frame (the polymorph state and its "spell is lifted" message still run on their
+    // own schedule underneath), and the combat HUD is gone.
+    const rewardScene = !beholderVisible;
 
     //--------------- UI RETURN --------------------------------------------//
     return ( //START PART THAT CHANGED
@@ -241,12 +296,27 @@ export default function Room6Final({
                 <div className={`${styles.treasureScreen} fullscreen-fit`}>
                     {showOverlay ? (
                         <div className={styles.treasureOverlay}>
-                            {currentPage === 0 && (
-                                <h2>The Legend You Were Born To Claim</h2>
-                            )}
+                            {/* The changing page is a polite live region; the authored blank lines
+                                in each page string become stanza paragraphs at render time. The
+                                heading lives inside it so the whole page centres as one block and
+                                the Next button below stays the same element (and keeps focus). */}
+                            <div className={styles.pageText} aria-live="polite" aria-atomic="true">
+                                {currentPage === 0 && (
+                                    <h2 className={styles.storyTitle}>The Legend You Were Born To Claim</h2>
+                                )}
+                                {pages[currentPage]
+                                    .split(/\n\s*\n/)
+                                    .map((stanza) => stanza.replace(/\s+/g, " ").trim())
+                                    .filter(Boolean)
+                                    .map((stanza, index) => (
+                                        <p key={`${currentPage}-${index}`}>{stanza}</p>
+                                    ))}
+                            </div>
 
-                            <div
-                                className={styles.pageContainer}
+                            <button
+                                type="button"
+                                className={styles.pageNext}
+                                aria-label={currentPage < pages.length - 1 ? "Next page" : "Finish reading"}
                                 onClick={() => {
                                     if (currentPage < pages.length - 1) {
                                         setCurrentPage((p) => p + 1);
@@ -255,12 +325,21 @@ export default function Room6Final({
                                     }
                                 }}
                             >
-                                <p>{pages[currentPage]}</p>
-                                <div className={styles.tapHint}>▶</div>
-                            </div>
+                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path
+                                        d="M9 5l7 7-7 7"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2.2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                            </button>
                         </div>
                     ) : (
                         <button
+                            ref={endAdventureRef}
                             className={styles.finishadventurebtn}
                             onClick={onFinish}
                         >
@@ -290,39 +369,31 @@ export default function Room6Final({
                         <div className={`${shared.leftSide} ${styles.leftSide}`}>
                             <div className={`${styles.leftChampionWrapper}`}>
                                 <div className={`${shared.championWrapper} ${styles.polySlot}`}>
-                                    <div className={`${styles.spriteImage} ${darklordDead ? `${styles["dead-darklord"]} ${isPolymorphed ? styles["dead-darklord-polymorphed"] : ""}` : ""}`}>
+                                    <div className={`${styles.spriteImage} ${!rewardScene && darklordDead ? `${styles["dead-darklord"]} ${isPolymorphed ? styles["dead-darklord-polymorphed"] : ""}` : ""} ${!rewardScene && darklordGuarded ? shared.guarded : ""}`}>
                                         <ChampionCard
                                             championKey="Darklord"
-                                            pose={darklordDead ? "dead" : darklordPose}
-                                            isDead={darklordDead}
-                                            isPolymorphed={isPolymorphed}
+                                            pose={rewardScene ? "idle" : darklordDead ? "dead" : darklordPose}
+                                            isDead={!rewardScene && darklordDead}
+                                            isPolymorphed={!rewardScene && isPolymorphed}
                                             size="large"
                                         />
                                     </div>
-                                    {floatingDamage?.target === "Darklord" && (
-                                        <div className={`${shared.floatingDamage} ${floatingDamage.status ? shared.status : ""}`}>
-                                            {floatingDamage.status ? floatingDamage.value : `-${floatingDamage.value}`}
-                                        </div>
-                                    )}
+                                    <FloatingText items={floaters.forTarget("Darklord")} baseClass={shared.floatingDamage} />
                                 </div>
                             </div>
 
                             <div className={`${styles.rightChampionWrapper}`}>
                                   <div className={`${shared.championWrapper} ${styles.polySlot}`}>
-                                    <div className={`${styles.spriteImage} ${chxospixieDead ? `${styles["dead-chxospixie"]} ${isPolymorphed ? styles["dead-chxospixie-polymorphed"] : ""}` : ""}`}>
+                                    <div className={`${styles.spriteImage} ${!rewardScene && chxospixieDead ? `${styles["dead-chxospixie"]} ${isPolymorphed ? styles["dead-chxospixie-polymorphed"] : ""}` : ""} ${!rewardScene && chxospixieGuarded ? shared.guarded : ""}`}>
                                         <ChampionCard
                                             championKey="Chxospixie"
-                                            pose={chxospixieDead ? "dead" : chxospixiePose}
-                                            isDead={chxospixieDead}
-                                            isPolymorphed={isPolymorphed}
+                                            pose={rewardScene ? "idle" : chxospixieDead ? "dead" : chxospixiePose}
+                                            isDead={!rewardScene && chxospixieDead}
+                                            isPolymorphed={!rewardScene && isPolymorphed}
                                             size="large"
                                         />
                                     </div>
-                                    {floatingDamage?.target === "Chxospixie" && (
-                                        <div className={`${shared.floatingDamage} ${floatingDamage.status ? shared.status : ""}`}>
-                                            {floatingDamage.status ? floatingDamage.value : `-${floatingDamage.value}`}
-                                        </div>
-                                    )}
+                                    <FloatingText items={floaters.forTarget("Chxospixie")} baseClass={shared.floatingDamage} />
                                 </div>
                             </div>
                         </div>
@@ -330,25 +401,29 @@ export default function Room6Final({
 
                         <div className={`${shared.rightSide} ${styles.rightSide}`}>
                             <div className={shared.enemyWrapper} style={{ position: "relative" }}>
-                                {/* Beholder sprite (only if not defeated) */}
-                                {!enemyDefeated && (
-                                    <EnemyCard
-                                        enemyName="Ancient Beholder"
-                                        spritePath={
-                                            enemyPose === "attack"
-                                                ? "/assets/sprites/enemies/room6/beholder-attack.png"
-                                                : "/assets/sprites/enemies/room6/beholder-idle.png"
-                                        }
-                                        size="xlarge"
-                                    />
+                                {/* Beholder sprite: stays through the defeat beat, then gives way to the chest */}
+                                {beholderVisible && (
+                                    <div className={`${enemyDazeClass} ${bossPhase === "falling" ? styles.beholderFalling : ""}`}>
+                                        <EnemyCard
+                                            enemyName="Ancient Beholder"
+                                            spritePath={
+                                                enemyPose === "attack"
+                                                    ? "/assets/sprites/enemies/room6/beholder-attack.png"
+                                                    : "/assets/sprites/enemies/room6/beholder-idle.png"
+                                            }
+                                            size="xlarge"
+                                        />
+                                    </div>
                                 )}
 
                                 {/* Treasure chest with sparkle */}
-                                {enemyDefeated && (
+                                {!beholderVisible && (
                                     <div style={{ position: "relative" }}>
-                                        <div
+                                        <button
+                                            type="button"
+                                            className={styles.chestButton}
+                                            aria-label="Open treasure chest"
                                             onClick={() => setShowTreasure(true)}
-                                            style={{ cursor: "pointer" }}
                                         >
                                             <EnemyCard
                                                 enemyName="Treasure Chest"
@@ -356,22 +431,20 @@ export default function Room6Final({
                                                 size="xlarge"
                                                 className={styles.treasureChestImage}
                                             />
-                                        </div>
+                                        </button>
                                         <div className={styles.treasureSparkle}></div>
                                     </div>
                                 )}
 
 
                                 {/* Floating damage */}
-                                {floatingDamage?.target === "enemy" && !enemyDefeated && (
-                                    <div className={`${shared.floatingDamage} ${floatingDamage.dodge ? shared.dodge : ""}`}>
-                                        {floatingDamage.dodge ? "Dodge" : `-${floatingDamage.value}`}
-                                    </div>
+                                {beholderVisible && (
+                                    <FloatingText items={floaters.forTarget("enemy")} baseClass={shared.floatingDamage} />
                                 )}
                             </div>
 
                             {/* Enemy HUD */}
-                            {!enemyDefeated && (
+                            {beholderVisible && (
                                 <EnemyHUD
                                     enemyName="Ancient Beholder"
                                     health={enemyHealth}
@@ -383,7 +456,7 @@ export default function Room6Final({
 
                     </div>
 
-                    {!showTreasure && (
+                    {!showTreasure && !rewardScene && (
                         <ChampionHUD
                             darklordHealth={darklordHealth}
                             chxospixieHealth={chxospixieHealth}
@@ -397,23 +470,20 @@ export default function Room6Final({
 
                     {!enemyDefeated && (
                         <div className={shared.actionsContainer}>
+                            <CombatNotice notice={notice} />
                             <div className={shared.actionsInnerRow}>
                                 <div className={shared.actionGroup}>
                                     <h4>{darklord.displayName}'s Actions:</h4>
                                     <div className={shared.actionButtonsRow}>
-                                        {darklord.moves.map(move => {
-                                            const isDisabled = actionDisabled || darklordDead;
-                                            return (
-                                                <button
-                                                    key={move.name}
-                                                    className={`${shared.actionButton} ${isDisabled ? styles.disabled : ""}`}
-                                                    disabled={isDisabled}
-                                                    onClick={() => dealDamage(move.damage, "Darklord", move.name)}
-                                                >
-                                                    {move.name}
-                                                </button>
-                                            );
-                                        })}
+                                        {darklord.moves.map(move => (
+                                            <MoveButton
+                                                key={move.name}
+                                                move={move}
+                                                disabled={actionDisabled || darklordDead}
+                                                reason={disabledReason({ dead: darklordDead, enemyTurn: actionDisabled })}
+                                                onClick={() => performMove(move, "Darklord")}
+                                            />
+                                        ))}
                                     </div>
                                 </div>
 
@@ -421,36 +491,15 @@ export default function Room6Final({
                                     <h4>{chxospixie.displayName}'s Actions:</h4>
                                     <div className={shared.actionButtonsRow}>
                                         {chxospixie.moves.map(move => {
-                                            const staminaBlocked = move.staminaCost && chxospixieStamina < move.staminaCost;
-                                            const isDisabled = chxospixieDead || actionDisabled || staminaBlocked;
+                                            const staminaBlocked = !!move.staminaCost && chxospixieStamina < move.staminaCost;
                                             return (
-                                                <button
+                                                <MoveButton
                                                     key={move.name}
-                                                    className={`${shared.actionButton} ${isDisabled ? shared.disabled : ""}`}
-                                                    disabled={isDisabled}
-                                                    title={
-                                                        staminaBlocked
-                                                            ? "Not enough stamina"
-                                                            : ""
-                                                    }
-                                                    onClick={() => {
-                                                        dealDamage(move.damage, "Chxospixie", move.name);
-                                                        if (move.staminaCost) {
-                                                            spendStamina(move.staminaCost);
-                                                        }
-                                                        if (move.name === "Piercing Shot" && enemyHealth > 0) {
-                                                            setTimeout(() => {
-                                                                setEnemyPose("attack");
-                                                                setTimeout(() => {
-                                                                    enemyAttack("Chxospixie");
-                                                                    setEnemyPose("idle");
-                                                                }, 1000);
-                                                            }, 1000);
-                                                        }
-                                                    }}
-                                                >
-                                                    {move.name}
-                                                </button>
+                                                    move={move}
+                                                    disabled={chxospixieDead || actionDisabled || staminaBlocked}
+                                                    reason={disabledReason({ dead: chxospixieDead, staminaBlocked, enemyTurn: actionDisabled })}
+                                                    onClick={() => performMove(move, "Chxospixie")}
+                                                />
                                             );
                                         })}
                                     </div>

@@ -1,0 +1,44 @@
+/* Colour variants layered on a room's positioned floating-text class. */
+
+/* Explanation under a reduced hit: "Blocked", "Halved", "Glancing Hit" */
+.label {
+  display: block;
+  font-size: 0.82rem;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  margin-top: -2px;
+  color: #e2c6ff;
+  text-shadow: 0 0 6px #b57bff, 0 0 12px rgba(150, 90, 255, 0.6);
+}
+
+/* The shield ward's own cool tint */
+.label.ward {
+  color: #cfe4ff;
+  text-shadow: 0 0 6px #7fb2ff, 0 0 12px rgba(90, 150, 255, 0.7);
+}
+
+/* One-word enemy status: "Confused", "Distracted" */
+.status {
+  color: #e2c6ff;
+  font-weight: 700;
+  font-size: 1.25rem;
+  text-shadow: 0 0 6px #b57bff, 0 0 14px rgba(150, 90, 255, 0.7);
+}
+
+.heal {
+  color: #ffd700;
+  font-weight: 700;
+  text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000,
+    0 0 8px #ffd700,
+    0 0 14px #ff8c00;
+}
+
+.dodge {
+  color: #ffd447;
+  font-weight: 700;
+  text-shadow: 0 0 6px #ffae00;
+}

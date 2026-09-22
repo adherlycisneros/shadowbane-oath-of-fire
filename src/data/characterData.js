@@ -10,7 +10,8 @@ export const characterStates = {
       },
       moves: [
         { name: "Divine Strike", damage: 20 },
-        { name: "Shield Block", damage: 14 }
+        // Guard: the enemy's immediate counterattack against Darklord is halved (see data/combat.js).
+        { name: "Shield Block", damage: 12, guard: "block", hint: "Halves counterattack" }
       ]
     },
     polymorphed: {
@@ -22,8 +23,9 @@ export const characterStates = {
         dead: "/assets/sprites/champions/toadlord-dead.png",
       },
       moves: [
-        { name: "Toad Slap", damage: 16 },
-        { name: "Croak of Confusion", damage: 10 }
+        { name: "Toad Slap", damage: 18 },
+        // Guard: the confused enemy's immediate counterattack is halved.
+        { name: "Croak of Confusion", damage: 10, guard: "confuse", hint: "Halves counterattack" }
       ]
     }
   },
@@ -50,9 +52,11 @@ export const characterStates = {
         attack: "/assets/sprites/champions/sheepspixie-attack.png",
         dead: "/assets/sprites/champions/sheepspixie-dead.png",
       },
+      // Same slot order as the normal form: the stamina move stays in the second position.
       moves: [
-        { name: "Woolly Bash", damage: 17, staminaCost: 12 },
-        { name: "Baa of Distraction", damage: 12 }
+        // Guard: the distracted enemy's immediate counterattack becomes a glancing 20.
+        { name: "Baa of Distraction", damage: 12, guard: "distract", hint: "Forces glancing counterattack" },
+        { name: "Woolly Bash", damage: 20, staminaCost: 12 }
       ]
     }
   }

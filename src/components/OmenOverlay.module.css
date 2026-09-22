@@ -1,0 +1,137 @@
+/* OmenOverlay — the ember/fog treatment of the old whisper, now readable and player-dismissed. */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(60, 20, 10, 1) 0%,
+    rgba(20, 10, 5, 1) 50%,
+    rgba(0, 0, 0, 1) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  overflow: hidden;
+  outline: none;
+  box-shadow: inset 0 0 100px rgba(255, 100, 0, 0.2);
+  animation: omenFadeIn 0.8s ease-out both, emberPulse 4s ease-in-out infinite;
+}
+
+.fog {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: url("/assets/textures/fog-overlay.jpg");
+  background-size: cover;
+  opacity: 0.6;
+  animation: fogDrift 20s linear infinite;
+  filter: blur(6px);
+  mix-blend-mode: screen;
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  max-width: min(90vw, 760px);
+  text-align: center;
+  font-family: 'Quintessential', serif;
+}
+
+.lead,
+.tail {
+  margin: 0;
+  font-size: clamp(1rem, 2.6vw, 1.35rem);
+  color: var(--color-text);
+  text-shadow: 0 0 8px var(--color-ember), 0 0 16px rgba(255, 122, 0, 0.5);
+  animation: omenLine 0.9s ease-out both;
+}
+
+.tail {
+  animation-delay: 1.1s;
+}
+
+.phrase {
+  margin: 0.2rem 0;
+  font-size: clamp(1.5rem, 4.4vw, 2.4rem);
+  line-height: 1.3;
+  color: #fff1cf;
+  text-shadow:
+    0 0 8px var(--color-ember),
+    0 0 18px rgba(255, 122, 0, 0.8),
+    0 0 32px rgba(255, 80, 0, 0.5);
+  animation: omenBrand 1.4s ease-out 0.35s both, ember-flicker 3s 1.8s infinite alternate;
+}
+
+.dismiss {
+  margin-top: 0.8rem;
+  padding: 0.6rem 1.6rem;
+  font-family: 'Quintessential', serif;
+  font-size: 1.05rem;
+  border: 2px solid var(--color-ember);
+  border-radius: 10px;
+  background: var(--color-button-bg);
+  color: var(--color-text);
+  transition: opacity 0.4s ease, box-shadow 0.4s ease;
+}
+
+.dismiss:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.dismiss:not(:disabled) {
+  box-shadow: 0 0 14px rgba(255, 122, 0, 0.55);
+  animation: emberPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes fogDrift {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes omenFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes omenLine {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* The words sear in: bright and slightly oversized, then settle into the ember glow. */
+@keyframes omenBrand {
+  0% {
+    opacity: 0;
+    transform: scale(1.12);
+    filter: blur(3px);
+    text-shadow: 0 0 30px #ffb060, 0 0 60px #ff7a00;
+  }
+  55% {
+    opacity: 1;
+    filter: blur(0);
+    text-shadow: 0 0 18px #ffd090, 0 0 40px #ff7a00, 0 0 70px rgba(255, 80, 0, 0.9);
+  }
+  100% {
+    transform: scale(1);
+    text-shadow: 0 0 8px var(--color-ember), 0 0 18px rgba(255, 122, 0, 0.8), 0 0 32px rgba(255, 80, 0, 0.5);
+  }
+}
+
+@keyframes emberPulse {
+  0%, 100% { box-shadow: inset 0 0 60px rgba(255, 100, 0, 0.25); }
+  50% { box-shadow: inset 0 0 100px rgba(255, 94, 0, 0.45); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay, .fog, .lead, .tail, .phrase, .dismiss:not(:disabled) {
+    animation: none;
+  }
+}

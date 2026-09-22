@@ -1,7 +1,7 @@
 .roomBackground {
   height: 100svh;
   width: 100vw;
-  background: url('/assets/backgrounds/room2-bg.png') center center / cover no-repeat;
+  background: url('/assets/backgrounds/room2-bg.webp') center center / cover no-repeat;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -74,12 +74,16 @@
   margin-top: -3rem;
 }
 
-/* Heads container now relative, fixed size for positioning */
+/* Heads cluster. The composition is authored in a 280px coordinate system (offsets and head
+   size below); --heads-scale multiplies every length so the cluster shrinks as one unit on
+   narrower phones while keeping its arrangement, rotations and real layout bounds (so hit
+   targets stay on the visible heads). 1 = the accepted 932x430 composition. */
 .headsGrid {
+  --heads-scale: 1;
   position: relative;
-  width: 280px;
+  width: calc(280px * var(--heads-scale));
   /* enough space for 2 heads side by side with gap */
-  height: 280px;
+  height: calc(280px * var(--heads-scale));
   /* enough space for 2 rows */
   margin-bottom: 1.5rem;
 }
@@ -96,26 +100,26 @@ button.headButton {
 
 /* Positioning + rotation for each head */
 .headButton:nth-child(1) {
-  top: -10px;
-  left: -50px;
+  top: calc(-10px * var(--heads-scale));
+  left: calc(-50px * var(--heads-scale));
   transform: rotate(16deg);
 }
 
 .headButton:nth-child(2) {
-  top: -10px;
-  left: 200px;
+  top: calc(-10px * var(--heads-scale));
+  left: calc(200px * var(--heads-scale));
   transform: rotate(-8deg);
 }
 
 .headButton:nth-child(3) {
-  top: 55px;
-  left: 85px;
+  top: calc(55px * var(--heads-scale));
+  left: calc(85px * var(--heads-scale));
   transform: rotate(-18deg);
 }
 
 .headButton:nth-child(4) {
-  top: 145px;
-  left: 190px;
+  top: calc(145px * var(--heads-scale));
+  left: calc(190px * var(--heads-scale));
 }
 
 .headButton:hover:not(:disabled) {
@@ -127,7 +131,7 @@ button.headButton {
 }
 
 .headButton img {
-  width: 140px;
+  width: calc(140px * var(--heads-scale));
   /* smaller size, adjust as needed */
   height: auto;
   /* keep aspect ratio */
@@ -138,7 +142,7 @@ button.headButton {
 .headButton {
   padding: 0.25rem;
   /* reduce padding */
-  width: 140px;
+  width: calc(140px * var(--heads-scale));
   /* make button size match image */
   height: auto;
 }
@@ -221,4 +225,49 @@ button.headButton {
   font-family: 'Quintessential', serif;
   text-shadow: 0 0 6px rgba(255, 122, 0, 0.7);
   text-align: center;
+}
+/* ---------------------------------------------------
+   Narrower landscape phones. The hero pair fixes where the heads column starts (the left
+   column cannot shrink below its two cards), so the cluster is scaled as a unit to fit the
+   remaining width; at the narrowest sizes the hero margin and column gap also give back
+   some width. 932x430 is above these breakpoints and unchanged.
+--------------------------------------------------- */
+@media (max-width: 896px) {
+  .headsGrid {
+    --heads-scale: 0.8;
+  }
+
+  .leftSide {
+    margin-left: 48px;
+  }
+
+  .rightSide {
+    margin-top: -1rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .headsGrid {
+    --heads-scale: 0.5;
+  }
+
+  .contentWrapper {
+    gap: 0.5rem;
+  }
+
+  .leftSide {
+    margin-left: 16px;
+  }
+
+  .rightSide {
+    margin-top: 0.5rem;
+  }
+}
+
+/* Reduced motion: a head in the sequence still lights up (the static glow above), it just
+   does not pulse. */
+@media (prefers-reduced-motion: reduce) {
+  .glow img {
+    animation: none;
+  }
 }

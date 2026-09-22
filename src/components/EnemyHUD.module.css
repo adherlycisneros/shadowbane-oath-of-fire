@@ -1,7 +1,7 @@
 .enemyHUDContainer {
   position: fixed;
   top: 0.5rem;
-  right: 2.5rem;
+  right: max(2.5rem, env(safe-area-inset-right));
   width: 240px;
   /* match visual width to single hudEntry width */
   max-width: 90vw;
@@ -44,4 +44,11 @@
   height: 100%;
   background: linear-gradient(90deg, #ff3c00, #ff7a00);
   transition: width 0.3s ease-in-out;
+}
+
+/* Constrained landscape phones: keep clear of the champion HUD on the left. */
+@media (max-width: 720px) {
+  .enemyHUDContainer {
+    right: max(1rem, env(safe-area-inset-right));
+  }
 }

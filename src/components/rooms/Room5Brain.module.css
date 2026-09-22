@@ -1,7 +1,7 @@
 .roomBackground {
   min-height: 100dvh;
   width: 100vw;
-  background: url('/assets/backgrounds/room5-bg.png') center / cover no-repeat;
+  background: url('/assets/backgrounds/room5-bg.webp') center / cover no-repeat;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -167,4 +167,12 @@
 
 .shake {
   animation: shake 0.5s ease;
+}
+
+/* Reduced motion: a wrong answer is still signalled by the red flash and the warning text;
+   the input no longer shakes. */
+@media (prefers-reduced-motion: reduce) {
+  .shake {
+    animation: none;
+  }
 }

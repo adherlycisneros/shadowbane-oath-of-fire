@@ -1,6 +1,10 @@
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import ChampionCard from "../ChampionCard";
 import ChampionHUD from "../ChampionHUD";
+import CombatNotice from "../CombatNotice";
+import useNotice from "../../hooks/useNotice";
+import useHeroFallNotice from "../../hooks/useHeroFallNotice";
+import { characterStates } from "../../data/characterData";
 import styles from "./Room2Heads.module.css";
 import shared from "./Room3Displacers.module.css";
 
@@ -12,7 +16,6 @@ const headOptions = [
 ];
 
 export default function Room2Heads({
-  canContinue,
   setCanContinue,
   setDarklordHealth,
   setChxospixieHealth,
@@ -30,8 +33,23 @@ export default function Room2Heads({
   const [glowingIndex, setGlowingIndex] = useState(null);
   const [feedback, setFeedback] = useState(["Heads shuffle their glow... Watch carefully."]);
   const [floatingDamage, setFloatingDamage] = useState([]);
+  // Once the sequence is matched the heads are locked; extra taps can't punish or reshuffle.
+  const [solved, setSolved] = useState(false);
+
+  const [notice, showNotice] = useNotice();
+  const stateKey = isPolymorphed ? "polymorphed" : "normal";
+  useHeroFallNotice({
+    darklordDead,
+    chxospixieDead,
+    darklordName: characterStates.Darklord[stateKey].displayName,
+    chxospixieName: characterStates.Chxospixie[stateKey].displayName,
+    showNotice,
+  });
 
   const isDeadRef = useRef(false);
+  const solvedRef = useRef(false);
+  // Set after a wrong tap: further taps are ignored until the reshuffled sequence has played.
+  const inputLockedRef = useRef(false);
   const timeouts = useRef([]);
 
   // Cleanup on unmount
@@ -42,12 +60,49 @@ export default function Room2Heads({
     };
   }, []);
 
+  const addFeedback = useCallback((text) => {
+    setFeedback([text]); // only one line visible
+  }, []);
+
+  const playGlowSequence = useCallback(async (sequence) => {
+    for (let i = 0; i < sequence.length; i++) {
+      if (isDeadRef.current) return;
+
+      setGlowingIndex(sequence[i]);
+      await new Promise((resolve) => {
+        const timeout = setTimeout(resolve, 800);
+        timeouts.current.push(timeout);
+      });
+
+      setGlowingIndex(null);
+      await new Promise((resolve) => {
+        const timeout = setTimeout(resolve, 400);
+        timeouts.current.push(timeout);
+      });
+    }
+    setIsPlayingSequence(false);
+  }, []);
+
+  const generateNewSequence = useCallback(() => {
+    if (isDeadRef.current || solvedRef.current) return;
+    inputLockedRef.current = false;
+    setIsPlayingSequence(true);
+
+    const newSeq = Array.from({ length: 6 }, () =>
+      Math.floor(Math.random() * headOptions.length)
+    );
+    setGlowSequence(newSeq);
+    setPlayerInput([]);
+
+    playGlowSequence(newSeq);
+  }, [playGlowSequence]);
+
   // Initial start
   useEffect(() => {
     const timer = setTimeout(() => generateNewSequence(), 2000);
     timeouts.current.push(timer);
     return () => clearTimeout(timer);
-  }, []);
+  }, [generateNewSequence]);
 
   // Handle both heroes dying and reviving
   const prevBothDead = useRef(false);
@@ -70,39 +125,7 @@ export default function Room2Heads({
       const timer = setTimeout(() => generateNewSequence(), 2000);
       timeouts.current.push(timer);
     }
-  }, [darklordDead, chxospixieDead]);
-
-  const generateNewSequence = () => {
-    if (isDeadRef.current) return;
-    setIsPlayingSequence(true);
-
-    const newSeq = Array.from({ length: 6 }, () =>
-      Math.floor(Math.random() * headOptions.length)
-    );
-    setGlowSequence(newSeq);
-    setPlayerInput([]);
-
-    playGlowSequence(newSeq);
-  };
-
-  const playGlowSequence = async (sequence) => {
-    for (let i = 0; i < sequence.length; i++) {
-      if (isDeadRef.current) return;
-
-      setGlowingIndex(sequence[i]);
-      await new Promise((resolve) => {
-        const timeout = setTimeout(resolve, 800);
-        timeouts.current.push(timeout);
-      });
-
-      setGlowingIndex(null);
-      await new Promise((resolve) => {
-        const timeout = setTimeout(resolve, 400);
-        timeouts.current.push(timeout);
-      });
-    }
-    setIsPlayingSequence(false);
-  };
+  }, [darklordDead, chxospixieDead, setCanContinue, addFeedback, generateNewSequence]);
 
   const triggerRedFlash = () => {
     setShowRedFlash(true);
@@ -121,12 +144,8 @@ export default function Room2Heads({
     });
   };
 
-  const addFeedback = (text) => {
-    setFeedback([text]); // only one line visible
-  };
-
   const handleHeadClick = (index) => {
-    if (isPlayingSequence || isDeadRef.current) return;
+    if (isPlayingSequence || isDeadRef.current || solvedRef.current || inputLockedRef.current) return;
 
     setGlowingIndex(index);
     const timeout = setTimeout(() => {
@@ -140,10 +159,16 @@ export default function Room2Heads({
 
     // Wrong input
     if (index !== glowSequence[currentStep]) {
+      // Lock the heads until the new sequence has played, so taps during the
+      // reshuffle delay can't be scored against the old sequence.
+      inputLockedRef.current = true;
+      setIsPlayingSequence(true);
+      setPlayerInput([]);
       addFeedback("⚡ Wrong head ⚡");
       triggerRedFlash();
 
-      const damage = 25; //TEST
+      // Each living hero pays for a wrong head.
+      const damage = 20;
       const targets = [];
       if (!darklordDead) {
         setDarklordHealth((prev) => Math.max(prev - damage, 0));
@@ -169,10 +194,15 @@ export default function Room2Heads({
     addFeedback("✔️ Correct Head ✔️ ");
 
     if (newInput.length === glowSequence.length) {
+      solvedRef.current = true;
+      setSolved(true);
       addFeedback("✨ Sequence matched! Safe passage unlocked! ✨");
-      setTimeout(() => setCanContinue(true), 3000);
+      const continueTimer = setTimeout(() => setCanContinue(true), 3000);
+      timeouts.current.push(continueTimer);
     }
   };
+
+  const headsLocked = isPlayingSequence || solved || darklordDead || chxospixieDead;
 
   return (
     <div className={`${styles.roomBackground} fullscreen-fit`}>
@@ -188,73 +218,72 @@ export default function Room2Heads({
         isPolymorphed={isPolymorphed}
       />
 
-      {!canContinue && (
-        <div className={styles.contentWrapper}>
-          <div className={styles.leftSide}>
-            <div
-              className={`${styles.heroesContainer} ${darklordDead || chxospixieDead ? styles.dead : ""}`}
-            >
-              <div className={shared.championWrapper}>
-                <div className={`${styles.spriteImage} ${darklordDead ? styles["dead-darklord"] : ""}`}>
-                  <ChampionCard
-                    championKey="Darklord"
-                    isDead={darklordDead}
-                    isPolymorphed={isPolymorphed}
-                    size="large"
-                  />
-                </div>
-                {floatingDamage
-                  .filter((d) => d.target === "Darklord")
-                  .map((d) => (
-                    <div key={d.id} className={shared.floatingDamage}>
-                      -{d.value}
-                    </div>
-                  ))}
+      <div className={styles.contentWrapper}>
+        <div className={styles.leftSide}>
+          <div
+            className={`${styles.heroesContainer} ${darklordDead || chxospixieDead ? styles.dead : ""}`}
+          >
+            <div className={shared.championWrapper}>
+              <div className={`${styles.spriteImage} ${darklordDead ? styles["dead-darklord"] : ""}`}>
+                <ChampionCard
+                  championKey="Darklord"
+                  isDead={darklordDead}
+                  isPolymorphed={isPolymorphed}
+                  size="large"
+                />
               </div>
-
-              <div className={shared.championWrapper}>
-                <div className={`${styles.spriteImage} ${chxospixieDead ? styles["dead-chxospixie"] : ""}`}>
-                  <ChampionCard
-                    championKey="Chxospixie"
-                    isDead={chxospixieDead}
-                    isPolymorphed={isPolymorphed}
-                    size="large"
-                  />
-                </div>
-                {floatingDamage
-                  .filter((d) => d.target === "Chxospixie")
-                  .map((d) => (
-                    <div key={d.id} className={shared.floatingDamage}>
-                      -{d.value}
-                    </div>
-                  ))}
-              </div>
+              {floatingDamage
+                .filter((d) => d.target === "Darklord")
+                .map((d) => (
+                  <div key={d.id} className={shared.floatingDamage}>
+                    -{d.value}
+                  </div>
+                ))}
             </div>
-          </div>
-          <div className={styles.rightSide}>
-            <div className={styles.headsGrid}>
-              {headOptions.map((head) => (
-                <button
-                  key={head.id}
-                  onClick={() => handleHeadClick(head.id)}
-                  disabled={isPlayingSequence || darklordDead || chxospixieDead}
-                  className={`${styles.headButton} ${glowingIndex === head.id ? styles.glow : ""
-                    }`}
-                >
-                  <img
-                    src={head.img}
-                    alt={head.label}
-                    className={styles.headImage}
-                  />
-                </button>
-              ))}
+
+            <div className={shared.championWrapper}>
+              <div className={`${styles.spriteImage} ${chxospixieDead ? styles["dead-chxospixie"] : ""}`}>
+                <ChampionCard
+                  championKey="Chxospixie"
+                  isDead={chxospixieDead}
+                  isPolymorphed={isPolymorphed}
+                  size="large"
+                />
+              </div>
+              {floatingDamage
+                .filter((d) => d.target === "Chxospixie")
+                .map((d) => (
+                  <div key={d.id} className={shared.floatingDamage}>
+                    -{d.value}
+                  </div>
+                ))}
             </div>
           </div>
         </div>
-      )}
+        <div className={styles.rightSide}>
+          <div className={styles.headsGrid}>
+            {headOptions.map((head) => (
+              <button
+                key={head.id}
+                onClick={() => handleHeadClick(head.id)}
+                disabled={headsLocked}
+                className={`${styles.headButton} ${glowingIndex === head.id ? styles.glow : ""
+                  }`}
+              >
+                <img
+                  src={head.img}
+                  alt={head.label}
+                  className={styles.headImage}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Bottom feedback bar */}
       <div className={`${styles.actionsContainer} ${shared.actionsContainer}`}>
+        <CombatNotice notice={notice} />
         <div className={`${styles.actionsInner} ${shared.actionsInnerRow}`}>
           <span className={styles.feedbackText}>{feedback[0]}</span>
         </div>

@@ -1,29 +1,10 @@
 import styles from "./TitleScreen.module.css";
-import { firstInteractionRef } from "../firstInteractionRef";
 
+// Title music is requested by the game's music hook; the first real tap or click anywhere
+// (this screen included) is what unlocks it. See audio/musicManager.js.
 export default function TitleScreen({ onStart }) {
-  const handleFirstInteraction = () => {
-    if (!firstInteractionRef.current) {
-      try {
-        const audio = new Audio("/assets/audio/title_screen.mp3");
-        audio.loop = true;
-        audio.volume = 0.35;
-        // play inside user gesture to unlock audio on mobile
-        audio.play().catch(() => {});
-        firstInteractionRef.audio = audio;
-      } catch (e) {
-        // ignore; hook will try later
-      }
-      firstInteractionRef.current = true;
-    }
-  };
-
   return (
-    <div
-      className={`${styles.container} fullscreen-fit`}
-      onClick={handleFirstInteraction}
-      onTouchStart={handleFirstInteraction}
-    >
+    <div className={`${styles.container} fullscreen-fit`}>
       <h1 className={styles.title}>Shadowbane: Oath of Fire</h1>
       <p className={styles.subtitle}>
         Bound by oath, forged by fire, unbroken by fate.

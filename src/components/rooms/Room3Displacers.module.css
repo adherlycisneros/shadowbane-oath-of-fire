@@ -1,7 +1,7 @@
 .roomBackground {
   min-height: 100dvh;
   width: 100vw;
-  background: url('/assets/backgrounds/room3-bg.png') center center / cover no-repeat;
+  background: url('/assets/backgrounds/room3-bg.webp') center center / cover no-repeat;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -38,6 +38,16 @@
   justify-content: center;
   align-items: flex-start;
   margin: 0 0.5rem;
+}
+
+/* Stable hero footprint (Rooms 3 and 4). A fallen champion's card is narrower (170px) than a
+   living one (200px card + 0.4rem margins), and because these wrappers size to their content the
+   flex row re-lays out on every death: the surviving champion slid 30px and the enemy 15px.
+   Reserving the living footprint keeps every neighbour still. Content stays left-aligned, which is
+   where a content-sized wrapper already placed it, so the fallen artwork keeps its exact coordinates. */
+.heroSlot {
+  min-width: calc(200px + 0.8rem);
+  justify-content: flex-start;
 }
 
 /* NEW: enemy wrapper (same behavior) */
@@ -258,3 +268,138 @@
   transform: translateY(-2px);
 }
 /* Dead hero positioning end */
+
+/* ---------------------------------------------------
+   Move buttons: name plus a small secondary line
+--------------------------------------------------- */
+.moveButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.05rem;
+  padding: 0.2rem 0.6rem;
+  line-height: 1.15;
+}
+
+.moveName {
+  font-size: 1rem;
+}
+
+.moveMeta {
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+  opacity: 0.85;
+}
+
+/* Out of stamina reads differently from "wait for your turn": dashed border, warm warning text */
+.actionButton.staminaLocked:disabled {
+  filter: grayscale(35%);
+  opacity: 0.75;
+  border-style: dashed;
+}
+
+.actionButton.staminaLocked:disabled .moveMeta {
+  color: #ff9a6a;
+  opacity: 1;
+}
+
+/* ---------------------------------------------------
+   Shield Block ward: a restrained cool glow around the guarding hero,
+   up from the block until the counterattack has landed
+--------------------------------------------------- */
+.guarded {
+  position: relative;
+}
+
+.guarded img {
+  filter: drop-shadow(0 0 5px rgba(160, 205, 255, 0.85)) drop-shadow(0 0 14px rgba(90, 150, 255, 0.55));
+}
+
+.guarded::after {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 6%;
+  bottom: 4%;
+  border-radius: 50%;
+  border: 1.5px solid rgba(175, 212, 255, 0.55);
+  box-shadow: 0 0 16px rgba(120, 170, 255, 0.45), inset 0 0 20px rgba(120, 170, 255, 0.22);
+  pointer-events: none;
+  animation: wardBreathe 1.1s ease-in-out infinite alternate;
+}
+
+@keyframes wardBreathe {
+  from { opacity: 0.55; transform: scale(0.985); }
+  to { opacity: 1; transform: scale(1.015); }
+}
+
+/* ---------------------------------------------------
+   Confused / Distracted: a brief daze on the enemy sprite
+--------------------------------------------------- */
+.dazed img {
+  animation: dazedWobble 0.45s ease-in-out 3;
+  filter: drop-shadow(0 0 10px rgba(200, 150, 255, 0.65));
+}
+
+.distracted img {
+  animation: dazedSway 0.7s ease-in-out 2;
+  filter: drop-shadow(0 0 10px rgba(200, 150, 255, 0.65));
+}
+
+@keyframes dazedWobble {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-2.5deg) translateX(-3px); }
+  75% { transform: rotate(2.5deg) translateX(3px); }
+}
+
+@keyframes dazedSway {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-10px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guarded::after,
+  .dazed img,
+  .distracted img {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------
+   Combat panel on narrower landscape phones (844x390, 667x375 and similar).
+   Below ~896px the two 200px move buttons of a hero no longer fit side by side, so they
+   wrapped into a second row; the panel is anchored to the bottom and capped in vh, so that
+   second row spilled below the viewport. Keep both moves on one row by letting them share
+   the group width, and tighten the vertical spacing so the panel fits its cap.
+   932x430 is above this breakpoint and unchanged.
+--------------------------------------------------- */
+@media (max-width: 896px) {
+  .actionsContainer {
+    padding: 0.2rem 1rem 0;
+  }
+
+  .actionsInnerRow {
+    gap: 1rem;
+    margin-bottom: 0;
+  }
+
+  .actionGroup>h4 {
+    font-size: 0.9rem;
+    margin-bottom: 0.1rem;
+  }
+
+  .actionButtonsRow {
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+  }
+
+  .actionButton {
+    width: min(200px, calc(50% - 0.2rem)) !important;
+  }
+
+  .moveButton {
+    padding: 0.2rem 0.4rem;
+  }
+}

@@ -1,0 +1,71 @@
+/* Development-only launcher; never part of a production build. */
+
+.launcher {
+  position: fixed;
+  left: max(0.5rem, env(safe-area-inset-left));
+  bottom: max(0.5rem, env(safe-area-inset-bottom));
+  z-index: 5000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  font-family: 'Quintessential', serif;
+}
+
+.toggle,
+.scenario {
+  font: inherit;
+  color: #ffe4b3;
+  background: rgba(20, 10, 10, 0.85);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.toggle {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  opacity: 0.75;
+}
+
+.toggle:hover,
+.toggle:focus-visible,
+.toggle[aria-expanded="true"] {
+  opacity: 1;
+  border-color: var(--color-ember);
+}
+
+.panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+  padding: 0.5rem;
+  max-width: min(26rem, calc(100vw - 1rem));
+  max-height: 60svh;
+  overflow-y: auto;
+  background: rgba(10, 5, 5, 0.9);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+}
+
+.scenario {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-height: 44px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+.scenario:hover,
+.scenario:focus-visible {
+  border-color: var(--color-ember);
+  background: rgba(60, 25, 15, 0.95);
+}
+
+.state {
+  font-size: 0.7rem;
+  opacity: 0.8;
+}

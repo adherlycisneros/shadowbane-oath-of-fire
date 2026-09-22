@@ -6,8 +6,23 @@ export default function EnemyHUD({ enemyName, health, maxHealth = 100, isDead = 
 
   return (
     <div className={styles.enemyHUDContainer}>
-      <div className={styles.enemyName}>{enemyName}{isDead ? " ☠️" : ""}</div>
-      <div className={styles.healthBarContainer}>
+      <div className={styles.enemyName}>
+        {enemyName}
+        {isDead && (
+          <>
+            <span aria-hidden="true"> ☠️</span>
+            <span className="sr-only"> (fallen)</span>
+          </>
+        )}
+      </div>
+      <div
+        className={styles.healthBarContainer}
+        role="progressbar"
+        aria-label={`${enemyName} health`}
+        aria-valuemin={0}
+        aria-valuemax={maxHealth}
+        aria-valuenow={Math.max(0, health)}
+      >
         <div
           className={styles.healthBarFill}
           style={{ width: `${healthPercentage}%` }}

@@ -1,0 +1,68 @@
+/* Fixed music toggle. It sits directly under the Darklord card of the champion HUD and shares
+   the HUD's left inset, so it reads as part of that column and stays clear of the enemy HUD,
+   the champion sprites, the action panel, the title copy and the reward/epilogue controls
+   at 932x430, 844x390 and 667x375. Above the restart overlay (6000) so the player can mute
+   from the defeat screen; below the omen and the orientation gate (9999). */
+.button {
+  position: fixed;
+  top: 3.9rem;
+  left: max(2.5rem, env(safe-area-inset-left));
+  z-index: 6500;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 122, 0, 0.4);
+  background: rgba(20, 10, 10, 0.45);
+  color: rgba(255, 223, 158, 0.85);
+  box-shadow: 0 0 4px rgba(255, 140, 0, 0.15);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.button:hover {
+  background: rgba(43, 23, 23, 0.75);
+  border-color: rgba(255, 122, 0, 0.6);
+  color: var(--color-text);
+}
+
+.button:active {
+  background: rgba(60, 30, 20, 0.9);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--color-ember-light);
+  outline-offset: 2px;
+}
+
+/* Muted: the icon dims further and the ember tint drops out so the state reads without
+   colour alone (the icon itself changes from sound waves to a cross). */
+.muted {
+  color: rgba(255, 223, 158, 0.5);
+  border-color: rgba(255, 223, 158, 0.18);
+  box-shadow: none;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+@media (max-width: 720px) {
+  .button {
+    left: max(1rem, env(safe-area-inset-left));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+}
