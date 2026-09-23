@@ -8,9 +8,9 @@
     <!-- The title painting starts downloading alongside the app bundle instead of after first render -->
     <link rel="preload" as="image" href="/assets/backgrounds/title-bg.webp" />
 
-    <!-- PWA essentials -->
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <meta name="theme-color" content="#000000" />
+    <!-- PWA essentials (the manifest link is injected by vite-plugin-pwa) -->
+    <meta name="theme-color" content="#1a0f0f" />
+    <meta name="mobile-web-app-capable" content="yes" />
 
     <!-- Apple PWA meta tags -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -20,18 +20,7 @@
 
     <!-- Favicons -->
     <link rel="icon" type="image/png" href="/icons/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
     <link rel="shortcut icon" href="/icons/favicon.ico" />
-
-    <!-- Preconnect for faster font loading -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-    <!-- Fonts -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Metal+Mania&family=Quintessential&display=swap"
-      rel="stylesheet"
-    />
   </head>
 
   <body>

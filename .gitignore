@@ -28,3 +28,6 @@ dist-ssr
 
 # Agents
 CLAUDE.md
+
+# vite-plugin-pwa development service worker output
+dev-dist

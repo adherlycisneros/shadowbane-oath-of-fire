@@ -1,5 +1,25 @@
 /* src/styles/global.css */
-@import url('https://fonts.googleapis.com/css2?family=Quintessential&display=swap');
+/* ---------------------------------------------------
+   Fonts (self-hosted, SIL OFL 1.1; see public/assets/fonts/OFL-*.txt)
+   Both families ship a single regular style; bold/italic uses are synthesized by the
+   browser, exactly as they were when the files came from Google Fonts. The latin subset
+   covers every character the game text uses.
+--------------------------------------------------- */
+@font-face {
+  font-family: 'Metal Mania';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/assets/fonts/metal-mania-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Quintessential';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/assets/fonts/quintessential-latin.woff2') format('woff2');
+}
 
 /* ---------------------------------------------------
    Root Theme Variables

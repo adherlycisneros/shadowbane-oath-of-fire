@@ -53,8 +53,37 @@ function elementFor(src) {
     audio = new Audio(src);
     audio.loop = true;
     elements.set(src, audio);
+    warmOfflineCopy(src);
   }
   return audio;
+}
+
+// Production PWA only: media elements stream a track with Range requests, and partial (206)
+// responses can never be stored by the service worker. One ordinary fetch per track gives the
+// worker's audio route a complete file to keep, so the track is available offline afterwards.
+// Playback itself is untouched; when no service worker controls the page nothing happens
+// (the controllerchange listener in attach() retries for the current track once one does).
+const warmed = new Set(); // tracks fetched in full (2xx) this page session
+const warming = new Set(); // tracks with a full-file fetch in flight
+function warmOfflineCopy(src) {
+  if (!import.meta.env.PROD || warmed.has(src) || warming.has(src)) return;
+  if (typeof navigator === "undefined" || !navigator.serviceWorker || !navigator.serviceWorker.controller) return;
+  warming.add(src);
+  fetch(src, { credentials: "same-origin" })
+    .then((response) => {
+      // Only a complete successful copy counts; anything else may be retried later.
+      if (response.ok) warmed.add(src);
+    })
+    .catch(() => {
+      /* offline or blocked: the element's own streaming request still runs as before */
+    })
+    .finally(() => warming.delete(src));
+}
+
+// First visit: the title track is created before the freshly installed worker controls the
+// page, so its warm fetch was skipped. When control arrives, warm whatever is current.
+function onControllerChange() {
+  if (current) warmOfflineCopy(current.src);
 }
 
 function isSuspended() {
@@ -267,6 +296,7 @@ export function attach() {
     window.addEventListener("pagehide", onPageHide);
     window.addEventListener("pageshow", onPageShow);
     for (const type of GESTURE_EVENTS) window.addEventListener(type, onGesture, { capture: true, passive: true });
+    if (import.meta.env.PROD && navigator.serviceWorker) navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
     if (document.visibilityState === "hidden") suspend("hidden");
   }
   return detach;
@@ -279,6 +309,7 @@ function detach() {
   window.removeEventListener("pagehide", onPageHide);
   window.removeEventListener("pageshow", onPageShow);
   for (const type of GESTURE_EVENTS) window.removeEventListener(type, onGesture, { capture: true });
+  if (import.meta.env.PROD && navigator.serviceWorker) navigator.serviceWorker.removeEventListener("controllerchange", onControllerChange);
   for (const audio of elements.values()) {
     cancelFade(audio);
     audio.pause();

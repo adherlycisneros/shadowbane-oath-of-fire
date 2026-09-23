@@ -59,3 +59,16 @@ npm start
 
 4. **Build for production**
 npm run build
+```
+
+### Stale content during development (service worker)
+
+Local development registers a minimal service worker so the PWA manifest and install
+metadata can be tested with `npm run dev`. Service-worker caching can make an older local
+build appear to still be running. If changes look stale (old JavaScript, old UI, old icons or
+old manifest data), check the worker before assuming the application code is broken:
+
+1. Open Chrome DevTools.
+2. Go to **Application → Service Workers**.
+3. Enable **Update on reload**, or unregister the development service worker.
+4. If needed, go to **Application → Storage**, clear the site's stored data, and reload.
