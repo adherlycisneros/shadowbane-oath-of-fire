@@ -402,3 +402,21 @@
     width: 220px;
   }
 }
+
+/* Desktop cinematic stage (see global.css): inside the stage, window-relative lengths become
+   stage-relative container units. Phones never match this query. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .roomBackground,
+  .treasureScreen {
+    min-height: 100cqh;
+    width: 100cqw;
+  }
+
+  .heroContainer {
+    max-width: 100cqw;
+  }
+
+  .treasureOverlay {
+    max-height: calc(100cqh - 2rem);
+  }
+}

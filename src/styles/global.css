@@ -413,3 +413,69 @@ button,
     animation: none;
   }
 }
+
+/* ---------------------------------------------------
+   Desktop cinematic stage
+   Phones and touch tablets: `.game-frame` and `.game-stage` are display: contents, so nothing
+   below applies and the accepted landscape layouts are untouched.
+   Desktop-class viewports (fine pointer with hover, at least 1024px wide): the accepted
+   932x430 composition is the game's logical surface (`.game-stage`, always 932x430 CSS px),
+   scaled up uniformly by `--stage-scale` (set from the window size by useDesktopStageScale)
+   and centred inside `.game-frame` on a charcoal page. Because the stage is transformed it is
+   the containing block for the game's fixed-position HUD, mute control, action panels and
+   overlays, and as a size query container it lets room stylesheets size themselves with
+   container units (100cqw / 100cqh) instead of the window. Sprites, text, spacing and hit
+   targets all scale together, so proportions and grounding match the phone exactly.
+--------------------------------------------------- */
+.game-frame,
+.game-stage {
+  display: contents;
+}
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  body {
+    background: #0b0809;
+  }
+
+  .game-frame {
+    display: block;
+    position: relative;
+    width: calc(932px * var(--stage-scale, 1));
+    height: calc(430px * var(--stage-scale, 1));
+    border-radius: 8px;
+    box-shadow:
+      0 0 0 1px rgba(255, 122, 0, 0.14),
+      0 24px 70px rgba(0, 0, 0, 0.75);
+  }
+
+  .game-stage {
+    /* Same centring as #root on phones: a room taller than the surface (Room 4 is 462px)
+       overflows equally top and bottom instead of being pinned to the top. */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 932px;
+    height: 430px;
+    transform: scale(var(--stage-scale, 1));
+    transform-origin: 0 0;
+    container-type: size;
+    contain: layout paint;
+    overflow: hidden;
+    border-radius: 8px;
+    background: var(--color-bg-dark);
+  }
+
+  .game-stage .fullscreen-fit {
+    width: 100cqw;
+    height: 100cqh;
+  }
+
+  .game-stage .room-intro-overlay {
+    width: 100cqw;
+    height: 100cqh;
+  }
+}

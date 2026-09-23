@@ -139,3 +139,18 @@
     padding: 0.4rem 0.5rem;
   }
 }
+
+/* Desktop cinematic stage (see global.css): inside the stage, window-relative lengths become
+   stage-relative container units. Phones never match this query. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .roomBackground1,
+  .roomBackground2 {
+    min-height: 100cqh;
+    width: 100cqw;
+  }
+
+  /* The panel's height cap is window-relative too; on the phone it binds at 21vh. */
+  .actionsContainer {
+    max-height: 21cqh;
+  }
+}

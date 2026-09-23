@@ -345,3 +345,17 @@
     animation: none;
   }
 }
+
+/* Desktop cinematic stage (see global.css): inside the stage, window-relative lengths become
+   stage-relative container units. Phones never match this query. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .roomBackground {
+    width: 100cqw;
+    height: 100cqh;
+  }
+
+  .cinematicContainer {
+    width: 100cqw;
+    height: 100cqh;
+  }
+}
