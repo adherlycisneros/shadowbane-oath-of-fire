@@ -30,9 +30,9 @@ export default function OmenOverlay({ phrase, onDismiss, minimumMs = 2500 }) {
     >
       <div className={styles.fog} aria-hidden="true" />
       <div className={styles.content}>
-        <p id="omen-lead" className={styles.lead}>A dark omen brands itself into your memory...</p>
+        <p id="omen-lead" className={styles.lead}>The vault stirs. A dark omen brands itself into your memory...</p>
         <p id="omen-words" className={styles.phrase}>“{phrase}”</p>
-        <p className={styles.tail}>Remember these words.</p>
+        <p className={styles.tail}>Remember these words. The vault will.</p>
         <button
           ref={buttonRef}
           type="button"

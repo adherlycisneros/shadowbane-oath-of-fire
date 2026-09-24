@@ -25,6 +25,19 @@ const beholderAttacks = [
     { name: "Force Blast", baseDamage: 35 }
 ];
 
+// Epilogue page 2 recaps this run's two outcomes (recorded by Game as the party leaves Room 4
+// and Room 5). An outcome the run never recorded, e.g. a dev shortcut, reads neutrally.
+const DRAGON_RECAP = {
+    slept: "You passed through the Amethyst Dragon's chamber without waking its ancient guardian.",
+    defeated: "You woke the Amethyst Dragon and survived the fight that followed.",
+};
+const DRAGON_RECAP_NEUTRAL = "You survived the Amethyst Dragon's chamber.";
+const VAULT_RECAP = {
+    remembered: "The Cerebral Vault tested your memory, and you gave it the words it demanded.",
+    polymorphed: "The Cerebral Vault found your memory lacking and reshaped you for the final trial.",
+};
+const VAULT_RECAP_NEUTRAL = "The Cerebral Vault tested what you remembered.";
+
 export default function Room6Final({
     darklordHealth,
     chxospixieHealth,
@@ -33,6 +46,8 @@ export default function Room6Final({
     setChxospixieHealth,
     setChxospixieStamina,
     onBossDefeated,
+    dragonOutcome = null,
+    vaultOutcome = null,
     isPolymorphed,
     setIsPolymorphed,
     darklordDead,
@@ -59,34 +74,29 @@ export default function Room6Final({
     const pages = [
         `The quest ends, but the legend continues...`,
 
-        `From the blood-forged arenas of Graal'kath to the infernal legacy of Emberreach,
-   two unlikely souls crossed paths and chose to walk the same road.  
-   Even the fates whispered: together, they are unstoppable.`,
+        `To reach this hall, you learned the floating heads' pattern and cut down the Twin Displacer
+   Beasts. ${DRAGON_RECAP[dragonOutcome] ?? DRAGON_RECAP_NEUTRAL}
 
-        `Chxospixie and Darklord braved the twisting halls of the Shadowbane Dungeon,  
-   unraveled the maddening whispers of cursed halls,  
-   and faced Beholders whose gaze could unmake the strongest soul—  
-   triumphing not through steel alone, but through unshaken bond.`,
+   ${VAULT_RECAP[vaultOutcome] ?? VAULT_RECAP_NEUTRAL}
 
-        `They... we, have laughed in the face of every trial and prevailed.  
+   Then you brought down the warden, a Beholder that had kept the inner vault sealed for
+   centuries.`,
 
-   Now, though Chxospixie has conquered dungeons and shattered curses in the past,  
-   her greatest quest has ever been to stand beside you.  
+        `The chest held an ember of the Oath's fire. Chxospixie knew its heat at once. The same
+   infernal power lived in the curse carried through her blood, and for once, the curse was
+   useful.
 
-   And as for Darklord, he's found in her not only the light he vowed to protect,  
-   but a blazing force that forged his purpose anew—  
-   and so their hearts have chosen true.`,
+   Darklord swore the Oath of Fire over the ember, and the seal went cold.
 
-        `Through every quest, every sleepless battle, every storm,  
-   even should the stars fall and the world burn,  
-   Chxospixie's heart shall remain yours—  
-   steadfast as the oath that binds you, fierce as the fire in her blood.`,
+   His vision had shown what happened if no one reached this place in time. You did.`,
 
-        `On this day and hereafter, my champion,  
-   may your quests be ever-epic, your loot forever legendary,  
-   and your aggro management (with me) top-tier.`,
+        `The banners in the hall belong to those who kept the Oath before you. The seal is quiet
+   again.
 
-        `P.S. No respecs allowed. You are stuck with me for the rest of the campaign. 💖`
+   Darklord keeps his word. Chxospixie takes some of the gold. It seems rude not to.
+
+   At the far end, a door stands open to daylight and a road neither of you knows.
+   Chxospixie is already walking. Darklord catches up.`
     ];
 
     const enemyMaxHealth = ENEMY_MAX_HEALTH;
@@ -517,7 +527,7 @@ export default function Room6Final({
                                     <span className={styles.feedbackText}>{feedback}</span>
                                 ) : showChestPrompt ? (
                                     <p className={styles.feedbackText}>
-                                        🌟 Open the treasure chest and fulfill your destiny! 🌟
+                                        Firelight leaks from the chest's lock. Open it.
                                     </p>
                                 ) : null}
                             </div>

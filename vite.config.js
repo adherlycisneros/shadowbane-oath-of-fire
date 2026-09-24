@@ -23,7 +23,7 @@ export default defineConfig({
       manifest: {
         name: 'Shadowbane: Oath of Fire',
         short_name: 'Shadowbane',
-        description: 'A fantasy quest built with love 💖',
+        description: 'A dark-fantasy dungeon adventure. Guide Darklord and Chxospixie through six rooms of puzzles, combat, curses, and a final reckoning.',
         start_url: '/',
         scope: '/',
         display: 'standalone',

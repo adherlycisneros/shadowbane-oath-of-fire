@@ -45,7 +45,7 @@ export default function Room5Brain({
       clearNotice();
       setFeedback({
         success: true,
-        message: "✨ The brain hums in approval. Safe passage unlocked! ✨ ."
+        message: "The brain hums in approval. The vault lets you pass."
       });
 
       setEnemyPose("idle");

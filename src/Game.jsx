@@ -73,6 +73,10 @@ export default function Game() {
   const [bossDefeated, setBossDefeated] = useState(false);
   // Champions who rose at half strength on entering the current room.
   const [revivalNotice, setRevivalNotice] = useState([]);
+  // Run history for the epilogue recap: null until the room is left with its outcome settled.
+  // Dragon: "slept" | "defeated". Cerebral Vault: "remembered" | "polymorphed".
+  const [dragonOutcome, setDragonOutcome] = useState(null);
+  const [vaultOutcome, setVaultOutcome] = useState(null);
   // Per-adventure bookkeeping: the omen is delivered once.
   const omenDeliveredRef = useRef(false);
   // Player state at the moment the current room's encounter began. A full-party defeat
@@ -123,6 +127,8 @@ export default function Game() {
     setConfirmRestart(false);
     setBossDefeated(false);
     setRevivalNotice([]);
+    setDragonOutcome(null);
+    setVaultOutcome(null);
     setOmen(rollOmen());
     setShowOmen(false);
     omenDeliveredRef.current = false;
@@ -158,6 +164,9 @@ export default function Game() {
         // Reward shortcut: the Beholder already fell, so the reward track plays as it would.
         setBossDefeated(Boolean(scenario.reward));
         setRevivalNotice([]);
+        // No invented history: rooms skipped by the shortcut stay unresolved (neutral recap).
+        setDragonOutcome(null);
+        setVaultOutcome(null);
         // Omen: if the launched room can carry it, deliver it there so Room 5 is answerable;
         // rooms past the omen's window count it as already delivered.
         const omenHere = OMEN_ROOM_IDS.includes(scenario.roomId);
@@ -289,6 +298,13 @@ export default function Game() {
     }
     setRevivalNotice(revived);
     captureEncounter(entry);
+
+    // Record the run's outcome for the room being left. Continue is the only way out, and it
+    // only appears once the room is settled: in Room 4 after a heal the dragon slept through
+    // or after the awakened dragon falls (an awake dragon hides the healing controls), in
+    // Room 5 after the right words or the polymorph. A wipe and Retry never gets this far.
+    if (currentRoom.id === 4) setDragonOutcome(dragonAwakened ? "defeated" : "slept");
+    if (currentRoom.id === 5) setVaultOutcome(isPolymorphed ? "polymorphed" : "remembered");
 
     const nextIndex = roomIndex + 1;
     setRoomIndex(nextIndex);
@@ -515,6 +531,8 @@ export default function Game() {
                   setIsPolymorphed={setIsPolymorphed}
                   darklordDead={darklordDead}
                   chxospixieDead={chxospixieDead}
+                  dragonOutcome={dragonOutcome}
+                  vaultOutcome={vaultOutcome}
                   onBossDefeated={handleBossDefeated}
                   onFinish={finishAdventure}
                   devStartAtReward={import.meta.env.DEV && devRewardStart}

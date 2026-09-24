@@ -3,7 +3,7 @@ const rooms = [
     id: 1,
     name: "Shadowbane Dungeon Antechamber",
     type: "flavor",
-    text: "You stand at the threshold of the Antechamber, a tranquil space where legends begin and destinies are forged.",
+    text: "You stand at the threshold of the Antechamber. The torches are burning. Nobody has tended them in a very long time.",
     continueBackground: "/assets/backgrounds/room1-bg.webp",
   },
   {
@@ -32,14 +32,14 @@ const rooms = [
     id: 5,
     name: "The Cerebral Vault",
     type: "puzzle",
-    text: "A giant disembodied brain pulses with psychic energy. It demands the words the dark omen branded into your memory. Fail, and your forms shall be... altered.",
+    text: "A giant disembodied brain pulses with psychic energy. The omen stirs at the edge of your memory. Speak its words, or risk leaving this chamber in a very different shape.",
     continueBackground: "/assets/backgrounds/room5-bg.webp",
   },
   {
     id: 6,
     name: "Sanctum of Reckoning",
     type: "final",
-    text: "The final chamber. The air thickens with arcane pressure. A Beholder, ancient and deranged, glares at you with its central eye. It won't let you claim the prize without a fight.",
+    text: "The final chamber. The air thickens with arcane pressure. The Oath's last keeper is long dead, and the Beholder left behind as the vault's warden has spent centuries down here alone. It shows. That central eye is already on you.",
   },
 ];
 

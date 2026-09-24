@@ -5,10 +5,12 @@ import styles from "./Room1Intro.module.css";
 const cinematicLines = [
   "Rumors speak of a vault untouched by time...",
   "a hidden sanctum holding secrets and power beyond mortal reckoning.",
+  "For centuries its door has been held shut by something the old songs call the Oath of Fire.",
+  "Three nights ago, the seal began to burn.",
+  "Of the few who went in, fewer came back. One returned croaking.",
   "Today, two heroes descend into the unknown...",
-  "not just for riches, but for legacy.",
-  "But legend says... it only stirs once a year on the month the stars remember their vow",
-  `Chxospixie: "Wait... isn't that now...?" Chxospixie smirks.`,
+  `Darklord: "This is the fire from my vision. I'm sure of it."`,
+  `Chxospixie: "Fire and I get along fine. Let's go." Chxospixie smirks.`,
 ];
 
 export default function Room1Intro({ setCanContinue }) {
@@ -27,14 +29,14 @@ export default function Room1Intro({ setCanContinue }) {
         <>
           <p>
             <strong>Darklord</strong> was born in the wild borderlands, an
-            outcast from the start—half-orc, half-forgotten. From rough
+            outcast from the start: half-orc, half-forgotten. From rough
             beginnings, he carved his place in the world not with words, but
             with bloodshed, rising through the brutal ranks of the Blood Arenas
             of Graal'kath.
           </p>
           <p style={{ fontStyle: "italic" }}>
             But everything changed the night he was struck by a divine
-            vision—a burning world in ruin, with only him standing between
+            vision of a burning world in ruin, with only him standing between
             salvation and annihilation.
           </p>
           <p>
@@ -58,7 +60,7 @@ export default function Room1Intro({ setCanContinue }) {
           <p>
             <strong>Chxospixie</strong> was born in the smoldering ruins of
             Emberreach, heir to a bloodline cursed by ancient infernal pacts. A
-            tiefling warrior princess by birth—but never by choice—she fought
+            tiefling warrior princess by birth, but never by choice, she fought
             from the start to rise above a damned legacy.
           </p>
           <p style={{ fontStyle: "italic" }}>
@@ -68,7 +70,7 @@ export default function Room1Intro({ setCanContinue }) {
           <p>Every scar she carries is a defiant mark against fate.</p>
           <p>
             Now, armed with steel and relentless will, <strong>Chxospixie</strong>{" "}
-            roams the world with blade in hand and fire in her heart—
+            roams the world with blade in hand and fire in her heart,{" "}
             <em>
               carving her own legend and forging a destiny that no curse can
               claim.
