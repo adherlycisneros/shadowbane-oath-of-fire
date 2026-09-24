@@ -1,74 +1,93 @@
-# 🧙‍♂️ "Shadowbane: Oath and Fire" -- A Fantasy PWA Quest
+# Shadowbane: Oath of Fire
 
-A mobile-first, turn-based fantasy adventure built in React — featuring unique room-based challenges, character transformations, stamina-based combat, and a final boss encounter. Designed as a progressive web app (PWA), it's installable and offline-ready.
+A mobile-first, landscape fantasy adventure built with React and Vite. You guide two heroes, Darklord and Chxospixie, through six rooms of a sealed vault: memory puzzles, turn-based fights, a healing chamber with a sleeping dragon, a psychic test and a final boss. It runs in any modern browser and can be installed as a Progressive Web App.
 
-## 📜 Game Overview
+Repository: [github.com/adherlycisneros/shadowbane-oath-of-fire](https://github.com/adherlycisneros/shadowbane-oath-of-fire)
 
-Join **Chxospixie**, a fierce tiefling warrior princess, and **Darklord**, a half-orc paladin, on a magical journey through a mysterious dungeon. Each room offers a different mechanic:
+## 📜 The adventure
 
-- Room 1: Cinematic intro with whispered prophecy
-- Room 2: Memory-based puzzle with cursed floating heads
-- Room 3: Turn-based combat with stamina management
-- Room 4: Sleeping dragon encounter with branching outcomes
-- Room 5: Whisper phrase logic with polymorph risk
-- Room 6: Final boss fight against a D&D-style **Beholder**
+The Shadowbane vault has been sealed for centuries by the Oath of Fire, and its seal has started to burn. Each room plays differently:
 
-Polymorph consequences, attack animations, and responsive design make this game immersive and dynamic.
+1. **Antechamber:** meet the heroes, read their backstories, and watch the opening.
+2. **Shrine of Luminous Trickery:** a pattern-memory puzzle with glowing floating heads. Mistakes cost health.
+3. **Twin Displacer Lair:** turn-based combat against the Twin Displacer Beasts.
+4. **The Slumbering Amethyst Dragon:** heal one hero safely, or try to restore both and risk waking the dragon into a fight.
+5. **The Cerebral Vault:** type back the Omen the vault showed you earlier. Two wrong answers polymorph the party.
+6. **Sanctum of Reckoning:** the Beholder boss, the treasure, and a short epilogue that recaps how your run went.
 
----
+## ⚔️ Mechanics
 
-## 🚀 Features
+- **Omen:** a randomly chosen phrase appears in one of rooms 2 to 4 and must be recalled in the Cerebral Vault.
+- **Polymorph:** failing the Vault turns the heroes into Toadlord and Sheepspixie, with their own sprites and weaker moves, until the Beholder falls.
+- **Stamina:** Chxospixie's special attacks cost stamina, which carries over between rooms.
+- **Guard moves:** some moves soften the enemy's next counterattack instead of dealing full damage.
+- **Branching dragon room:** the dragon either sleeps through the healing or wakes up, and the room plays out differently.
+- **Party state:** health and stamina carry from room to room. A fallen hero returns at half strength in the next room, and a full-party defeat lets you retry the encounter from the state you entered it with.
 
-- 🧠 Unique room logic per stage
-- 🧝 Custom characters with idle/attack poses & polymorph states
-- ⚔️ Turn-based stamina combat system
-- 🐸 Polymorph mechanic affecting gameplay across rooms
-- 🐉 Dynamic enemy AI (e.g., dragon state, Beholder rays)
-- 🧩 Puzzles and interaction without alerts
-- 📱 Fully responsive + PWA support (installable on phone)
-- 🌙 Fantasy-themed art & animations
+Enemy behavior is stateful and partly randomized, including dodges, attack selection, and the dragon wake outcome.
 
----
+## 📱 Presentation and accessibility
 
-## 🛠️ Tech Stack
+- Designed for phones in landscape. On touch devices held in portrait, a rotate prompt covers the game without losing progress.
+- On desktop the game renders as a centered, scaled stage that keeps the landscape composition.
+- Real buttons, visible focus, keyboard support, focus handling for overlays, and `prefers-reduced-motion` support.
+- Room music that starts after the first interaction, with a mute toggle.
 
-- **React** (Vite or CRA)
-- **JavaScript / JSX**
-- **CSS Modules** for scoped styles
-- **Service Workers** for offline support
-- **Mobile-first design**
-- **Modular architecture** (rooms, cards, characters split logically)
+## 🛠️ Tech stack
 
----
+- React 19 with JavaScript (JSX)
+- Vite 7
+- CSS Modules plus shared global CSS
+- `vite-plugin-pwa` (Workbox) for the web app manifest and service worker
+- Self-hosted fonts (Metal Mania and Quintessential, WOFF2, SIL Open Font License)
+- ESLint
 
-## 🧑‍💻 Running Locally
+There is no backend. All game assets (backgrounds, sprites, audio, fonts) are served locally from `public/`.
 
-1. **Clone the repo**
+## 📦 PWA and offline support
+
+The build generates a web app manifest and a Workbox service worker:
+
+- The app shell, icons, fonts, the title painting and the intro texture are precached.
+- Backgrounds, sprites and treasure art are cached at runtime (stale-while-revalidate).
+- Music is cached at runtime (cache-first) with Range request support, so installed copies do not re-stream tracks.
+
+Offline play and installability have been verified against local production builds. Checks on real installed devices over the final HTTPS deployment are still to come.
+
+## 🧑‍💻 Running locally
+
+Requires a Node.js version supported by Vite 7 (Node 20.19+ or 22.12+).
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
-cd YOUR_REPO_NAME
-
-2. **Install Dependencies**
+git clone https://github.com/adherlycisneros/shadowbane-oath-of-fire.git
+cd shadowbane-oath-of-fire
 npm install
-
-3. **Run the development sever**
-npm run dev 
-# or if using CRA
-npm start
-
-4. **Build for production**
-npm run build
+npm run dev
 ```
 
-### Stale content during development (service worker)
+Other scripts:
 
-Local development registers a minimal service worker so the PWA manifest and install
-metadata can be tested with `npm run dev`. Service-worker caching can make an older local
-build appear to still be running. If changes look stale (old JavaScript, old UI, old icons or
-old manifest data), check the worker before assuming the application code is broken:
+```bash
+npm run build     # production build in dist/
+npm run preview   # serve the production build locally
+npm run lint      # ESLint
+```
+
+Use `npm run build` and `npm run preview` when testing PWA behavior. The development server is useful for day-to-day work, but it is not a faithful test of production caching.
+
+### Stale content during development
+
+`npm run dev` also registers a development service worker so the manifest and install metadata can be tested. That worker can make an older build look like it is still running. If JavaScript, UI, icons or manifest data look stale:
 
 1. Open Chrome DevTools.
 2. Go to **Application → Service Workers**.
 3. Enable **Update on reload**, or unregister the development service worker.
-4. If needed, go to **Application → Storage**, clear the site's stored data, and reload.
+4. If needed, go to **Application → Storage**, clear site data, and reload.
+
+## About this edition
+
+Shadowbane began as a fantasy game made as a gift for the developer's partner and was later adapted into this standalone portfolio edition.
+
+## License
+
+Code is released under the [MIT License](LICENSE). The bundled fonts are licensed under the SIL Open Font License; see the license files in `public/assets/fonts/`.
